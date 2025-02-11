@@ -12,4 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05e32a8843587724d964d180faccb2cc, type: 3}
   m_Name: EnumToObjectDatabase
   m_EditorClassIdentifier: 
-  Mappings: []
+  Mappings:
+  - Type: 0
+    Prefab: {fileID: 2386069781291026511, guid: c8b49b9e92e758a4389924aee8a99603,
+      type: 3}

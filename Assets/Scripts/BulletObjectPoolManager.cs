@@ -11,7 +11,7 @@ public class BulletObjectPoolManager : MonoBehaviour
     [SerializeField] private int _maxCount = 200;
     [SerializeField] private EnumToObjectDatabase _objectDatabase;
 
-    private Dictionary<BulletTypeEnum, ObjectPool<PooledAttackBase>> _objectPoolDict;
+    private readonly Dictionary<BulletTypeEnum, ObjectPool<PooledAttackBase>> _objectPoolDict = new();
     private void Start()
     {
         InitPool();
