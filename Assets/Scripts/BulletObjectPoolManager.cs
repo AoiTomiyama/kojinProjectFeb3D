@@ -12,16 +12,10 @@ public class BulletObjectPoolManager : MonoBehaviour
     [SerializeField] private EnumToObjectDatabase _objectDatabase;
 
     private Dictionary<BulletTypeEnum, ObjectPool<BulletAttackBase>> _objectPoolDict;
-    public Dictionary<BulletTypeEnum, ObjectPool<BulletAttackBase>> ObjectPoolDict
-    {
-        get => _objectPoolDict;
-    }
-
     private void Start()
     {
         InitPool();
     }
-
     private void InitPool()
     {
         var mappings = _objectDatabase.Mappings;
@@ -55,4 +49,8 @@ public class BulletObjectPoolManager : MonoBehaviour
     private void OnGetFromPool(BulletAttackBase parameter) => parameter.gameObject.SetActive(true);
     private void OnReleaseToPool(BulletAttackBase parameter) => parameter.gameObject.SetActive(false);
     private void OnDisposePoolObject(BulletAttackBase parameter) => Destroy(parameter.gameObject);
+
+    public BulletAttackBase Get(BulletTypeEnum type) => _objectPoolDict[type].Get();
+    public void Release(BulletTypeEnum type, BulletAttackBase component) => _objectPoolDict[type].Release(component);
+
 }

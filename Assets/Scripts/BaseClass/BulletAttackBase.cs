@@ -10,4 +10,8 @@ public abstract class BulletAttackBase : MonoBehaviour
     /// オブジェクトプールに戻す際に実行するデリゲート
     /// </summary>
     public Action OnReturnToPool { get; set; }
+    /// <summary>
+    /// 弾のパラメーター
+    /// </summary>
+    public BulletParameter Parameter { get; set; }
 }
