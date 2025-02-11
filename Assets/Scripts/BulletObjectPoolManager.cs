@@ -11,7 +11,7 @@ public class BulletObjectPoolManager : MonoBehaviour
     [SerializeField] private int _maxCount = 200;
     [SerializeField] private EnumToObjectDatabase _objectDatabase;
 
-    private Dictionary<BulletTypeEnum, ObjectPool<BulletAttackBase>> _objectPoolDict;
+    private Dictionary<BulletTypeEnum, ObjectPool<PooledAttackBase>> _objectPoolDict;
     private void Start()
     {
         InitPool();
@@ -21,12 +21,12 @@ public class BulletObjectPoolManager : MonoBehaviour
         var mappings = _objectDatabase.Mappings;
         foreach (var pair in mappings)
         {
-            _objectPoolDict[pair.Type] = new ObjectPool<BulletAttackBase>(
+            _objectPoolDict[pair.Type] = new ObjectPool<PooledAttackBase>(
                 () =>
                 {
                     // pairに沿ったプレハブをインスタンス化したいのでラムダ式を用いる。
                     var bullet = Instantiate(_objectDatabase.GetGameObject(pair.Type), transform);
-                    var component = bullet.GetComponent<BulletAttackBase>();
+                    var component = bullet.GetComponent<PooledAttackBase>();
                     component.OnReturnToPool += () => _objectPoolDict[pair.Type].Release(component);
                     return component;
                 },
@@ -34,7 +34,7 @@ public class BulletObjectPoolManager : MonoBehaviour
                 true, _initCount, _maxCount
                 );
             // プールを満たしておくため予め生成しておく
-            var list = new List<BulletAttackBase>();
+            var list = new List<PooledAttackBase>();
             for (int i = 0; i < _initCount; i++)
             {
                 var component = _objectPoolDict[pair.Type].Get();
@@ -46,11 +46,11 @@ public class BulletObjectPoolManager : MonoBehaviour
             }
         }
     }
-    private void OnGetFromPool(BulletAttackBase parameter) => parameter.gameObject.SetActive(true);
-    private void OnReleaseToPool(BulletAttackBase parameter) => parameter.gameObject.SetActive(false);
-    private void OnDisposePoolObject(BulletAttackBase parameter) => Destroy(parameter.gameObject);
+    private void OnGetFromPool(PooledAttackBase parameter) => parameter.gameObject.SetActive(true);
+    private void OnReleaseToPool(PooledAttackBase parameter) => parameter.gameObject.SetActive(false);
+    private void OnDisposePoolObject(PooledAttackBase parameter) => Destroy(parameter.gameObject);
 
-    public BulletAttackBase Get(BulletTypeEnum type) => _objectPoolDict[type].Get();
-    public void Release(BulletTypeEnum type, BulletAttackBase component) => _objectPoolDict[type].Release(component);
+    public PooledAttackBase Get(BulletTypeEnum type) => _objectPoolDict[type].Get();
+    public void Release(BulletTypeEnum type, PooledAttackBase component) => _objectPoolDict[type].Release(component);
 
 }
