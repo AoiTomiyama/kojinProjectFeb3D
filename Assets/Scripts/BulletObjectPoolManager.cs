@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -7,34 +9,50 @@ public class BulletObjectPoolManager : MonoBehaviour
     [Header("オブジェクトプールの設定")]
     [SerializeField] private int _initCount = 50;
     [SerializeField] private int _maxCount = 200;
-    [SerializeField] private GameObject _bulletObj;
+    [SerializeField] private EnumToObjectDatabase _objectDatabase;
 
-    private IObjectPool<BulletParameter> _objectPool;
+    private Dictionary<BulletTypeEnum, ObjectPool<BulletAttackBase>> _objectPoolDict;
+    public Dictionary<BulletTypeEnum, ObjectPool<BulletAttackBase>> ObjectPoolDict
+    {
+        get => _objectPoolDict;
+    }
+
     private void Start()
     {
-        _objectPool = new ObjectPool<BulletParameter>(
-            OnInitializePoolObject, OnGetFromPool, OnReleaseToPool, OnDisposePoolObject,
-            true, _initCount, _maxCount
-            );
-        var list = new List<BulletParameter>();
-        for (int i = 0; i < _initCount; i++)
-        {
-            var component = _objectPool.Get();
-            list.Add(component);
-        }
-        foreach (var component in list)
-        {
-            _objectPool.Release(component);
-        }
+        InitPool();
     }
-    private BulletParameter OnInitializePoolObject()
+
+    private void InitPool()
     {
-        var bullet = Instantiate(_bulletObj, transform);
-        var component = bullet.GetComponent<BulletParameter>();
-        component.OnReturnToPool += () => _objectPool.Release(component);
-        return component;
+        var mappings = _objectDatabase.Mappings;
+        foreach (var pair in mappings)
+        {
+            _objectPoolDict[pair.Type] = new ObjectPool<BulletAttackBase>(
+                () =>
+                {
+                    // pairに沿ったプレハブをインスタンス化したいのでラムダ式を用いる。
+                    var bullet = Instantiate(_objectDatabase.GetGameObject(pair.Type), transform);
+                    var component = bullet.GetComponent<BulletAttackBase>();
+                    component.OnReturnToPool += () => _objectPoolDict[pair.Type].Release(component);
+                    return component;
+                },
+                OnGetFromPool, OnReleaseToPool, OnDisposePoolObject,
+                true, _initCount, _maxCount
+                );
+            // プールを満たしておくため予め生成しておく
+            var list = new List<BulletAttackBase>();
+            for (int i = 0; i < _initCount; i++)
+            {
+                var component = _objectPoolDict[pair.Type].Get();
+                list.Add(component);
+            }
+            foreach (var component in list)
+            {
+                _objectPoolDict[pair.Type].Release(component);
+            }
+        }
     }
-    private void OnGetFromPool(BulletParameter parameter) => parameter.gameObject.SetActive(true);
-    private void OnReleaseToPool(BulletParameter parameter) => parameter.gameObject.SetActive(false);
-    private void OnDisposePoolObject(BulletParameter parameter) => Destroy(parameter.gameObject);
+    private void OnGetFromPool(BulletAttackBase parameter) => parameter.gameObject.SetActive(true);
+    private void OnReleaseToPool(BulletAttackBase parameter) => parameter.gameObject.SetActive(false);
+    private void OnDisposePoolObject(BulletAttackBase parameter) => Destroy(parameter.gameObject);
 }

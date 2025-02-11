@@ -1,6 +1,10 @@
 using System;
+using UnityEngine;
 
-public interface IPoolable
+/// <summary>
+/// 敵や自機から発射される弾の基底クラス。
+/// </summary>
+public abstract class BulletAttackBase : MonoBehaviour
 {
     /// <summary>
     /// オブジェクトプールに戻す際に実行するデリゲート
