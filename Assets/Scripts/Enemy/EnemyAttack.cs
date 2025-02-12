@@ -9,9 +9,7 @@ public class EnemyAttack : EnemyComponentBase
     [SerializeField, Header("拡散範囲"), Range(1, 180)] private int _spreadAngle;
     [SerializeField, Header("発射間隔")] private float _coolDown;
     [SerializeField, Header("再装填時間")] private float _reloadTime;
-    [SerializeField, Header("射程距離")] private float _shootDistance;
     [SerializeField, Header("弾の初期値")] private BulletParameter _bulletParameter;
-    [SerializeField] LayerMask _playerLayerMask;
 
     private BulletObjectPoolManager _poolManager;
     private CancellationTokenSource _cts;
@@ -23,19 +21,24 @@ public class EnemyAttack : EnemyComponentBase
     void Start()
     {
         _poolManager = FindAnyObjectByType<BulletObjectPoolManager>();
+        _remainBulletCount = _maxBulletCount;
         _cts = new CancellationTokenSource();
     }
     void Update()
     {
+        var isPlayerInRange = Physics.CheckSphere(transform.position, Core.ShootRange, Core.PlayerLayerIndex);
+
+        // 範囲内にプレイヤーが存在するかどうか
+        if (!isPlayerInRange) return;
+
+        // クールダウンを終えているか
+        if (!_isEnableToShoot) return;
+
+        // レイキャストを飛ばし、その命中先にプレイヤーがいたか
         var dir = (Core.Target.position - transform.position).normalized;
-        Debug.DrawLine(transform.position, transform.position + dir * _shootDistance, Color.blue);
         var ray = new Ray(transform.position, dir);
-        if (Physics.Raycast(ray, _shootDistance, _playerLayerMask))
+        if (Physics.Raycast(ray, out var hit, Core.ShootRange) && hit.collider.gameObject.layer == Core.PlayerLayerMask)
         {
-            if (!_isEnableToShoot)
-            {
-                return;
-            }
             Shoot();
 
             _isEnableToShoot = false;
@@ -93,9 +96,5 @@ public class EnemyAttack : EnemyComponentBase
             var dir = Quaternion.AngleAxis(angle, Vector3.up) * transform.parent.forward;
             Gizmos.DrawLine(transform.position, transform.position + dir * 10);
         }
-
-        // 射程距離
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, _shootDistance);
     }
 }
