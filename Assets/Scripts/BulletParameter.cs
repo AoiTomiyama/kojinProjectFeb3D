@@ -7,16 +7,24 @@ using UnityEngine;
 [Serializable]
 public struct BulletParameter
 {
+    [Header("’e‚ÌˆÐ—Í")]
     public int Damage;
+
+    [Header("’e‚Ì‘¬“x")]
     public float Speed;
-    [SerializeField, Range(1f, 100f)]
+
+    [SerializeField, Header("’e‚Ì‘ØÝŽžŠÔ"), Range(1f, 100f)]
     private float duration;
+
+    [Header("’e‚ÌŠÑ’Ê‰ñ”")]
     public int PiercingCount;
+
+    [Header("’e‚Ì”½ŽË‰ñ”")]
     public int RicochetCount;
 
     public float Duration 
     {
-        get => Mathf.Max(1f, duration); 
+        get => duration; 
         set => duration = Mathf.Max(1f, value); 
     }
 }
