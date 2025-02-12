@@ -1,22 +1,25 @@
 using Cysharp.Threading.Tasks;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Threading;
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody))]
 public class PlayerBullet : PooledAttackBase
 {
     private CancellationTokenSource _cts;
-    private void OnEnable()
+    private Rigidbody _rb;
+    private int _hitCount;
+    public override void OnInitialize()
     {
-        _cts = new();
+        _rb = GetComponent<Rigidbody>();
+    }
+    public override void OnGetFromPool()
+    {
+        _cts = new CancellationTokenSource();
         CancellationToken token = _cts.Token;
         WaitAndDisposeSelfAsync(token);
-    }
-    private void Update()
-    {
-        transform.position += Parameter.Speed * Time.deltaTime * transform.forward;
+
+        _rb.velocity = Parameter.Speed * transform.forward;
+        _hitCount = 0;
     }
     private async void WaitAndDisposeSelfAsync(CancellationToken token)
     {
@@ -32,8 +35,16 @@ public class PlayerBullet : PooledAttackBase
         _cts?.Cancel();
         _cts?.Dispose();
     }
-    private void OnTriggerEnter(Collider other)
+    private void OnCollisionEnter(Collision collision)
     {
-        
+        _hitCount++;
+        if (_hitCount > Parameter.RicochetCount)
+        {
+            OnReturnToPool?.Invoke();
+        }
+        if (collision.gameObject.TryGetComponent<IDamageable>(out var component))
+        {
+            component.Damage(Parameter.Damage);
+        }
     }
 }
