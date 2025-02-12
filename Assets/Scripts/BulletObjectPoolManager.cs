@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -27,6 +25,7 @@ public class BulletObjectPoolManager : MonoBehaviour
                     // pairに沿ったプレハブをインスタンス化したいのでラムダ式を用いる。
                     var bullet = Instantiate(_objectDatabase.GetGameObject(pair.Type), transform);
                     var component = bullet.GetComponent<PooledAttackBase>();
+                    component.OnInitialize();
                     component.OnReturnToPool += () => _objectPoolDict[pair.Type].Release(component);
                     return component;
                 },

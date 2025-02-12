@@ -1,8 +1,5 @@
 using Cysharp.Threading.Tasks;
-using System.Collections;
-using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 using UnityEngine;
 
 public class PlayerAttack : MonoBehaviour
@@ -13,7 +10,7 @@ public class PlayerAttack : MonoBehaviour
     [SerializeField, Header("弾の初期値")] private BulletParameter _bulletParameter;
 
     private BulletObjectPoolManager _poolManager;
-    private CancellationTokenSource _cts = new();
+    private CancellationTokenSource _cts;
     private int _remainBulletCount;
     private bool _isPressedShootButton;
     private bool _isEnableToShoot = true;
@@ -22,6 +19,7 @@ public class PlayerAttack : MonoBehaviour
     {
         _poolManager = FindAnyObjectByType<BulletObjectPoolManager>();
         _remainBulletCount = _maxBulletCount;
+        _cts = new CancellationTokenSource();
     }
     void Update()
     {
@@ -34,7 +32,8 @@ public class PlayerAttack : MonoBehaviour
 
             _remainBulletCount--;
             _isEnableToShoot = false;
-            WaitShootCooldownAsync(_cts.Token);
+            CancellationToken token = _cts.Token;
+            WaitShootCooldownAsync(token);
         }
     }
 
@@ -61,5 +60,7 @@ public class PlayerAttack : MonoBehaviour
         bullet.Parameter = _bulletParameter;
         bullet.gameObject.transform.position = transform.position;
         bullet.gameObject.transform.forward = transform.parent.forward;
+        // パラメーターを設定してから初期化処理を行う。
+        bullet.OnGetFromPool();
     }
 }
