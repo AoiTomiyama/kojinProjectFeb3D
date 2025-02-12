@@ -1,18 +1,20 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyCore : MonoBehaviour
+public class EnemyCore : MonoBehaviour, IDamageable
 {
-    // Start is called before the first frame update
+    public int MaxHealth;
+    private int _health;
+    private Transform _target;
+
+    public int Health { get => _health; set => _health = value; }
+    public Transform Target { get => _target; set => _target = value; }
+
     void Start()
     {
-        
+        _target = FindAnyObjectByType<PlayerCore>().transform;
     }
-
-    // Update is called once per frame
-    void Update()
+    public void Damage(int damageAmount)
     {
-        
+        _health -= damageAmount;
     }
 }
