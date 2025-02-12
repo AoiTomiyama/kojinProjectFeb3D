@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class PlayerAttack : MonoBehaviour
 {
-    [SerializeField, Header("Å‘å’e”")] private int _maxBulletCount;
+    [SerializeField, Header("Å‘å‘•’e”")] private int _maxBulletCount;
+    [SerializeField, Header("“¯”­Ë”")] private int _synchronousBulletCount;
+    [SerializeField, Header("ŠgU”ÍˆÍ"), Range(1, 180)] private int _spreadAngle;
     [SerializeField, Header("”­ËŠÔŠu")] private float _coolDown;
     [SerializeField, Header("Ä‘•“UŠÔ")] private float _reloadTime;
     [SerializeField, Header("’e‚Ì‰Šú’l")] private BulletParameter _bulletParameter;
@@ -30,7 +32,6 @@ public class PlayerAttack : MonoBehaviour
         {
             Shoot();
 
-            _remainBulletCount--;
             _isEnableToShoot = false;
             CancellationToken token = _cts.Token;
             WaitShootCooldownAsync(token);
@@ -56,11 +57,35 @@ public class PlayerAttack : MonoBehaviour
 
     private void Shoot()
     {
-        var bullet = _poolManager.Get(BulletTypeEnum.PlayerBullet);
-        bullet.Parameter = _bulletParameter;
-        bullet.gameObject.transform.position = transform.position;
-        bullet.gameObject.transform.forward = transform.parent.forward;
-        // ƒpƒ‰ƒ[ƒ^[‚ğİ’è‚µ‚Ä‚©‚ç‰Šú‰»ˆ—‚ğs‚¤B
-        bullet.OnGetFromPool();
+        var th = 1f * _spreadAngle / (_synchronousBulletCount + 1);
+
+        for (int i = 1; i <= _synchronousBulletCount; i++)
+        {
+            var bullet = _poolManager.Get(BulletTypeEnum.PlayerBullet);
+            bullet.Parameter = _bulletParameter;
+            bullet.gameObject.transform.position = transform.position;
+
+            var angle = _spreadAngle / 2f - i * th;
+            var dir = Quaternion.AngleAxis(angle, Vector3.up) * transform.parent.forward;
+            bullet.gameObject.transform.forward = dir;
+            // ƒpƒ‰ƒ[ƒ^[‚ğİ’è‚µ‚Ä‚©‚ç‰Šú‰»ˆ—‚ğs‚¤B
+            bullet.OnGetFromPool();
+
+            _remainBulletCount--;
+            if (_remainBulletCount == 0) return;
+        }
+    }
+    private void OnDrawGizmos()
+    {
+        // ’e‚Ì”­Ë—\‘ªü
+        Gizmos.color = Color.yellow;
+        float th = 1f * _spreadAngle / (_synchronousBulletCount + 1f);
+
+        for (int i = 1; i <= _synchronousBulletCount; i++)
+        {
+            var angle = _spreadAngle / 2f - i * th;
+            var dir = Quaternion.AngleAxis(angle, Vector3.up) * transform.parent.forward;
+            Gizmos.DrawLine(transform.position, transform.position + dir * 10);
+        }
     }
 }
