@@ -1,12 +1,15 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
-public class PlayerMove : MonoBehaviour
+public class PlayerMove : PlayerComponentBase
 {
     Rigidbody _rb;
     Transform _camera;
     [SerializeField] private float _speed;
     [SerializeField] private Transform _lookAt;
+
+    public float SpeedBoost { get; set; }
+
     void Start()
     {
         _rb = GetComponent<Rigidbody>();

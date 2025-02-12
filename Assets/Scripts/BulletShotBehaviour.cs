@@ -3,7 +3,7 @@ using System.Threading;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
-public class PlayerBullet : PooledAttackBase
+public class BulletShotBehaviour : PooledAttackBase
 {
     private CancellationTokenSource _cts;
     private Rigidbody _rb;

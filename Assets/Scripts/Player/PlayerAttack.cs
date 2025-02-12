@@ -2,7 +2,7 @@ using Cysharp.Threading.Tasks;
 using System.Threading;
 using UnityEngine;
 
-public class PlayerAttack : MonoBehaviour
+public class PlayerAttack : PlayerComponentBase
 {
     [SerializeField, Header("Å‘å‘•’e”")] private int _maxBulletCount;
     [SerializeField, Header("“¯”­Ë”")] private int _synchronousBulletCount;
@@ -16,6 +16,8 @@ public class PlayerAttack : MonoBehaviour
     private int _remainBulletCount;
     private bool _isPressedShootButton;
     private bool _isEnableToShoot = true;
+    
+    public int DamageBoost { get; set; }
 
     void Start()
     {
