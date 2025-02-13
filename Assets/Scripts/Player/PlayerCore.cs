@@ -13,7 +13,7 @@ public class PlayerCore : MonoBehaviour, IDamageable
     public Action OnHealthChanged;
 
     [Header("Å‘å‘Ì—Í")]
-    public int MaxHealth;
+    private int _maxHealth;
     private int _health;
     public int Health
     {
@@ -22,6 +22,16 @@ public class PlayerCore : MonoBehaviour, IDamageable
         {
             _health = value;
             OnHealthChanged?.Invoke();
+        }
+    }
+
+    public int MaxHealth 
+    {
+        get => _maxHealth;
+        set
+        {
+            _maxHealth = value;
+            _health = value;
         }
     }
 

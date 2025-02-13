@@ -11,6 +11,7 @@ public class PlayerAttack : PlayerComponentBase
     [SerializeField, Header("発射間隔")] private float _coolDown;
     [SerializeField, Header("再装填時間")] private float _reloadTime;
     [SerializeField, Header("弾の初期値")] private BulletParameter _bulletParameter;
+    [SerializeField, Header("発射口")] private Transform _muzzle;
 
     private BulletObjectPoolManager _poolManager;
     private LevelUpSystemManager _lvUpManager;
@@ -34,11 +35,21 @@ public class PlayerAttack : PlayerComponentBase
         }
     }
 
+    public int MaxBulletCount 
+    {
+        get => _maxBulletCount;
+        set
+        {
+            _maxBulletCount = value;
+            _remainBulletCount = value;
+        }
+    }
+
     void Start()
     {
         _poolManager = FindAnyObjectByType<BulletObjectPoolManager>();
         _lvUpManager = FindAnyObjectByType<LevelUpSystemManager>();
-        RemainBulletCount = _maxBulletCount;
+        RemainBulletCount = MaxBulletCount;
         _cts = new CancellationTokenSource();
     }
     void Update()
@@ -54,6 +65,23 @@ public class PlayerAttack : PlayerComponentBase
             CancellationToken token = _cts.Token;
             WaitShootCooldownAsync(token);
         }
+    }
+    public void ApplyPowerUp(PowerUpParameter powerUp)
+    {
+        Core.MaxHealth += powerUp.MaxHealthAdd;
+        Core.MaxHealth = (int)(Core.MaxHealth * powerUp.MaxHealthMultiply);
+        Core.Move.Speed *= powerUp.MoveSpeedMultiply;
+        _bulletParameter.Damage += powerUp.DamageAdd;
+        _bulletParameter.Damage = (int)(_bulletParameter.Damage * powerUp.DamageMultiply);
+        _bulletParameter.RicochetCount += powerUp.RicochetAdd;
+        _bulletParameter.Speed += powerUp.SpeedAdd;
+        _bulletParameter.Speed *= powerUp.SpeedMultiply;
+        _coolDown += powerUp.CoolTimeAdd;
+        _coolDown *= powerUp.CoolTimeMultiply;
+        _reloadTime += powerUp.ReloadTimeAdd;
+        _reloadTime *= powerUp.ReloadTimeMultiply;
+        MaxBulletCount += powerUp.MaxAmmoSizeAdd;
+        _synchronousBulletCount += powerUp.SyncBulletAdd;
     }
 
     private async void WaitShootCooldownAsync(CancellationToken token)
@@ -72,7 +100,7 @@ public class PlayerAttack : PlayerComponentBase
             .SuppressCancellationThrow();
         if (isCancelled) return;
         
-        if (RemainBulletCount <= 0) RemainBulletCount = _maxBulletCount;
+        if (RemainBulletCount <= 0) RemainBulletCount = MaxBulletCount;
 
         _isEnableToShoot = true;
     }
@@ -90,10 +118,10 @@ public class PlayerAttack : PlayerComponentBase
         {
             var bullet = _poolManager.Get(BulletTypeEnum.PlayerBullet);
             bullet.Parameter = _bulletParameter;
-            bullet.gameObject.transform.position = transform.position;
+            bullet.gameObject.transform.position = _muzzle.position;
 
             var angle = _spreadAngle / 2f - i * th;
-            var dir = Quaternion.AngleAxis(angle, Vector3.up) * transform.parent.forward;
+            var dir = Quaternion.AngleAxis(angle, Vector3.up) * transform.forward;
             bullet.gameObject.transform.forward = dir;
             // パラメーターを設定してから初期化処理を行う。
             bullet.OnGetFromPool();
@@ -111,7 +139,7 @@ public class PlayerAttack : PlayerComponentBase
         for (int i = 1; i <= _synchronousBulletCount; i++)
         {
             var angle = _spreadAngle / 2f - i * th;
-            var dir = Quaternion.AngleAxis(angle, Vector3.up) * transform.parent.forward;
+            var dir = Quaternion.AngleAxis(angle, Vector3.up) * transform.forward;
             Gizmos.DrawLine(transform.position, transform.position + dir * 10);
         }
     }

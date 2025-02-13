@@ -9,7 +9,7 @@ public class PlayerMove : PlayerComponentBase
     [SerializeField] private float _speed;
     [SerializeField] private Transform _lookAt;
 
-    public float SpeedBoost { get; set; }
+    public float Speed { get => _speed; set => _speed = value; }
 
     void Start()
     {
@@ -46,6 +46,6 @@ public class PlayerMove : PlayerComponentBase
         var h = Input.GetAxisRaw("Horizontal");
         var v = Input.GetAxisRaw("Vertical");
         var dir = (forward * v + right * h).normalized;
-        _rb.AddForce(_speed * Time.deltaTime * dir);
+        _rb.AddForce(Speed * Time.deltaTime * dir);
     }
 }
