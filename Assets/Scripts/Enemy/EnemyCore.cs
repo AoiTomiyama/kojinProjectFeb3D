@@ -9,6 +9,7 @@ public class EnemyCore : MonoBehaviour, IDamageable
     private int _playerLayerIndex;
     public Action OnHealthChanged;
     private Action<int> OnDeath;
+    public UnityEvent OnDied;
 
     [SerializeField, Header("死亡時のエフェクト")]
     private GameObject _deathEffect;
@@ -51,7 +52,8 @@ public class EnemyCore : MonoBehaviour, IDamageable
         Health -= damageAmount;
         if (Health <= 0)
         {
-            OnDeath?.Invoke(_expAmount);
+            OnDeath?.Invoke(_expAmount); 
+            OnDied?.Invoke();
             Instantiate(_deathEffect, transform.position, Quaternion.identity);
             gameObject.SetActive(false);
         }

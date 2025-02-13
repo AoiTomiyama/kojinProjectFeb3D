@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class PlayerCore : MonoBehaviour, IDamageable
 {
@@ -11,8 +12,12 @@ public class PlayerCore : MonoBehaviour, IDamageable
     public PlayerAttack Attack { get => _attack; }
 
     public Action OnHealthChanged;
+    public UnityEvent OnDied;
 
-    [Header("最大体力")]
+    [SerializeField, Header("死亡時のエフェクト")]
+    private GameObject _deathEffect;
+
+    [SerializeField, Header("最大体力")]
     private int _maxHealth;
     private int _health;
     public int Health
@@ -45,5 +50,11 @@ public class PlayerCore : MonoBehaviour, IDamageable
     public void Damage(int damageAmount)
     {
         Health -= damageAmount;
+        if (Health <= 0)
+        {
+            Instantiate(_deathEffect, transform.position, Quaternion.identity);
+            OnDied?.Invoke();
+            gameObject.SetActive(false);
+        }
     }
 }

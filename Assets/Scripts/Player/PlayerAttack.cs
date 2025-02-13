@@ -40,8 +40,8 @@ public class PlayerAttack : PlayerComponentBase
         get => _maxBulletCount;
         set
         {
-            _maxBulletCount = value;
-            _remainBulletCount = value;
+            _maxBulletCount = Mathf.Max(1, value);
+            _remainBulletCount = _maxBulletCount;
         }
     }
 
@@ -82,6 +82,8 @@ public class PlayerAttack : PlayerComponentBase
         _reloadTime *= powerUp.ReloadTimeMultiply;
         MaxBulletCount += powerUp.MaxAmmoSizeAdd;
         _synchronousBulletCount += powerUp.SyncBulletAdd;
+
+        OnAmmoCountChanged?.Invoke(_remainBulletCount);
     }
 
     private async void WaitShootCooldownAsync(CancellationToken token)

@@ -2,6 +2,7 @@ using Cysharp.Threading.Tasks;
 using System.Threading;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 
 [RequireComponent(typeof(Rigidbody))]
 public class BulletShotBehaviour : PooledAttackBase
@@ -13,12 +14,18 @@ public class BulletShotBehaviour : PooledAttackBase
     private GameObject _hitParticle;
     [SerializeField, Header("ダメージ表記")]
     private GameObject _damageText;
+    [SerializeField]
+    private AudioClip _shootClip;
+    private AudioSource _aus;
     public override void OnInitialize()
     {
         _rb = GetComponent<Rigidbody>();
+        _aus = GameObject.Find("SE").GetComponent<AudioSource>();
     }
     public override void OnGetFromPool()
     {
+        _aus.PlayOneShot(_shootClip);
+        
         _cts = new CancellationTokenSource();
         CancellationToken token = _cts.Token;
         WaitAndDisposeSelfAsync(token);
