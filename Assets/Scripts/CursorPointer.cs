@@ -6,10 +6,6 @@ public class CursorPointer : MonoBehaviour
 {
     [SerializeField] LayerMask mask;
     [SerializeField] float _raycastMaxDistance;
-    private void Start()
-    {
-        Cursor.visible = false;
-    }
     void Update()
     {
         var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
