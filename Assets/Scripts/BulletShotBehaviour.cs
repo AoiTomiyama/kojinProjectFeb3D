@@ -8,6 +8,8 @@ public class BulletShotBehaviour : PooledAttackBase
     private CancellationTokenSource _cts;
     private Rigidbody _rb;
     private int _hitCount;
+    [SerializeField, Header("衝突時のエフェクト")] 
+    private GameObject _hitParticle;
     public override void OnInitialize()
     {
         _rb = GetComponent<Rigidbody>();
@@ -37,6 +39,7 @@ public class BulletShotBehaviour : PooledAttackBase
     }
     private void OnCollisionEnter(Collision collision)
     {
+        Instantiate(_hitParticle, transform.position, Quaternion.identity);
         _hitCount++;
         if (_hitCount > Parameter.RicochetCount)
         {

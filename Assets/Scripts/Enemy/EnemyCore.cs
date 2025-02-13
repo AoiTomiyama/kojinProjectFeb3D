@@ -1,15 +1,31 @@
+using System;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class EnemyCore : MonoBehaviour, IDamageable
 {
-    public int MaxHealth;
-    private int _health;
     private Transform _target;
     private int _playerLayer;
     private int _playerLayerIndex;
-    [SerializeField, Header("射程距離")] private float _shootRange;
+    public Action OnHealthChanged;
+    [SerializeField, Header("死亡時のエフェクト")]
+    private GameObject _deathEffect;
 
-    public int Health { get => _health; set => _health = value; }
+    [SerializeField, Header("射程距離")] 
+    private float _shootRange;
+
+    [Header("最大体力")]
+    public int MaxHealth;
+    private int _health;
+    public int Health
+    {
+        get => _health;
+        set
+        {
+            _health = value;
+            OnHealthChanged?.Invoke();
+        }
+    }
     public Transform Target { get => _target; }
     public int PlayerLayerMask { get => _playerLayer; }
     public int PlayerLayerIndex { get => _playerLayerIndex; }
@@ -17,13 +33,18 @@ public class EnemyCore : MonoBehaviour, IDamageable
 
     void Start()
     {
-        _health = MaxHealth;
+        Health = MaxHealth;
         _target = FindAnyObjectByType<PlayerCore>().transform;
         _playerLayer = _target.gameObject.layer;
         _playerLayerIndex = 1 << _playerLayer;
     }
     public void Damage(int damageAmount)
     {
-        _health -= damageAmount;
+        Health -= damageAmount;
+        if (Health <= 0)
+        {
+            Instantiate(_deathEffect, transform.position, Quaternion.identity);
+            Destroy(gameObject);
+        }
     }
 }

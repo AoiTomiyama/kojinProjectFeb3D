@@ -4,7 +4,8 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshAgent))]
 public class EnemyMove : EnemyComponentBase
 {
-    [SerializeField, Header("Š´’m”ÍˆÍ")] private float _detectRange;
+    [SerializeField, Header("Š´’m”ÍˆÍ")] 
+    private float _detectRange;
     NavMeshAgent _agent;
     bool _playerIsInDetectRange;
     private void Start()

@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using System;
 using System.Threading;
 using UnityEngine;
 
@@ -16,13 +17,26 @@ public class PlayerAttack : PlayerComponentBase
     private int _remainBulletCount;
     private bool _isPressedShootButton;
     private bool _isEnableToShoot = true;
+
+    public Action<int> OnAmmoCountChanged;
+    public Action<float> OnReloadBegin;
+    public Action<float> OnCoolDownBegin;
     
     public int DamageBoost { get; set; }
+    public int RemainBulletCount 
+    {
+        get => _remainBulletCount;
+        set
+        {
+            _remainBulletCount = value;
+            OnAmmoCountChanged?.Invoke(value);
+        }
+    }
 
     void Start()
     {
         _poolManager = FindAnyObjectByType<BulletObjectPoolManager>();
-        _remainBulletCount = _maxBulletCount;
+        RemainBulletCount = _maxBulletCount;
         _cts = new CancellationTokenSource();
     }
     void Update()
@@ -42,12 +56,21 @@ public class PlayerAttack : PlayerComponentBase
 
     private async void WaitShootCooldownAsync(CancellationToken token)
     {
-        var waitTime = (_remainBulletCount <= 0) ? _reloadTime : _coolDown;
+        if (RemainBulletCount <= 0)
+        {
+            OnReloadBegin?.Invoke(_reloadTime);
+        }
+        else
+        {
+            OnCoolDownBegin?.Invoke(_coolDown);
+        }
+
+        var waitTime = (RemainBulletCount <= 0) ? _reloadTime : _coolDown;
         bool isCancelled = await UniTask.Delay((int)(1000 * waitTime), cancellationToken: token)
             .SuppressCancellationThrow();
         if (isCancelled) return;
-
-        if (_remainBulletCount <= 0) _remainBulletCount = _maxBulletCount;
+        
+        if (RemainBulletCount <= 0) RemainBulletCount = _maxBulletCount;
 
         _isEnableToShoot = true;
     }
@@ -73,8 +96,8 @@ public class PlayerAttack : PlayerComponentBase
             // パラメーターを設定してから初期化処理を行う。
             bullet.OnGetFromPool();
 
-            _remainBulletCount--;
-            if (_remainBulletCount == 0) return;
+            RemainBulletCount--;
+            if (RemainBulletCount == 0) return;
         }
     }
     private void OnDrawGizmos()
