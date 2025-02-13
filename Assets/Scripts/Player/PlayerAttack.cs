@@ -13,6 +13,7 @@ public class PlayerAttack : PlayerComponentBase
     [SerializeField, Header("íeÇÃèâä˙íl")] private BulletParameter _bulletParameter;
 
     private BulletObjectPoolManager _poolManager;
+    private LevelUpSystemManager _lvUpManager;
     private CancellationTokenSource _cts;
     private int _remainBulletCount;
     private bool _isPressedShootButton;
@@ -36,6 +37,7 @@ public class PlayerAttack : PlayerComponentBase
     void Start()
     {
         _poolManager = FindAnyObjectByType<BulletObjectPoolManager>();
+        _lvUpManager = FindAnyObjectByType<LevelUpSystemManager>();
         RemainBulletCount = _maxBulletCount;
         _cts = new CancellationTokenSource();
     }
@@ -44,7 +46,7 @@ public class PlayerAttack : PlayerComponentBase
         if (Input.GetButtonDown("Fire")) _isPressedShootButton = true;
         if (Input.GetButtonUp("Fire")) _isPressedShootButton = false;
 
-        if (_isPressedShootButton && _isEnableToShoot)
+        if (_isPressedShootButton && _isEnableToShoot && !_lvUpManager.IsMenuActivated)
         {
             Shoot();
 

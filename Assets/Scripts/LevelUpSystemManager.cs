@@ -22,11 +22,16 @@ public class LevelUpSystemManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _killCountText;
     [SerializeField] private TextMeshProUGUI _tokenCountText;
     [SerializeField] private TextMeshProUGUI _pickUpgradeCountText;
+    [SerializeField] private Image _upgradePanel;
 
     [SerializeField, Header("次レベルに必要な経験値")]
     private List<int> _requireExpList = new List<int>();
 
     CancellationTokenSource _cts;
+
+    private bool _isMenuActivated;
+    public bool IsMenuActivated { get => _isMenuActivated; }
+
     private void Start()
     {
         _cts = new CancellationTokenSource();
@@ -62,6 +67,11 @@ public class LevelUpSystemManager : MonoBehaviour
         }
 
         _expBar.DOFillAmount(1f * _currentExp / _requireExpList[_currentLevel], 0.3f);
+    }
+    public void OpenCloseUpgradeMenu()
+    {
+        _isMenuActivated = !_isMenuActivated;
+        _upgradePanel.gameObject.SetActive(_isMenuActivated);
     }
 
     private void OnDisable()

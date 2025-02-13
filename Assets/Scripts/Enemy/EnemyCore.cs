@@ -53,7 +53,7 @@ public class EnemyCore : MonoBehaviour, IDamageable
         {
             OnDeath?.Invoke(_expAmount);
             Instantiate(_deathEffect, transform.position, Quaternion.identity);
-            Destroy(gameObject);
+            gameObject.SetActive(false);
         }
     }
 }
