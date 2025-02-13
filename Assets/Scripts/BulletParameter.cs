@@ -16,9 +16,6 @@ public struct BulletParameter
     [SerializeField, Header("’e‚Ì‘ØİŠÔ"), Range(1f, 100f)]
     private float duration;
 
-    [Header("’e‚ÌŠÑ’Ê‰ñ”")]
-    public int PiercingCount;
-
     [Header("’e‚Ì”½Ë‰ñ”")]
     public int RicochetCount;
 
