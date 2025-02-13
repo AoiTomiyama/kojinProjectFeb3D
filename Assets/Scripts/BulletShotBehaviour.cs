@@ -1,5 +1,6 @@
 using Cysharp.Threading.Tasks;
 using System.Threading;
+using TMPro;
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
@@ -10,6 +11,8 @@ public class BulletShotBehaviour : PooledAttackBase
     private int _hitCount;
     [SerializeField, Header("衝突時のエフェクト")] 
     private GameObject _hitParticle;
+    [SerializeField, Header("ダメージ表記")]
+    private GameObject _damageText;
     public override void OnInitialize()
     {
         _rb = GetComponent<Rigidbody>();
@@ -48,6 +51,8 @@ public class BulletShotBehaviour : PooledAttackBase
         if (collision.gameObject.TryGetComponent<IDamageable>(out var component))
         {
             component.Damage(Parameter.Damage);
+            var text = Instantiate(_damageText, transform.position, Quaternion.identity).GetComponent<TextMeshPro>();
+            text.text = Parameter.Damage.ToString();
         }
     }
 }
