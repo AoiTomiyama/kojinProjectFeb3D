@@ -63,8 +63,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: VFX_Trail_Dark
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedComponents:
+    - {fileID: 1616367920038817779, guid: ae6bdf3417a5d6047a559654858dac31, type: 3}
+    - {fileID: 8463718312656215405, guid: ae6bdf3417a5d6047a559654858dac31, type: 3}
+    m_RemovedGameObjects:
+    - {fileID: 3444501325320184230, guid: ae6bdf3417a5d6047a559654858dac31, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ae6bdf3417a5d6047a559654858dac31, type: 3}

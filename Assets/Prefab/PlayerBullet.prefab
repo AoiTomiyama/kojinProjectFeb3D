@@ -124,6 +124,7 @@ MonoBehaviour:
     type: 3}
   _damageText: {fileID: 70911880485094487, guid: 87437d517edf860419ced3998c3e9e13,
     type: 3}
+  _shootClip: {fileID: 8300000, guid: cca4d4a5df30a6b4993658576a51049d, type: 3}
 --- !u!54 &1986949669128884448
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -159,6 +160,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 446672900776131133}
     m_Modifications:
+    - target: {fileID: 460055281, guid: 664c64bbb000f5e428ca3b8f7e0ea923, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 221856605332452548, guid: 664c64bbb000f5e428ca3b8f7e0ea923,
         type: 3}
       propertyPath: m_LocalScale.x
@@ -234,8 +239,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: VFX_Trail_Void
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedComponents:
+    - {fileID: 8342350030541375371, guid: 664c64bbb000f5e428ca3b8f7e0ea923, type: 3}
+    - {fileID: 1215602319449978133, guid: 664c64bbb000f5e428ca3b8f7e0ea923, type: 3}
+    m_RemovedGameObjects:
+    - {fileID: 3406904650195689101, guid: 664c64bbb000f5e428ca3b8f7e0ea923, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 664c64bbb000f5e428ca3b8f7e0ea923, type: 3}

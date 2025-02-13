@@ -46,7 +46,7 @@ PrefabInstance:
     - target: {fileID: 2817885548481149084, guid: 691395a73e1e3044a9ec37646b52b7e0,
         type: 3}
       propertyPath: _bulletParameter.Damage
-      value: 3
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 2817885548481149084, guid: 691395a73e1e3044a9ec37646b52b7e0,
         type: 3}
@@ -137,12 +137,17 @@ PrefabInstance:
     - target: {fileID: 5904293127312889469, guid: 691395a73e1e3044a9ec37646b52b7e0,
         type: 3}
       propertyPath: _expAmount
-      value: 25
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 5904293127312889469, guid: 691395a73e1e3044a9ec37646b52b7e0,
+        type: 3}
+      propertyPath: _shootRange
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 9090428686711761853, guid: 691395a73e1e3044a9ec37646b52b7e0,
         type: 3}
       propertyPath: m_Name
-      value: Enemy (3) Variant
+      value: Enemy Type Beta
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
