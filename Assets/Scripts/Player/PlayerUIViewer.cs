@@ -9,9 +9,14 @@ public class PlayerUIViewer : PlayerComponentBase
     [SerializeField] private Image _reloadTimeImage;
     [SerializeField] private Image _coolDownTimeImage;
     [SerializeField] private TextMeshProUGUI _ammoText;
+    [SerializeField] private TextMeshProUGUI _healthText;
     private void Start()
     {
-        Core.OnHealthChanged += () => _healthImage.fillAmount = 1f * Core.Health / Core.MaxHealth;
+        Core.OnHealthChanged += () =>
+        {
+            _healthImage.fillAmount = 1f * Core.Health / Core.MaxHealth;
+            _healthText.text = $"{Core.MaxHealth}/{Core.Health}";
+        };
 
         var attack = FindAnyObjectByType<PlayerAttack>();
         if (attack == null) return;

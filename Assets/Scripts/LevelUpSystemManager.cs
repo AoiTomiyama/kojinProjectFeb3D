@@ -112,7 +112,7 @@ public class LevelUpSystemManager : MonoBehaviour
         const int MAX_LOOPCOUNT = 100;
         int loopCount = 0;
         var list = new HashSet<int>();
-        while (list.Count < 4)
+        while (list.Count < 3)
         {
             int index = Random.Range(0, _buttons.Length);
             list.Add(index);
