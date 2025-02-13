@@ -8,8 +8,13 @@ public class EnemyCore : MonoBehaviour, IDamageable
     private int _playerLayer;
     private int _playerLayerIndex;
     public Action OnHealthChanged;
+    private Action<int> OnDeath;
+
     [SerializeField, Header("死亡時のエフェクト")]
     private GameObject _deathEffect;
+
+    [SerializeField, Header("倒したときの経験値量")]
+    private int _expAmount;
 
     [SerializeField, Header("射程距離")] 
     private float _shootRange;
@@ -37,12 +42,16 @@ public class EnemyCore : MonoBehaviour, IDamageable
         _target = FindAnyObjectByType<PlayerCore>().transform;
         _playerLayer = _target.gameObject.layer;
         _playerLayerIndex = 1 << _playerLayer;
+        
+        var lvUpManager = FindAnyObjectByType<LevelUpSystemManager>();
+        OnDeath += lvUpManager.GainExperience;
     }
     public void Damage(int damageAmount)
     {
         Health -= damageAmount;
         if (Health <= 0)
         {
+            OnDeath?.Invoke(_expAmount);
             Instantiate(_deathEffect, transform.position, Quaternion.identity);
             Destroy(gameObject);
         }

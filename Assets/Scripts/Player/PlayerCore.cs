@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerCore : MonoBehaviour, IDamageable
@@ -6,6 +7,8 @@ public class PlayerCore : MonoBehaviour, IDamageable
     // 被弾時に攻撃力や移動速度を上げるためにアクセス可能にした。
     private PlayerMove _move;
     private PlayerAttack _attack;
+    public PlayerMove Move { get => _move; }
+    public PlayerAttack Attack { get => _attack; }
 
     public Action OnHealthChanged;
 
@@ -21,8 +24,6 @@ public class PlayerCore : MonoBehaviour, IDamageable
             OnHealthChanged?.Invoke();
         }
     }
-    public PlayerMove Move { get => _move; }
-    public PlayerAttack Attack { get => _attack; }
 
     private void Start()
     {

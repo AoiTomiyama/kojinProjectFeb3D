@@ -4,6 +4,7 @@ using UnityEngine;
 public class PlayerMove : PlayerComponentBase
 {
     Rigidbody _rb;
+    LineRenderer _lr;
     Transform _camera;
     [SerializeField] private float _speed;
     [SerializeField] private Transform _lookAt;
@@ -13,6 +14,7 @@ public class PlayerMove : PlayerComponentBase
     void Start()
     {
         _rb = GetComponent<Rigidbody>();
+        _lr = GetComponent<LineRenderer>();
         _camera = Camera.main.transform;
     }
     void Update()
@@ -30,6 +32,9 @@ public class PlayerMove : PlayerComponentBase
         var lookAtPos = _lookAt.position;
         lookAtPos.y = transform.position.y;
         transform.LookAt(lookAtPos);
+
+        _lr.SetPosition(0, transform.position);
+        _lr.SetPosition(1, lookAtPos);
     }
 
     void Move()
