@@ -9,7 +9,7 @@ public class PlayerComponentBase : MonoBehaviour
         {
             if (_core == null)
             {
-                _core = FindAnyObjectByType<PlayerCore>();
+                _core = GetComponent<PlayerCore>();
             }
             return _core;
         }

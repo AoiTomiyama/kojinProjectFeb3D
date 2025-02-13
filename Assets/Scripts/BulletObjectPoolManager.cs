@@ -26,7 +26,13 @@ public class BulletObjectPoolManager : MonoBehaviour
                     var bullet = Instantiate(_objectDatabase.GetGameObject(pair.Type), transform);
                     var component = bullet.GetComponent<PooledAttackBase>();
                     component.OnInitialize();
-                    component.OnReturnToPool += () => _objectPoolDict[pair.Type].Release(component);
+                    component.OnReturnToPool += () =>
+                    {
+                        if (component.gameObject.activeSelf)
+                        {
+                            _objectPoolDict[pair.Type].Release(component);
+                        }
+                    };
                     return component;
                 },
                 OnGetFromPool, OnReleaseToPool, OnDisposePoolObject,
