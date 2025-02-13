@@ -23,6 +23,7 @@ public class LevelUpSystemManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI _tokenCountText;
     [SerializeField] private TextMeshProUGUI _pickUpgradeCountText;
     [SerializeField] private Image _upgradePanel;
+    [SerializeField] private Image _hasPickupNotice;
 
     [SerializeField, Header("次レベルに必要な経験値")]
     private List<int> _requireExpList = new List<int>();
@@ -31,10 +32,21 @@ public class LevelUpSystemManager : MonoBehaviour
 
     private bool _isMenuActivated;
     public bool IsMenuActivated { get => _isMenuActivated; }
+    public int PickCount 
+    {
+        get => _pickCount;
+        set
+        {
+            _pickCount = value;
+            _hasPickupNotice.gameObject.SetActive(_pickCount > 0);
+        }
+    }
 
     private void Start()
     {
         _cts = new CancellationTokenSource();
+        _upgradePanel.gameObject.SetActive(_isMenuActivated);
+        _hasPickupNotice.gameObject.SetActive(_pickCount > 0);
     }
     public void GainExperience(int amount)
     {
@@ -58,9 +70,9 @@ public class LevelUpSystemManager : MonoBehaviour
                 _expBar.fillAmount = 0;
                 _currentExp -= _requireExpList[_currentLevel];
                 _currentLevel++;
-                _pickCount++;
+                PickCount++;
                 
-                _pickUpgradeCountText.text = _pickCount.ToString();
+                _pickUpgradeCountText.text = PickCount.ToString();
                 _levelText.text = _currentLevel.ToString();
             });
             await UniTask.Delay(300, cancellationToken: token);

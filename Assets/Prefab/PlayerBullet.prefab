@@ -122,6 +122,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _hitParticle: {fileID: 6952541637516862904, guid: 26df0ec003acc4e499903b8dce85f08f,
     type: 3}
+  _damageText: {fileID: 70911880485094487, guid: 87437d517edf860419ced3998c3e9e13,
+    type: 3}
 --- !u!54 &1986949669128884448
 Rigidbody:
   m_ObjectHideFlags: 0
