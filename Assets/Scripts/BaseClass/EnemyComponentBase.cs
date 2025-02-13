@@ -9,7 +9,7 @@ public class EnemyComponentBase : MonoBehaviour
         {
             if (_core == null)
             {
-                _core = FindAnyObjectByType<EnemyCore>();
+                _core = GetComponent<EnemyCore>();
             }
             return _core;
         }

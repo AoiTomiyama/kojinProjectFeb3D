@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1186526263740670349}
-  - component: {fileID: 3762633087031457540}
   m_Layer: 0
   m_Name: BulletMuzzle
   m_TagString: Untagged
@@ -32,29 +31,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 3945788651574608559}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3762633087031457540
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3379115256868412589}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0f125c708f27f424bb7b503e01efb9bc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _maxBulletCount: 50
-  _synchronousBulletCount: 3
-  _spreadAngle: 53
-  _coolDown: 1
-  _reloadTime: 5
-  _bulletParameter:
-    Damage: 10
-    Speed: 10
-    duration: 3
-    PiercingCount: 0
-    RicochetCount: 0
 --- !u!1 &7110208869030769993
 GameObject:
   m_ObjectHideFlags: 0
@@ -246,6 +222,7 @@ GameObject:
   - component: {fileID: 5505961294896841842}
   - component: {fileID: 6125026991591311954}
   - component: {fileID: 2280409211788103383}
+  - component: {fileID: 2817885548481149084}
   m_Layer: 8
   m_Name: Enemy
   m_TagString: Untagged
@@ -285,6 +262,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _deathEffect: {fileID: 1029927971810346711, guid: 028425e176b6cd844a72088600860f5f,
     type: 3}
+  _expAmount: 3
   _shootRange: 12
   MaxHealth: 100
 --- !u!114 &4661224226458991510
@@ -358,6 +336,30 @@ CapsuleCollider:
   m_Height: 1
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &2817885548481149084
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9090428686711761853}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f125c708f27f424bb7b503e01efb9bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _maxBulletCount: 50
+  _synchronousBulletCount: 3
+  _spreadAngle: 53
+  _coolDown: 1
+  _reloadTime: 5
+  _bulletParameter:
+    Damage: 10
+    Speed: 10
+    duration: 3
+    PiercingCount: 0
+    RicochetCount: 0
+  _muzzle: {fileID: 1186526263740670349}
 --- !u!1001 &5977957655969082649
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -10,6 +10,7 @@ public class EnemyAttack : EnemyComponentBase
     [SerializeField, Header("発射間隔")] private float _coolDown;
     [SerializeField, Header("再装填時間")] private float _reloadTime;
     [SerializeField, Header("弾の初期値")] private BulletParameter _bulletParameter;
+    [SerializeField, Header("発射口")] private Transform _muzzle;
 
     private BulletObjectPoolManager _poolManager;
     private CancellationTokenSource _cts;
@@ -35,8 +36,8 @@ public class EnemyAttack : EnemyComponentBase
         if (!_isEnableToShoot) return;
 
         // レイキャストを飛ばし、その命中先にプレイヤーがいたか
-        var dir = (Core.Target.position - transform.position).normalized;
-        var ray = new Ray(transform.position, dir);
+        var dir = (Core.Target.position - _muzzle.position).normalized;
+        var ray = new Ray(_muzzle.position, dir);
         if (Physics.Raycast(ray, out var hit, Core.ShootRange) && hit.collider.gameObject.layer == Core.PlayerLayerMask)
         {
             Shoot();
@@ -72,10 +73,10 @@ public class EnemyAttack : EnemyComponentBase
         {
             var bullet = _poolManager.Get(BulletTypeEnum.EnemyBullet);
             bullet.Parameter = _bulletParameter;
-            bullet.gameObject.transform.position = transform.position;
+            bullet.gameObject.transform.position = _muzzle.position;
 
             var angle = _spreadAngle / 2f - i * th;
-            var dir = Quaternion.AngleAxis(angle, Vector3.up) * transform.parent.forward;
+            var dir = Quaternion.AngleAxis(angle, Vector3.up) * transform.forward;
             bullet.gameObject.transform.forward = dir;
             // パラメーターを設定してから初期化処理を行う。
             bullet.OnGetFromPool();
@@ -93,7 +94,7 @@ public class EnemyAttack : EnemyComponentBase
         for (int i = 1; i <= _synchronousBulletCount; i++)
         {
             var angle = _spreadAngle / 2f - i * th;
-            var dir = Quaternion.AngleAxis(angle, Vector3.up) * transform.parent.forward;
+            var dir = Quaternion.AngleAxis(angle, Vector3.up) * transform.forward;
             Gizmos.DrawLine(transform.position, transform.position + dir * 10);
         }
     }
