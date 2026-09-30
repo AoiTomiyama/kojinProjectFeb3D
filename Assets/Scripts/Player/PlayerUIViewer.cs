@@ -12,11 +12,9 @@ public class PlayerUIViewer : PlayerComponentBase
     [SerializeField] private TextMeshProUGUI _healthText;
     private void Start()
     {
-        Core.OnHealthChanged += () =>
-        {
-            _healthImage.fillAmount = 1f * Core.Health / Core.MaxHealth;
-            _healthText.text = $"{Core.MaxHealth}/{Core.Health}";
-        };
+        Core.OnHealthChanged += RefreshHealth;
+        // PlayerCore.Start より後に実行されても初期体力を表示できるようにする。
+        RefreshHealth();
 
         var attack = Core.Attack;
         if (attack == null) throw new System.InvalidOperationException("PlayerUIViewer: PlayerAttack が見つかりません。");
@@ -32,5 +30,15 @@ public class PlayerUIViewer : PlayerComponentBase
             _reloadTimeImage.fillAmount = 0;
             _reloadTimeImage.DOFillAmount(1, time).SetEase(Ease.Linear);
         };
+    }
+    private void RefreshHealth()
+    {
+        _healthImage.fillAmount = Core.MaxHealth > 0 ? (float)Core.Health / Core.MaxHealth : 0f;
+        _healthText.text = $"{Core.Health}/{Core.MaxHealth}";
+    }
+
+    private void OnDestroy()
+    {
+        if (Core != null) Core.OnHealthChanged -= RefreshHealth;
     }
 }

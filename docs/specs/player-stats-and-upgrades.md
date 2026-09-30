@@ -6,7 +6,7 @@
 
 - `Assets/Scripts/Player/PlayerCore.cs` の `MaxHealth` を別の値に設定すると、現在体力も新しい最大体力に合わせ、`OnHealthChanged` を通知する。同じ値を設定した場合は更新しない。
 - `Assets/Scripts/Player/PlayerCore.cs` の `ApplyPowerUp()` は、最大体力の加算、乗算の順に適用し、移動速度と射撃能力の変更を担当コンポーネントへ振り分ける。最大体力が変わると現在体力が新しい最大値になる。
-- `Assets/Scripts/Player/PlayerUIViewer.cs` は `OnHealthChanged` を受けて体力バーと数値を更新する。初期表示の更新順と数値の並びに関する改善は `docs/tasks/program-design-review.md` の D-06 に記録している。
+- `Assets/Scripts/Player/PlayerUIViewer.cs` はイベント購読直後と体力変更時に、体力バーと `現在体力/最大体力` の数値を更新する。`PlayerCore.Start()` と UI の `Start()` の順序に依存しない。
 
 ## InGame シーンの弾数と強化
 
