@@ -27,7 +27,7 @@ public class EnemyAttack : EnemyComponentBase
     }
     void Update()
     {
-        var isPlayerInRange = Physics.CheckSphere(transform.position, Core.ShootRange, Core.PlayerLayerIndex);
+        var isPlayerInRange = Physics.CheckSphere(transform.position, Core.ShootRange, Core.PlayerLayerMask);
 
         // 範囲内にプレイヤーが存在するかどうか
         if (!isPlayerInRange) return;
@@ -38,7 +38,7 @@ public class EnemyAttack : EnemyComponentBase
         // レイキャストを飛ばし、その命中先にプレイヤーがいたか
         var dir = (Core.Target.position - _muzzle.position).normalized;
         var ray = new Ray(_muzzle.position, dir);
-        if (Physics.Raycast(ray, out var hit, Core.ShootRange) && hit.collider.gameObject.layer == Core.PlayerLayerMask)
+        if (Physics.Raycast(ray, out var hit, Core.ShootRange) && hit.collider.gameObject.layer == Core.PlayerLayer)
         {
             Shoot();
 

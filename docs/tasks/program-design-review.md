@@ -21,7 +21,8 @@
 
 ### [ ] D-02 敵の射線判定でレイヤー番号を使う
 
-- 問題: Raycast の衝突相手の `gameObject.layer` をレイヤーマスクと比較している。プレイヤーはレイヤー7で、マスクは `1 << 7` となるため一致しない。
+- 実施状況: 番号 `PlayerLayer` とマスク `PlayerLayerMask` を分け、範囲判定と Raycast で使い分けるよう変更。コード確認済み、再生確認待ち。
+- 変更前の問題: Raycast の衝突相手の `gameObject.layer` をレイヤーマスクと比較していた。プレイヤーはレイヤー7で、マスクは `1 << 7` となるため一致しなかった。
 - 根拠: `Assets/Scripts/Enemy/EnemyCore.cs` のレイヤー保持、`EnemyAttack.cs` と `EnemyMove.cs` の Raycast 判定、`Assets/Prefab/Player.prefab` の `m_Layer: 7`。
 - 完了条件: レイヤー番号とマスクの用途・名前を分け、敵の射撃と停止判定がプレイヤーの視認時に成立する。
 - 確認: 遮蔽物がない場合は敵が射撃範囲で停止して発砲し、遮蔽物がある場合は発砲しない。

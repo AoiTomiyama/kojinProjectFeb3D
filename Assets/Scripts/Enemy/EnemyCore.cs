@@ -6,7 +6,7 @@ public class EnemyCore : MonoBehaviour, IDamageable
 {
     private Transform _target;
     private int _playerLayer;
-    private int _playerLayerIndex;
+    private int _playerLayerMask;
     public Action OnHealthChanged;
     private Action<int> OnDeath;
     public UnityEvent OnDied;
@@ -33,8 +33,8 @@ public class EnemyCore : MonoBehaviour, IDamageable
         }
     }
     public Transform Target { get => _target; }
-    public int PlayerLayerMask { get => _playerLayer; }
-    public int PlayerLayerIndex { get => _playerLayerIndex; }
+    public int PlayerLayer { get => _playerLayer; }
+    public int PlayerLayerMask { get => _playerLayerMask; }
     public float ShootRange { get => _shootRange; }
 
     void Start()
@@ -42,7 +42,8 @@ public class EnemyCore : MonoBehaviour, IDamageable
         Health = MaxHealth;
         _target = FindAnyObjectByType<PlayerCore>().transform;
         _playerLayer = _target.gameObject.layer;
-        _playerLayerIndex = 1 << _playerLayer;
+        // Physics.CheckSphere には番号ではなくビットマスクを渡す。
+        _playerLayerMask = 1 << _playerLayer;
         
         var lvUpManager = FindAnyObjectByType<LevelUpSystemManager>();
         OnDeath += lvUpManager.GainExperience;

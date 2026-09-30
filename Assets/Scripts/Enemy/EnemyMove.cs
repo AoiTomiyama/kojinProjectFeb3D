@@ -14,21 +14,21 @@ public class EnemyMove : EnemyComponentBase
     }
     void Update()
     {
-        _playerIsInDetectRange = Physics.CheckSphere(transform.position, _detectRange, Core.PlayerLayerIndex);
+        _playerIsInDetectRange = Physics.CheckSphere(transform.position, _detectRange, Core.PlayerLayerMask);
         if (_playerIsInDetectRange)
         {
             _agent.SetDestination(Core.Target.position);
         }
 
         // プレイヤーが範囲内かつ、プレイヤーまでに遮蔽がないときに停止する。
-        var playerIsInFireRange = Physics.CheckSphere(transform.position, Core.ShootRange, Core.PlayerLayerIndex);
+        var playerIsInFireRange = Physics.CheckSphere(transform.position, Core.ShootRange, Core.PlayerLayerMask);
         if (!playerIsInFireRange) return;
 
         transform.LookAt(Core.Target.position);
         var dir = (Core.Target.position - transform.position).normalized;
         var ray = new Ray(transform.position, dir);
 
-        if (Physics.Raycast(ray, out var hit, Core.ShootRange) && hit.collider.gameObject.layer == Core.PlayerLayerMask)
+        if (Physics.Raycast(ray, out var hit, Core.ShootRange) && hit.collider.gameObject.layer == Core.PlayerLayer)
         {
             _agent.SetDestination(transform.position);
         }

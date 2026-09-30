@@ -17,6 +17,10 @@
 
 - `LevelUpSystemManager` は非表示の強化パネル内にあるボタンも抽選対象として取得する。候補が3件未満ならエラーを出して抽選を中止し、再抽選トークンを消費しない。候補は重複なしで3件を選ぶ。
 
+## 敵の射線
+
+- 敵の範囲判定ではプレイヤーのレイヤーマスクを使い、Raycast の衝突相手との比較ではレイヤー番号を使う。参照コードは `Assets/Scripts/Enemy/EnemyCore.cs`、`EnemyAttack.cs`、`EnemyMove.cs`。
+
 ## 確認状況
 
 - 2026-09-30: コード、Prefab、Unity YAML の静的照合で確認。Unity Editor での再生確認は未実施。
