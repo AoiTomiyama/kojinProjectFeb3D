@@ -1,7 +1,5 @@
-using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using System.Collections.Generic;
-using System.Threading;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -27,7 +25,6 @@ public class LevelUpSystemManager : MonoBehaviour
 
     [SerializeField] private Button[] _buttons;
 
-    CancellationTokenSource _cts;
     PlayerAttack _attack;
 
     private bool _isMenuActivated;
@@ -55,7 +52,6 @@ public class LevelUpSystemManager : MonoBehaviour
 
     private void Start()
     {
-        _cts = new CancellationTokenSource();
         _attack = FindAnyObjectByType<PlayerAttack>();
         _upgradePanel.gameObject.SetActive(_isMenuActivated);
         _hasPickupNotice.gameObject.SetActive(_pickCount > 0);
@@ -65,32 +61,47 @@ public class LevelUpSystemManager : MonoBehaviour
     }
     public void GainExperience(int amount)
     {
-        GainExpAsync(amount, _cts.Token);
-    }
-
-    private async void GainExpAsync(int amount, CancellationToken token)
-    {
         _killCount++;
         RerollToken++;
-
         _killCountText.text = _killCount.ToString();
 
-        _currentExp += amount;
-
-        while (_currentExp >= _requireExpList[_currentLevel])
+        if (_requireExpList.Count == 0)
         {
-            _expBar.DOFillAmount(1, 0.3f).OnComplete(() =>
-            {
-                _expBar.fillAmount = 0;
-                _currentExp -= _requireExpList[_currentLevel];
-                _currentLevel++;
-                PickCount++;
-                _levelText.text = _currentLevel.ToString();
-            });
-            await UniTask.Delay(300, cancellationToken: token);
+            Debug.LogError("必要経験値が設定されていません。", this);
+            return;
         }
 
-        _expBar.DOFillAmount(1f * _currentExp / _requireExpList[_currentLevel], 0.3f);
+        // 経験値とレベルを先に確定し、表示アニメーションにゲーム状態を委ねない。
+        _currentExp += amount;
+        bool leveledUp = false;
+        while (_currentLevel < _requireExpList.Count)
+        {
+            int requiredExp = _requireExpList[_currentLevel];
+            if (requiredExp <= 0)
+            {
+                Debug.LogError("必要経験値は正の値で設定してください。", this);
+                return;
+            }
+            if (_currentExp < requiredExp) break;
+
+            _currentExp -= requiredExp;
+            _currentLevel++;
+            PickCount++;
+            leveledUp = true;
+        }
+
+        _levelText.text = _currentLevel.ToString();
+        _expBar.DOKill();
+        if (_currentLevel >= _requireExpList.Count)
+        {
+            // 最終レベル到達後は経験値を蓄積せず、バーを満タンに固定する。
+            _currentExp = 0;
+            _expBar.fillAmount = 1f;
+            return;
+        }
+
+        if (leveledUp) _expBar.fillAmount = 0f;
+        _expBar.DOFillAmount((float)_currentExp / _requireExpList[_currentLevel], 0.3f);
     }
     public void OpenCloseUpgradeMenu()
     {
@@ -138,7 +149,6 @@ public class LevelUpSystemManager : MonoBehaviour
     }
     private void OnDisable()
     {
-        _cts.Cancel();
-        _cts.Dispose();
+        if (_expBar != null) _expBar.DOKill();
     }
 }
