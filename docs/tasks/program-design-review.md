@@ -9,6 +9,7 @@
 - 状態: D-01〜D-07 のコード・設定修正は実施済みで、指定バージョンの Unity Editor による再生確認待ち。チェックは完了条件を確認した後に付ける。
 - 進め方: 上から順に対応する。各タスクで必要な範囲の修正と検証を行う。
 - 静的確認: `InGame.unity` に強化候補 Prefab は11件あり、必要経験値は31件すべて正の値。`git diff --check` は通過。指定 Unity 2022.3.28f1 がないため、Unity Editor の再生確認は保留。`dotnet build Assembly-CSharp.csproj --no-restore` は同バージョンの Unity Source Generator がなく失敗した。
+- 2026-10-01 の自己レビューで追加した D-08 以降は、コードとシーン設定から導いた未修正の不具合候補。再生による再現確認は未実施。
 
 ## 優先度: 高
 
@@ -69,3 +70,10 @@
 - 根拠: `Assets/Scripts/Player/PlayerCore.cs`、`Assets/Prefab/Player.prefab`、`Assets/Scenes/InGame.unity` のプレイヤー Prefab オーバーライド。
 - 完了条件: Prefab 自体に有効な `_maxHealth` を設定し、シーン側との差を意図した設定として整理する。既存の `.meta` GUID と参照を維持する。
 - 確認: Prefab 単体と `InGame.unity` の双方で開始体力が意図した値となる。
+
+### [ ] D-08 弾数 UI の初期値を攻撃コンポーネントから描画する
+
+- 問題: `PlayerAttack.Start()` は残弾数を設定して変更イベントを通知するが、`PlayerUIViewer.Start()` の購読が後になると通知を受け取れない。現在の `InGame.unity` では弾数表示の初期文字列と最大装弾数がともに5なので目立たないが、最大装弾数だけ変更すると射撃まで古い値が表示され得る。
+- 根拠: `Assets/Scripts/Player/PlayerAttack.cs` の `Start()` と `RemainBulletCount`、`PlayerUIViewer.cs` の `Start()`、`Assets/Scenes/InGame.unity` の弾数 UI 初期文字列。
+- 完了条件: UI が購読直後に攻撃コンポーネントの現在残弾数を描画し、`Start()` の実行順やシーンに保存された文字列に依存しない。
+- 確認: 最大装弾数を初期文字列と異なる値にして開始し、射撃前、射撃後、再装填後の表示が実際の残弾数と一致する。
