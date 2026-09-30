@@ -77,3 +77,10 @@
 - 根拠: `Assets/Scripts/Player/PlayerAttack.cs` の `Start()` と `RemainBulletCount`、`PlayerUIViewer.cs` の `Start()`、`Assets/Scenes/InGame.unity` の弾数 UI 初期文字列。
 - 完了条件: UI が購読直後に攻撃コンポーネントの現在残弾数を描画し、`Start()` の実行順やシーンに保存された文字列に依存しない。
 - 確認: 最大装弾数を初期文字列と異なる値にして開始し、射撃前、射撃後、再装填後の表示が実際の残弾数と一致する。
+
+### [ ] D-09 攻撃処理のキャンセル用オブジェクトを有効期間に合わせて管理する
+
+- 問題: `PlayerAttack` と `EnemyAttack` は `Start()` の必須参照取得後に `_cts` を生成する一方、`OnDisable()` では無条件に `Cancel()` と `Dispose()` を呼ぶ。参照取得失敗後や `Start()` 前の無効化では `NullReferenceException` が重なり得る。また、一度無効化したコンポーネントを再有効化しても `Start()` は再実行されず、破棄済み `_cts` の `Token` を射撃時に取得する。
+- 根拠: `Assets/Scripts/Player/PlayerAttack.cs` と `Assets/Scripts/Enemy/EnemyAttack.cs` の `Start()`、`Update()`、`OnDisable()`。D-05 で追加した `RequireUnique<T>()` は参照が不足または重複すると例外を送出する。
+- 完了条件: 初期化に失敗した場合も無効化処理が安全に終了し、再有効化後の射撃で有効なキャンセル用オブジェクトを使用する。参照不足の元の例外が確認できる。
+- 確認: 必須参照を欠いた状態での無効化、正常に初期化した攻撃コンポーネントの無効化・再有効化・射撃をそれぞれ確認する。
