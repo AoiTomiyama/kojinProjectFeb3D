@@ -6,8 +6,9 @@
 
 - 対象: `Assets/Scenes/InGame.unity` と `Assets/Scripts/` の現行コード。
 - 根拠: 2026-09-30 時点のコード・Unity YAML の静的調査。Unity Editor での再生確認は未実施。
-- 状態: 下記はすべて未着手。実装後に完了条件と再生確認の結果を記録してチェックする。
+- 状態: D-01〜D-07 のコード・設定修正は実施済みで、指定バージョンの Unity Editor による再生確認待ち。チェックは完了条件を確認した後に付ける。
 - 進め方: 上から順に対応する。各タスクで必要な範囲の修正と検証を行う。
+- 静的確認: `InGame.unity` に強化候補 Prefab は11件あり、必要経験値は31件すべて正の値。`git diff --check` は通過。指定 Unity 2022.3.28f1 がないため、Unity Editor の再生確認は保留。`dotnet build Assembly-CSharp.csproj --no-restore` は同バージョンの Unity Source Generator がなく失敗した。
 
 ## 優先度: 高
 
@@ -63,7 +64,8 @@
 
 ### [ ] D-07 プレイヤー Prefab の最大体力のシリアライズを揃える
 
-- 問題: `PlayerCore` の現行フィールド名は `_maxHealth` だが、`Player.prefab` には旧名 `MaxHealth: 100` が残る。`InGame.unity` の個別オーバーライド `_maxHealth: 50` に依存しており、Prefab を別シーンに置くと最大体力が既定値0になる可能性がある。
+- 実施状況: `Player.prefab` の基本値を `_maxHealth: 100` に修正し、`InGame.unity` の個別上書き `_maxHealth: 50` を維持した。Unity YAML 確認済み、再生確認待ち。
+- 変更前の問題: `PlayerCore` の現行フィールド名は `_maxHealth` だが、`Player.prefab` には旧名 `MaxHealth: 100` が残っていた。`InGame.unity` の個別オーバーライド `_maxHealth: 50` に依存しており、Prefab を別シーンに置くと最大体力が既定値0になる可能性があった。
 - 根拠: `Assets/Scripts/Player/PlayerCore.cs`、`Assets/Prefab/Player.prefab`、`Assets/Scenes/InGame.unity` のプレイヤー Prefab オーバーライド。
 - 完了条件: Prefab 自体に有効な `_maxHealth` を設定し、シーン側との差を意図した設定として整理する。既存の `.meta` GUID と参照を維持する。
 - 確認: Prefab 単体と `InGame.unity` の双方で開始体力が意図した値となる。

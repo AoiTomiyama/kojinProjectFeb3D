@@ -15,7 +15,7 @@
 - ゲームの C# コードは `Assets/Scripts/`。ビルド設定で有効なシーンは `Assets/Scenes/InGame.unity` の1件。
 - `Packages/manifest.json` は UniTask と lilToon を Git URL から取得する。
 - プレイヤーの移動・射撃、敵の追跡・射撃、弾のプール、経験値・強化 UI が実装されている。動作の保証はコードとシーンの静的調査だけではできない。
-- 設計レビューで挙げた問題、対応順、完了条件は `docs/tasks/program-design-review.md` に記録している。次の改修では先頭の未完了タスクから着手し、完了時に検証結果を追記する。
+- 設計レビューで挙げた問題、対応順、完了条件は `docs/tasks/program-design-review.md` に記録している。D-01〜D-07 はコード・設定修正済みで、指定バージョンの Unity Editor による再生確認待ち。再開時は検証から進め、結果を同文書へ追記する。
 
 ## 作業上の注意
 
