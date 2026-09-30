@@ -44,11 +44,23 @@ public class PlayerCore : MonoBehaviour, IDamageable
         }
     }
 
+    private void Awake()
+    {
+        _move = GetComponent<PlayerMove>();
+        _attack = GetComponentInChildren<PlayerAttack>();
+    }
+
     private void Start()
     {
         Health = MaxHealth;
-        _move = GetComponent<PlayerMove>();
-        _attack = GetComponentInChildren<PlayerAttack>();
+    }
+
+    public void ApplyPowerUp(PowerUpParameter powerUp)
+    {
+        // 能力値ごとの変更を担当コンポーネントへ振り分ける。
+        MaxHealth = (int)((MaxHealth + powerUp.MaxHealthAdd) * powerUp.MaxHealthMultiply);
+        _move.Speed *= powerUp.MoveSpeedMultiply;
+        _attack.ApplyPowerUp(powerUp);
     }
 
     public void Damage(int damageAmount)

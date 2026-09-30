@@ -68,9 +68,6 @@ public class PlayerAttack : PlayerComponentBase
     }
     public void ApplyPowerUp(PowerUpParameter powerUp)
     {
-        Core.MaxHealth += powerUp.MaxHealthAdd;
-        Core.MaxHealth = (int)(Core.MaxHealth * powerUp.MaxHealthMultiply);
-        Core.Move.Speed *= powerUp.MoveSpeedMultiply;
         _bulletParameter.Damage += powerUp.DamageAdd;
         _bulletParameter.Damage = (int)(_bulletParameter.Damage * powerUp.DamageMultiply);
         _bulletParameter.RicochetCount += powerUp.RicochetAdd;

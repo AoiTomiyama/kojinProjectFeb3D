@@ -39,7 +39,8 @@
 
 ### [ ] D-04 強化適用の責務を射撃処理から分離する
 
-- 問題: `PlayerAttack.ApplyPowerUp()` が射撃に加えて最大体力と移動速度も変更する。能力値を増やすたびに射撃クラスの変更が必要になる。
+- 実施状況: `PlayerCore.ApplyPowerUp()` が体力と移動速度を変更し、射撃関連だけを `PlayerAttack` へ渡す。コード確認済み、再生確認待ち。
+- 変更前の問題: `PlayerAttack.ApplyPowerUp()` が射撃に加えて最大体力と移動速度も変更していた。能力値を増やすたびに射撃クラスの変更が必要だった。
 - 根拠: `Assets/Scripts/Player/PlayerAttack.cs` の `ApplyPowerUp()`、`Assets/Scripts/PowerUpParameter.cs`。
 - 完了条件: 強化適用の窓口で各能力値を担当コンポーネントへ振り分ける。現在の強化内容と選択時の動作を維持する。
 - 確認: 体力、移動、攻撃、装弾数の強化をそれぞれ選び、表示と実際の値が一致する。

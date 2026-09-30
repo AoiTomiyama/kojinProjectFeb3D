@@ -25,7 +25,7 @@ public class LevelUpSystemManager : MonoBehaviour
 
     [SerializeField] private Button[] _buttons;
 
-    PlayerAttack _attack;
+    PlayerCore _player;
 
     private bool _isMenuActivated;
     public bool IsMenuActivated { get => _isMenuActivated; }
@@ -52,7 +52,7 @@ public class LevelUpSystemManager : MonoBehaviour
 
     private void Start()
     {
-        _attack = FindAnyObjectByType<PlayerAttack>();
+        _player = FindAnyObjectByType<PlayerCore>();
         _upgradePanel.gameObject.SetActive(_isMenuActivated);
         _hasPickupNotice.gameObject.SetActive(_pickCount > 0);
 
@@ -111,7 +111,7 @@ public class LevelUpSystemManager : MonoBehaviour
 
     public void ApplyPowerUp(PowerUpParameter powerUp)
     {
-        _attack.ApplyPowerUp(powerUp);
+        _player.ApplyPowerUp(powerUp);
         Reroll();
     }
     private bool Reroll()
