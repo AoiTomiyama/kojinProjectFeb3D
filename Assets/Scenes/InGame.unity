@@ -11615,6 +11615,7 @@ MonoBehaviour:
   _initCount: 100
   _maxCount: 200
   _objectDatabase: {fileID: 11400000, guid: 8cd337b63f97bae4d9de2a8b201b98b4, type: 2}
+  _soundEffects: {fileID: 1673618211}
 --- !u!1 &1594091845
 GameObject:
   m_ObjectHideFlags: 0

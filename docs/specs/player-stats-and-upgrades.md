@@ -26,6 +26,12 @@
 - 経験値、レベル、強化選択回数は敵撃破時に確定し、経験値バーの演出は確定後の値を表示する。
 - `InGame.unity` の必要経験値リストの最終レベルに到達したら、追加の経験値は蓄積せずバーを満タンに固定する。撃破数と再抽選トークンは引き続き増える。
 
+## シーン内の必須参照
+
+- `SceneReferenceResolver.RequireUnique<T>()` は、プレイヤー、カメラ、レベル管理、弾プールのように `InGame.unity` に一つ必要なコンポーネントを初期化時に取得する。0件または複数件なら、要求元と種類を含む例外を出す。非アクティブな GameObject は検索対象に含めない。
+- `PlayerUIViewer` は同じプレイヤーの `PlayerCore.Attack` を使う。弾の効果音は `BulletObjectPoolManager` に設定された `AudioSource` をプール生成時に渡し、GameObject 名に依存しない。
+- 現行の `InGame.unity` はプレイヤー、カメラ、レベル管理、弾プールを各1件置き、弾プールの `_soundEffects` に `SE` の AudioSource を設定する。
+
 ## 確認状況
 
 - 2026-09-30: コード、Prefab、Unity YAML の静的照合で確認。Unity Editor での再生確認は未実施。

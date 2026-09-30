@@ -18,8 +18,8 @@ public class PlayerUIViewer : PlayerComponentBase
             _healthText.text = $"{Core.MaxHealth}/{Core.Health}";
         };
 
-        var attack = FindAnyObjectByType<PlayerAttack>();
-        if (attack == null) return;
+        var attack = Core.Attack;
+        if (attack == null) throw new System.InvalidOperationException("PlayerUIViewer: PlayerAttack ‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB");
         attack.OnAmmoCountChanged += value => _ammoText.text = value.ToString();
         attack.OnCoolDownBegin += time =>
         {

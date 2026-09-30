@@ -8,10 +8,19 @@ public class BulletObjectPoolManager : MonoBehaviour
     [SerializeField] private int _initCount = 50;
     [SerializeField] private int _maxCount = 200;
     [SerializeField] private EnumToObjectDatabase _objectDatabase;
+    [SerializeField] private AudioSource _soundEffects;
 
     private readonly Dictionary<BulletTypeEnum, ObjectPool<PooledAttackBase>> _objectPoolDict = new();
     private void Start()
     {
+        if (_objectDatabase == null)
+        {
+            throw new System.InvalidOperationException("BulletObjectPoolManager: 弾のデータベースが設定されていません。");
+        }
+        if (_soundEffects == null)
+        {
+            throw new System.InvalidOperationException("BulletObjectPoolManager: 効果音用 AudioSource が設定されていません。");
+        }
         InitPool();
     }
     private void InitPool()
@@ -25,6 +34,8 @@ public class BulletObjectPoolManager : MonoBehaviour
                     // pairに沿ったプレハブをインスタンス化したいのでラムダ式を用いる。
                     var bullet = Instantiate(_objectDatabase.GetGameObject(pair.Type), transform);
                     var component = bullet.GetComponent<PooledAttackBase>();
+                    // プール生成時に、弾が使用するシーンの効果音出力を渡す。
+                    if (component is BulletShotBehaviour shot) shot.SetAudioSource(_soundEffects);
                     component.OnInitialize();
                     component.OnReturnToPool += () =>
                     {

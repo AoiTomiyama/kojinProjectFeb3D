@@ -47,7 +47,8 @@
 
 ### [ ] D-05 シーン内の必須参照を明示する
 
-- 問題: 複数のスクリプトが `FindAnyObjectByType`、`Camera.main`、`GameObject.Find("SE")` に依存する。対象の改名・未配置・複数配置時に、意図した参照先を保証できない。
+- 実施状況: `SceneReferenceResolver.RequireUnique<T>()` で初期化時に対象が1件であることを検証するよう変更。プレイヤーの射撃 UI は同一オブジェクトの攻撃コンポーネントを参照し、効果音出力は弾プールから弾へ渡す。`InGame.unity` でプレイヤー、カメラ、レベル管理、弾プール、効果音参照が各1件であること、敵弾はプレイヤー弾の Prefab Variant として `BulletShotBehaviour` を継承すること、`.meta` GUID の一意性を静的に確認済み。再生確認待ち。
+- 変更前の問題: 複数のスクリプトが `FindAnyObjectByType`、`Camera.main`、`GameObject.Find("SE")` に依存していた。対象の改名・未配置・複数配置時に、意図した参照先を保証できなかった。
 - 根拠: `Assets/Scripts/BulletShotBehaviour.cs`、`Player/PlayerAttack.cs`、`Enemy/EnemyCore.cs`、`CursorPointer.cs` など。
 - 完了条件: 必須の参照を Inspector または初期化処理で明示し、不足時は対象が分かるエラーを出す。取得方法を変更する際は、プール生成時の弾にも参照を渡す。
 - 確認: `InGame.unity` で全参照が解決し、射撃音、敵 AI、照準、強化 UI が動作する。

@@ -15,7 +15,7 @@ public class PlayerMove : PlayerComponentBase
     {
         _rb = GetComponent<Rigidbody>();
         _lr = GetComponent<LineRenderer>();
-        _camera = Camera.main.transform;
+        _camera = SceneReferenceResolver.RequireUnique<Camera>(this).transform;
     }
     void Update()
     {

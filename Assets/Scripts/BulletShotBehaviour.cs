@@ -17,13 +17,25 @@ public class BulletShotBehaviour : PooledAttackBase
     [SerializeField]
     private AudioClip _shootClip;
     private AudioSource _aus;
+    public void SetAudioSource(AudioSource audioSource)
+    {
+        if (audioSource == null)
+        {
+            throw new System.ArgumentNullException(nameof(audioSource));
+        }
+        _aus = audioSource;
+    }
+
     public override void OnInitialize()
     {
         _rb = GetComponent<Rigidbody>();
-        _aus = GameObject.Find("SE").GetComponent<AudioSource>();
     }
     public override void OnGetFromPool()
     {
+        if (_aus == null)
+        {
+            throw new System.InvalidOperationException("BulletShotBehaviour: å¯â âπóp AudioSource Ç™èâä˙âªÇ≥ÇÍÇƒÇ¢Ç‹ÇπÇÒÅB");
+        }
         _aus.PlayOneShot(_shootClip);
         
         _cts = new CancellationTokenSource();

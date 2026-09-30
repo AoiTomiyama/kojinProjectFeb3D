@@ -21,7 +21,7 @@ public class EnemyAttack : EnemyComponentBase
 
     void Start()
     {
-        _poolManager = FindAnyObjectByType<BulletObjectPoolManager>();
+        _poolManager = SceneReferenceResolver.RequireUnique<BulletObjectPoolManager>(this);
         _remainBulletCount = _maxBulletCount;
         _cts = new CancellationTokenSource();
     }

@@ -8,9 +8,11 @@ public class CursorPointer : MonoBehaviour
     [SerializeField] float _raycastMaxDistance;
 
     LevelUpSystemManager _lvUpManager;
+    Camera _camera;
     private void Start()
     {
-        _lvUpManager = FindAnyObjectByType<LevelUpSystemManager>();
+        _lvUpManager = SceneReferenceResolver.RequireUnique<LevelUpSystemManager>(this);
+        _camera = SceneReferenceResolver.RequireUnique<Camera>(this);
     }
     void Update()
     {
@@ -18,7 +20,7 @@ public class CursorPointer : MonoBehaviour
         {
             return;
         }
-        var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        var ray = _camera.ScreenPointToRay(Input.mousePosition);
         var rayEndPos = ray.origin + ray.direction * _raycastMaxDistance;
         Debug.DrawLine(ray.origin, rayEndPos, Color.green);
         if (Physics.Raycast(ray, out var hit, _raycastMaxDistance, mask))

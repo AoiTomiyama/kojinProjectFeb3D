@@ -47,8 +47,8 @@ public class PlayerAttack : PlayerComponentBase
 
     void Start()
     {
-        _poolManager = FindAnyObjectByType<BulletObjectPoolManager>();
-        _lvUpManager = FindAnyObjectByType<LevelUpSystemManager>();
+        _poolManager = SceneReferenceResolver.RequireUnique<BulletObjectPoolManager>(this);
+        _lvUpManager = SceneReferenceResolver.RequireUnique<LevelUpSystemManager>(this);
         RemainBulletCount = MaxBulletCount;
         _cts = new CancellationTokenSource();
     }

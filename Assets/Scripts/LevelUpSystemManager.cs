@@ -52,10 +52,11 @@ public class LevelUpSystemManager : MonoBehaviour
 
     private void Start()
     {
-        _player = FindAnyObjectByType<PlayerCore>();
+        _player = SceneReferenceResolver.RequireUnique<PlayerCore>(this);
         _upgradePanel.gameObject.SetActive(_isMenuActivated);
         _hasPickupNotice.gameObject.SetActive(_pickCount > 0);
 
+        // メニューが非表示でも、抽選対象の子ボタンをすべて保持する。
         _buttons = _buttonLayoutGroup.GetComponentsInChildren<Button>(true);
         Reroll();
     }
