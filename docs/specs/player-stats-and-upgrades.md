@@ -13,6 +13,10 @@
 - `Assets/Scenes/InGame.unity` のプレイヤーは最大装弾数を5発に上書きし、弾数 UI の初期文字列も `5` に設定している。射撃開始時には `PlayerAttack.Start()` が弾数を最大値に設定する。
 - 強化候補「最大体力 +100%／ダメージ -50%」のパラメータは `MaxHealthMultiply = 2`、`DamageMultiply = 0.5`。`PlayerAttack.ApplyPowerUp()` の計算により最大体力が2倍、弾のダメージが半分になり、最大体力の変更時に現在体力も更新される。
 
+## 強化候補
+
+- `LevelUpSystemManager` は非表示の強化パネル内にあるボタンも抽選対象として取得する。候補が3件未満ならエラーを出して抽選を中止し、再抽選トークンを消費しない。候補は重複なしで3件を選ぶ。
+
 ## 確認状況
 
 - 2026-09-30: コード、Prefab、Unity YAML の静的照合で確認。Unity Editor での再生確認は未実施。

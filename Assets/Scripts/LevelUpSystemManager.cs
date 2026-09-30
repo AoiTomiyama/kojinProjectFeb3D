@@ -60,7 +60,7 @@ public class LevelUpSystemManager : MonoBehaviour
         _upgradePanel.gameObject.SetActive(_isMenuActivated);
         _hasPickupNotice.gameObject.SetActive(_pickCount > 0);
 
-        _buttons = _buttonLayoutGroup.GetComponentsInChildren<Button>();
+        _buttons = _buttonLayoutGroup.GetComponentsInChildren<Button>(true);
         Reroll();
     }
     public void GainExperience(int amount)
@@ -103,39 +103,37 @@ public class LevelUpSystemManager : MonoBehaviour
         _attack.ApplyPowerUp(powerUp);
         Reroll();
     }
-    private void Reroll()
+    private bool Reroll()
     {
+        if (_buttons == null || _buttons.Length < 3)
+        {
+            Debug.LogError("強化候補のボタンが3件未満のため抽選できません。", this);
+            return false;
+        }
+
         foreach (var button in _buttons)
         {
             button.gameObject.SetActive(false);
         }
-        const int MAX_LOOPCOUNT = 100;
-        int loopCount = 0;
-        var list = new HashSet<int>();
-        while (list.Count < 3)
+
+        // 先頭3件だけを部分的にシャッフルし、重複のない候補を選ぶ。
+        var indices = new int[_buttons.Length];
+        for (int i = 0; i < indices.Length; i++) indices[i] = i;
+        for (int i = 0; i < 3; i++)
         {
-            int index = Random.Range(0, _buttons.Length);
-            list.Add(index);
-            loopCount++;
-            if (loopCount > MAX_LOOPCOUNT)
-            {
-                Debug.LogError("登録済みのボタンが4つ以下によりリロールが完了しませんでした。");
-                return;
-            }
+            int randomIndex = Random.Range(i, indices.Length);
+            (indices[i], indices[randomIndex]) = (indices[randomIndex], indices[i]);
+            var button = _buttons[indices[i]];
+            button.gameObject.SetActive(true);
+            button.transform.SetAsFirstSibling();
         }
-        Debug.Log(string.Join(", ", list));
-        foreach (var i in list)
-        {
-            _buttons[i].gameObject.SetActive(true);
-            _buttons[i].transform.SetAsFirstSibling();
-        }
+        return true;
     }
     public void TryReroll()
     {
-        if (RerollToken >= 3)
+        if (RerollToken >= 3 && Reroll())
         {
             RerollToken -= 3;
-            Reroll();
         }
     }
     private void OnDisable()
