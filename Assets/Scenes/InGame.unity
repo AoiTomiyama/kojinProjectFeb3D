@@ -796,7 +796,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 10
+  m_text: 5
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: e1288d98e3ee4f945bcc312882f8403f, type: 2}
   m_sharedMaterial: {fileID: -7831945418169776355, guid: e1288d98e3ee4f945bcc312882f8403f,
@@ -13096,6 +13096,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_text
       value: +100%
+      objectReference: {fileID: 0}
+    - target: {fileID: 7847674204715870033, guid: 05ab67c65585ce54285d2025ac41085b,
+        type: 3}
+      propertyPath: _powerUp.DamageMultiply
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7847674204715870033, guid: 05ab67c65585ce54285d2025ac41085b,
+        type: 3}
+      propertyPath: _powerUp.MaxHealthMultiply
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7965364876934462051, guid: 05ab67c65585ce54285d2025ac41085b,
         type: 3}

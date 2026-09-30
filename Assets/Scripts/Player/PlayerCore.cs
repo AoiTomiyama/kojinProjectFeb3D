@@ -35,8 +35,12 @@ public class PlayerCore : MonoBehaviour, IDamageable
         get => _maxHealth;
         set
         {
-            _maxHealth = value;
-            _health = value;
+            if (_maxHealth != value)
+            {
+                // 最大体力の値が変更されたとき、体力を合わせる。
+                _maxHealth = value;
+                Health = value;
+            }
         }
     }
 
