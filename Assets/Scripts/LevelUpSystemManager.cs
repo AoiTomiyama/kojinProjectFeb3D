@@ -7,8 +7,8 @@ using UnityEngine.UI;
 public class LevelUpSystemManager : MonoBehaviour
 {
     private ExperienceProgression _progression;
+    private UpgradeCandidateSelection _candidateSelection;
     private int _killCount;
-    private int _rerollToken;
     [SerializeField] private Image _expBar;
     [SerializeField] private TextMeshProUGUI _levelText;
     [SerializeField] private TextMeshProUGUI _killCountText;
@@ -22,6 +22,7 @@ public class LevelUpSystemManager : MonoBehaviour
     private List<int> _requireExpList = new List<int>();
 
     [SerializeField] private Button[] _buttons;
+    private int[] _candidateIds;
 
     PlayerCore _player;
 
@@ -29,19 +30,12 @@ public class LevelUpSystemManager : MonoBehaviour
     public bool IsMenuActivated { get => _isMenuActivated; }
     public int PickCount => _progression.AvailableUpgradeCount;
 
-    public int RerollToken 
-    {
-        get => _rerollToken;
-        set
-        {
-            _rerollToken = value;
-            _tokenCountText.text = RerollToken.ToString();
-        }
-    }
+    public int RerollToken => _candidateSelection.RerollTokens;
 
     private void Awake()
     {
         _progression = new ExperienceProgression(_requireExpList);
+        _candidateSelection = new UpgradeCandidateSelection();
     }
 
     private void Start()
@@ -52,6 +46,9 @@ public class LevelUpSystemManager : MonoBehaviour
 
         // メニューが非表示でも、抽選対象の子ボタンをすべて保持する。
         _buttons = _buttonLayoutGroup.GetComponentsInChildren<Button>(true);
+        _candidateIds = new int[_buttons.Length];
+        for (int i = 0; i < _candidateIds.Length; i++) _candidateIds[i] = i;
+        RefreshRerollToken();
         Reroll();
     }
     public void GainExperience(int amount)
@@ -59,7 +56,8 @@ public class LevelUpSystemManager : MonoBehaviour
         // 不正な獲得値なら、撃破数とトークンも途中まで更新しない。
         int levelsGained = _progression.Gain(amount);
         _killCount++;
-        RerollToken++;
+        _candidateSelection.GrantRerollToken();
+        RefreshRerollToken();
         _killCountText.text = _killCount.ToString();
 
         // 進行状態を先に確定し、バー演出にゲームルールの更新を委ねない。
@@ -100,36 +98,46 @@ public class LevelUpSystemManager : MonoBehaviour
     }
     private bool Reroll()
     {
-        if (_buttons == null || _buttons.Length < 3)
+        if (!_candidateSelection.TryDraw(_candidateIds, UnityEngine.Random.Range, out var selectedIds))
         {
             Debug.LogError("強化候補のボタンが3件未満のため抽選できません。", this);
             return false;
         }
 
+        ShowCandidates(selectedIds);
+        return true;
+    }
+
+    private void ShowCandidates(int[] selectedIds)
+    {
         foreach (var button in _buttons)
         {
             button.gameObject.SetActive(false);
         }
 
-        // 先頭3件だけを部分的にシャッフルし、重複のない候補を選ぶ。
-        var indices = new int[_buttons.Length];
-        for (int i = 0; i < indices.Length; i++) indices[i] = i;
-        for (int i = 0; i < 3; i++)
+        foreach (int id in selectedIds)
         {
-            int randomIndex = Random.Range(i, indices.Length);
-            (indices[i], indices[randomIndex]) = (indices[randomIndex], indices[i]);
-            var button = _buttons[indices[i]];
+            var button = _buttons[id];
             button.gameObject.SetActive(true);
             button.transform.SetAsFirstSibling();
         }
-        return true;
     }
     public void TryReroll()
     {
-        if (RerollToken >= 3 && Reroll())
+        if (_candidateSelection.TryReroll(_candidateIds, UnityEngine.Random.Range, out var selectedIds))
         {
-            RerollToken -= 3;
+            ShowCandidates(selectedIds);
+            RefreshRerollToken();
         }
+        else if (RerollToken >= UpgradeCandidateSelection.RerollCost)
+        {
+            Debug.LogError("強化候補のボタンが3件未満のため抽選できません。", this);
+        }
+    }
+
+    private void RefreshRerollToken()
+    {
+        _tokenCountText.text = RerollToken.ToString();
     }
     private void OnDisable()
     {
