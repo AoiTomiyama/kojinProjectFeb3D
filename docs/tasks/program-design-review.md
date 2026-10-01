@@ -10,6 +10,7 @@
 - 進め方: 上から順に対応する。各タスクで必要な範囲の修正と検証を行う。
 - 静的確認: `InGame.unity` に強化候補 Prefab は11件あり、必要経験値は31件すべて正の値。`git diff --check` は通過。指定 Unity 2022.3.28f1 がないため、Unity Editor の再生確認は保留。`dotnet build Assembly-CSharp.csproj --no-restore` は同バージョンの Unity Source Generator がなく失敗した。
 - 2026-10-01 の自己レビューで追加した D-08 以降は、コードとシーン設定から導いた未修正の不具合候補。再生による再現確認は未実施。
+- 起動確認（2026-10-01）: 作業ツリーで Unity バージョンが未コミットの `2022.3.62f2` に変更されている状態で、同バージョンの Editor が `InGame.unity` を読み込み、Play モードへ2回移行したことを `Editor.log` で確認した。ログ内に `error CS` と `Compilation failed` はない。D-01〜D-07 の個別操作と期待動作は、この起動記録だけでは確認できないため未完了のままにする。
 
 ## 優先度: 高
 
