@@ -1019,6 +1019,7 @@ GameObject:
   m_Component:
   - component: {fileID: 232733430}
   - component: {fileID: 232733429}
+  - component: {fileID: 232733431}
   m_Layer: 0
   m_Name: LevelUpSystemManager
   m_TagString: Untagged
@@ -1038,6 +1039,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2931bd878f3d05f4c854dc9537b9dbe4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _requireExpList: 050000000500000005000000050000000600000006000000060000000a0000000a0000000f0000000f0000000f0000001800000018000000180000001e0000001e0000001e0000002d0000002d0000002d0000003c0000003c0000003c0000003c000000640000006400000064000000640000006400000064000000
+--- !u!114 &232733431
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 232733428}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2a6a6e0b63a4f89b29690f2310b0941, type: 3}
+  m_Name:
+  m_EditorClassIdentifier:
   _expBar: {fileID: 901209815}
   _levelText: {fileID: 1864851292}
   _killCountText: {fileID: 1609628519}
@@ -1046,8 +1060,6 @@ MonoBehaviour:
   _upgradePanel: {fileID: 420447834}
   _hasPickupNotice: {fileID: 1684137934}
   _buttonLayoutGroup: {fileID: 1453121890}
-  _requireExpList: 050000000500000005000000050000000600000006000000060000000a0000000a0000000f0000000f0000000f0000001800000018000000180000001e0000001e0000001e0000002d0000002d0000002d0000003c0000003c0000003c0000003c000000640000006400000064000000640000006400000064000000
-  _buttons: []
 --- !u!4 &232733430
 Transform:
   m_ObjectHideFlags: 0

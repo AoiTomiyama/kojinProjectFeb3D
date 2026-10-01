@@ -1,27 +1,17 @@
-using DG.Tweening;
 using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
+[RequireComponent(typeof(LevelUpUIView))]
 public class LevelUpSystemManager : MonoBehaviour
 {
     private ExperienceProgression _progression;
     private UpgradeCandidateSelection _candidateSelection;
+    private LevelUpUIView _view;
     private int _killCount;
-    [SerializeField] private Image _expBar;
-    [SerializeField] private TextMeshProUGUI _levelText;
-    [SerializeField] private TextMeshProUGUI _killCountText;
-    [SerializeField] private TextMeshProUGUI _tokenCountText;
-    [SerializeField] private TextMeshProUGUI _pickUpgradeCountText;
-    [SerializeField] private Image _upgradePanel;
-    [SerializeField] private Image _hasPickupNotice;
-    [SerializeField] private VerticalLayoutGroup _buttonLayoutGroup;
 
     [SerializeField, Header("次レベルに必要な経験値")]
     private List<int> _requireExpList = new List<int>();
 
-    [SerializeField] private Button[] _buttons;
     private int[] _candidateIds;
 
     PlayerCore _player;
@@ -36,19 +26,16 @@ public class LevelUpSystemManager : MonoBehaviour
     {
         _progression = new ExperienceProgression(_requireExpList);
         _candidateSelection = new UpgradeCandidateSelection();
+        _view = GetComponent<LevelUpUIView>();
     }
 
     private void Start()
     {
         _player = SceneReferenceResolver.RequireUnique<PlayerCore>(this);
-        _upgradePanel.gameObject.SetActive(_isMenuActivated);
-        RefreshPickCount();
-
-        // メニューが非表示でも、抽選対象の子ボタンをすべて保持する。
-        _buttons = _buttonLayoutGroup.GetComponentsInChildren<Button>(true);
-        _candidateIds = new int[_buttons.Length];
+        _view.Initialize(_isMenuActivated, _progression.Level, _progression.Progress,
+            _killCount, RerollToken, PickCount);
+        _candidateIds = new int[_view.CandidateCount];
         for (int i = 0; i < _candidateIds.Length; i++) _candidateIds[i] = i;
-        RefreshRerollToken();
         Reroll();
     }
     public void GainExperience(int amount)
@@ -57,38 +44,23 @@ public class LevelUpSystemManager : MonoBehaviour
         int levelsGained = _progression.Gain(amount);
         _killCount++;
         _candidateSelection.GrantRerollToken();
-        RefreshRerollToken();
-        _killCountText.text = _killCount.ToString();
+        _view.ShowRerollTokens(RerollToken);
+        _view.ShowKillCount(_killCount);
 
         // 進行状態を先に確定し、バー演出にゲームルールの更新を委ねない。
-        RefreshPickCount();
-        _levelText.text = _progression.Level.ToString();
-        _expBar.DOKill();
-        if (_progression.IsAtMaxLevel)
-        {
-            _expBar.fillAmount = 1f;
-            return;
-        }
-
-        if (levelsGained > 0) _expBar.fillAmount = 0f;
-        _expBar.DOFillAmount(_progression.Progress, 0.3f);
+        _view.ShowUpgradeChoices(PickCount);
+        _view.ShowProgress(_progression.Level, _progression.Progress, levelsGained > 0);
     }
     public bool TrySpendUpgradeChoice()
     {
         if (!_progression.TrySpendUpgradeChoice()) return false;
-        RefreshPickCount();
+        _view.ShowUpgradeChoices(PickCount);
         return true;
-    }
-
-    private void RefreshPickCount()
-    {
-        _hasPickupNotice.gameObject.SetActive(PickCount > 0);
-        _pickUpgradeCountText.text = PickCount.ToString();
     }
     public void OpenCloseUpgradeMenu()
     {
         _isMenuActivated = !_isMenuActivated;
-        _upgradePanel.gameObject.SetActive(_isMenuActivated);
+        _view.SetMenuVisible(_isMenuActivated);
     }
 
     public void ApplyPowerUp(PowerUpParameter powerUp)
@@ -104,43 +76,19 @@ public class LevelUpSystemManager : MonoBehaviour
             return false;
         }
 
-        ShowCandidates(selectedIds);
+        _view.ShowCandidates(selectedIds);
         return true;
-    }
-
-    private void ShowCandidates(int[] selectedIds)
-    {
-        foreach (var button in _buttons)
-        {
-            button.gameObject.SetActive(false);
-        }
-
-        foreach (int id in selectedIds)
-        {
-            var button = _buttons[id];
-            button.gameObject.SetActive(true);
-            button.transform.SetAsFirstSibling();
-        }
     }
     public void TryReroll()
     {
         if (_candidateSelection.TryReroll(_candidateIds, UnityEngine.Random.Range, out var selectedIds))
         {
-            ShowCandidates(selectedIds);
-            RefreshRerollToken();
+            _view.ShowCandidates(selectedIds);
+            _view.ShowRerollTokens(RerollToken);
         }
         else if (RerollToken >= UpgradeCandidateSelection.RerollCost)
         {
             Debug.LogError("強化候補のボタンが3件未満のため抽選できません。", this);
         }
-    }
-
-    private void RefreshRerollToken()
-    {
-        _tokenCountText.text = RerollToken.ToString();
-    }
-    private void OnDisable()
-    {
-        if (_expBar != null) _expBar.DOKill();
     }
 }
