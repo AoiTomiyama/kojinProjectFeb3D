@@ -6,10 +6,8 @@ using UnityEngine.UI;
 
 public class LevelUpSystemManager : MonoBehaviour
 {
-    private int _currentExp;
-    private int _currentLevel;
+    private ExperienceProgression _progression;
     private int _killCount;
-    private int _pickCount;
     private int _rerollToken;
     [SerializeField] private Image _expBar;
     [SerializeField] private TextMeshProUGUI _levelText;
@@ -29,16 +27,7 @@ public class LevelUpSystemManager : MonoBehaviour
 
     private bool _isMenuActivated;
     public bool IsMenuActivated { get => _isMenuActivated; }
-    public int PickCount
-    {
-        get => _pickCount;
-        set
-        {
-            _pickCount = value;
-            _hasPickupNotice.gameObject.SetActive(_pickCount > 0);
-            _pickUpgradeCountText.text = PickCount.ToString();
-        }
-    }
+    public int PickCount => _progression.AvailableUpgradeCount;
 
     public int RerollToken 
     {
@@ -50,11 +39,16 @@ public class LevelUpSystemManager : MonoBehaviour
         }
     }
 
+    private void Awake()
+    {
+        _progression = new ExperienceProgression(_requireExpList);
+    }
+
     private void Start()
     {
         _player = SceneReferenceResolver.RequireUnique<PlayerCore>(this);
         _upgradePanel.gameObject.SetActive(_isMenuActivated);
-        _hasPickupNotice.gameObject.SetActive(_pickCount > 0);
+        RefreshPickCount();
 
         // メニューが非表示でも、抽選対象の子ボタンをすべて保持する。
         _buttons = _buttonLayoutGroup.GetComponentsInChildren<Button>(true);
@@ -62,47 +56,36 @@ public class LevelUpSystemManager : MonoBehaviour
     }
     public void GainExperience(int amount)
     {
+        // 不正な獲得値なら、撃破数とトークンも途中まで更新しない。
+        int levelsGained = _progression.Gain(amount);
         _killCount++;
         RerollToken++;
         _killCountText.text = _killCount.ToString();
 
-        if (_requireExpList.Count == 0)
-        {
-            Debug.LogError("必要経験値が設定されていません。", this);
-            return;
-        }
-
-        // 経験値とレベルを先に確定し、表示アニメーションにゲーム状態を委ねない。
-        _currentExp += amount;
-        bool leveledUp = false;
-        while (_currentLevel < _requireExpList.Count)
-        {
-            int requiredExp = _requireExpList[_currentLevel];
-            if (requiredExp <= 0)
-            {
-                Debug.LogError("必要経験値は正の値で設定してください。", this);
-                return;
-            }
-            if (_currentExp < requiredExp) break;
-
-            _currentExp -= requiredExp;
-            _currentLevel++;
-            PickCount++;
-            leveledUp = true;
-        }
-
-        _levelText.text = _currentLevel.ToString();
+        // 進行状態を先に確定し、バー演出にゲームルールの更新を委ねない。
+        RefreshPickCount();
+        _levelText.text = _progression.Level.ToString();
         _expBar.DOKill();
-        if (_currentLevel >= _requireExpList.Count)
+        if (_progression.IsAtMaxLevel)
         {
-            // 最終レベル到達後は経験値を蓄積せず、バーを満タンに固定する。
-            _currentExp = 0;
             _expBar.fillAmount = 1f;
             return;
         }
 
-        if (leveledUp) _expBar.fillAmount = 0f;
-        _expBar.DOFillAmount((float)_currentExp / _requireExpList[_currentLevel], 0.3f);
+        if (levelsGained > 0) _expBar.fillAmount = 0f;
+        _expBar.DOFillAmount(_progression.Progress, 0.3f);
+    }
+    public bool TrySpendUpgradeChoice()
+    {
+        if (!_progression.TrySpendUpgradeChoice()) return false;
+        RefreshPickCount();
+        return true;
+    }
+
+    private void RefreshPickCount()
+    {
+        _hasPickupNotice.gameObject.SetActive(PickCount > 0);
+        _pickUpgradeCountText.text = PickCount.ToString();
     }
     public void OpenCloseUpgradeMenu()
     {

@@ -12,10 +12,9 @@ public class UpgradeButtonBehaviour : MonoBehaviour
     }
     public void Upgrade()
     {
-        if (_lvUpManager.PickCount > 0)
+        if (_lvUpManager.TrySpendUpgradeChoice())
         {
             gameObject.SetActive(false);
-            _lvUpManager.PickCount--;
             _lvUpManager.ApplyPowerUp(_powerUp);
         }
     }
