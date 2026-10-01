@@ -1,6 +1,6 @@
 # プレイヤー能力値と強化の現行仕様
 
-タグ: `現行仕様` `プレイヤー` `体力` `弾数` `強化` `攻撃処理`
+タグ: `現行仕様` `プレイヤー` `体力` `弾数` `強化` `攻撃処理` `弾プール`
 
 ## 体力
 
@@ -36,6 +36,11 @@
 - `PlayerUIViewer` は同じプレイヤーの `PlayerCore.Attack` を使う。弾の効果音は `BulletObjectPoolManager` に設定された `AudioSource` をプール生成時に渡し、GameObject 名に依存しない。
 - 現行の `InGame.unity` はプレイヤー、カメラ、レベル管理、弾プールを各1件置き、弾プールの `_soundEffects` に `SE` の AudioSource を設定する。
 
+## 弾プールの破棄
+
+- `BulletObjectPoolManager.OnDisposePoolObject()` は、Unity がプールをクリアする時点で弾のコンポーネントが既に破棄されていれば何もしない。生存する弾だけを破棄し、シーンとプールの破棄順序による例外を防ぐ。
+
 ## 確認状況
 
 - 2026-09-30: コード、Prefab、Unity YAML の静的照合で確認。上記のシーン参照は各1件で、アセットの `.meta` GUID に重複はなかった。Unity Editor での再生確認は未実施。`dotnet build Assembly-CSharp.csproj --no-restore` は、指定バージョンの Unity Source Generator がないため失敗した。
+- 2026-10-01: 弾プールの破棄処理は Unity 2022.3.62f2 のバッチモードで、破棄済み弾の確認と Play モード2回の往復を確認。両回でプレイヤー弾と敵弾の発射時初期化が通過した。

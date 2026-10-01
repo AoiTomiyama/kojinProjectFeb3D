@@ -64,7 +64,12 @@ public class BulletObjectPoolManager : MonoBehaviour
     }
     private void OnGetFromPool(PooledAttackBase parameter) => parameter.gameObject.SetActive(true);
     private void OnReleaseToPool(PooledAttackBase parameter) => parameter.gameObject.SetActive(false);
-    private void OnDisposePoolObject(PooledAttackBase parameter) => Destroy(parameter.gameObject);
+    private void OnDisposePoolObject(PooledAttackBase parameter)
+    {
+        // シーン破棄後にプールがクリアされても、破棄済みの弾にはアクセスしない。
+        if (parameter == null) return;
+        Destroy(parameter.gameObject);
+    }
 
     public PooledAttackBase Get(BulletTypeEnum type) => _objectPoolDict[type].Get();
     public void Release(BulletTypeEnum type, PooledAttackBase component) => _objectPoolDict[type].Release(component);

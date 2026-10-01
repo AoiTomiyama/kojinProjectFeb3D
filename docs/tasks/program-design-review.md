@@ -88,8 +88,10 @@
 - 完了条件: 初期化に失敗した場合も無効化処理が安全に終了し、再有効化後の射撃で有効なキャンセル用オブジェクトを使用する。参照不足の元の例外が確認できる。
 - 確認: 必須参照を欠いた状態での無効化、正常に初期化した攻撃コンポーネントの無効化・再有効化・射撃をそれぞれ確認する。
 
-### [ ] D-10 Play モード切り替え時の弾プール破棄エラーを修正する
+### [x] D-10 Play モード切り替え時の弾プール破棄エラーを修正する
 
+- 実施状況: `OnDisposePoolObject()` が破棄済みコンポーネントを受け取った場合は `gameObject` にアクセスせず終了するよう修正。Unity 2022.3.62f2 のバッチモードで確認済み。
+- 検証結果（2026-10-01）: 一時チェックアウトに同じシーン・Editor 設定を用意し、元のコードでは破棄済み弾を渡す確認で `MissingReferenceException` を再現した。修正後は同じ確認が通過し、Play モードの開始・停止・再開始を2回実施してプール由来の例外は0件。各 Play モードでプレイヤー弾・敵弾の取得、発射時初期化、返却を確認した。GUI の手動操作はこの検証に含めていない。
 - 観測事実: 2026-10-01、Unity 2022.3.62f2 の Editor で Play モードを繰り返した際、`Editor.log` に `MissingReferenceException` が1件記録された。スタックトレースは `BulletObjectPoolManager.OnDisposePoolObject()` の `parameter.gameObject` を指し、Unity の `ObjectPool<T>.Clear()` と `PoolManager.Reset()` から呼ばれている。ログには Domain Reload と Scene Reload が無効である旨も記録されている。
 - 原因候補: プールのリセット時、既に破棄された `BulletShotBehaviour` を取り出して `gameObject` にアクセスしている。破棄順序とプール内の参照の寿命を確認する。
 - 根拠: `Assets/Scripts/BulletObjectPoolManager.cs` の `OnDisposePoolObject()` と、上記 Unity Editor の実行ログ。
