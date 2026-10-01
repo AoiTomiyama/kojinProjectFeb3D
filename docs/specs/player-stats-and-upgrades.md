@@ -11,7 +11,7 @@
 
 ## InGame シーンの弾数と強化
 
-- `Assets/Scenes/InGame.unity` のプレイヤーは最大装弾数を5発に上書きし、弾数 UI の初期文字列も `5` に設定している。ゲーム開始時には `PlayerAttack.Start()` が弾数を最大値に設定する。
+- `Assets/Scenes/InGame.unity` のプレイヤーは最大装弾数を5発に上書きしている。`PlayerAttack.Start()` は残弾数を最大値に設定し、`PlayerUIViewer.Start()` は通知を購読した直後に現在の残弾数を描画する。開始順やシーンに保存された表示文字列に依存しない。
 - 強化候補「最大体力 +100%／ダメージ -50%」のパラメータは `MaxHealthMultiply = 2`、`DamageMultiply = 0.5`。`PlayerCore.ApplyPowerUp()` が最大体力を2倍にし、`PlayerAttack.ApplyPowerUp()` が弾のダメージを半分にする。最大体力の変更時に現在体力も更新される。
 
 ## 強化候補と経験値

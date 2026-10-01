@@ -19,6 +19,8 @@ public class PlayerUIViewer : PlayerComponentBase
         var attack = Core.Attack;
         if (attack == null) throw new System.InvalidOperationException("PlayerUIViewer: PlayerAttack が見つかりません。");
         attack.OnAmmoCountChanged += value => _ammoText.text = value.ToString();
+        // 攻撃処理の Start が先でも、通知を取り逃した初期弾数を表示する。
+        _ammoText.text = attack.RemainBulletCount.ToString();
         attack.OnCoolDownBegin += time =>
         {
             _coolDownTimeImage.fillAmount = 0;

@@ -74,7 +74,8 @@
 
 ### [ ] D-08 弾数 UI の初期値を攻撃コンポーネントから描画する
 
-- 問題: `PlayerAttack.Start()` は残弾数を設定して変更イベントを通知するが、`PlayerUIViewer.Start()` の購読が後になると通知を受け取れない。現在の `InGame.unity` では弾数表示の初期文字列と最大装弾数がともに5なので目立たないが、最大装弾数だけ変更すると射撃まで古い値が表示され得る。
+- 実施状況: UI が弾数変更イベントを購読した直後に `RemainBulletCount` を描画するよう修正。コード確認済み、再生確認待ち。
+- 変更前の問題: `PlayerAttack.Start()` は残弾数を設定して変更イベントを通知していたが、`PlayerUIViewer.Start()` の購読が後になると通知を受け取れなかった。`InGame.unity` では弾数表示の初期文字列と最大装弾数がともに5なので目立たず、最大装弾数だけ変更すると射撃まで古い値が表示され得た。
 - 根拠: `Assets/Scripts/Player/PlayerAttack.cs` の `Start()` と `RemainBulletCount`、`PlayerUIViewer.cs` の `Start()`、`Assets/Scenes/InGame.unity` の弾数 UI 初期文字列。
 - 完了条件: UI が購読直後に攻撃コンポーネントの現在残弾数を描画し、`Start()` の実行順やシーンに保存された文字列に依存しない。
 - 確認: 最大装弾数を初期文字列と異なる値にして開始し、射撃前、射撃後、再装填後の表示が実際の残弾数と一致する。
