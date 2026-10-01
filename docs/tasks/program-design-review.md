@@ -85,3 +85,11 @@
 - 根拠: `Assets/Scripts/Player/PlayerAttack.cs` と `Assets/Scripts/Enemy/EnemyAttack.cs` の `Start()`、`Update()`、`OnDisable()`。D-05 で追加した `RequireUnique<T>()` は参照が不足または重複すると例外を送出する。
 - 完了条件: 初期化に失敗した場合も無効化処理が安全に終了し、再有効化後の射撃で有効なキャンセル用オブジェクトを使用する。参照不足の元の例外が確認できる。
 - 確認: 必須参照を欠いた状態での無効化、正常に初期化した攻撃コンポーネントの無効化・再有効化・射撃をそれぞれ確認する。
+
+### [ ] D-10 Play モード切り替え時の弾プール破棄エラーを修正する
+
+- 観測事実: 2026-10-01、Unity 2022.3.62f2 の Editor で Play モードを繰り返した際、`Editor.log` に `MissingReferenceException` が1件記録された。スタックトレースは `BulletObjectPoolManager.OnDisposePoolObject()` の `parameter.gameObject` を指し、Unity の `ObjectPool<T>.Clear()` と `PoolManager.Reset()` から呼ばれている。ログには Domain Reload と Scene Reload が無効である旨も記録されている。
+- 原因候補: プールのリセット時、既に破棄された `BulletShotBehaviour` を取り出して `gameObject` にアクセスしている。破棄順序とプール内の参照の寿命を確認する。
+- 根拠: `Assets/Scripts/BulletObjectPoolManager.cs` の `OnDisposePoolObject()` と、上記 Unity Editor の実行ログ。
+- 完了条件: 弾の破棄とプールのクリアが、参照先の破棄順序に依存せず安全に終わる。
+- 確認: 同じ Editor 設定で Play モードの開始・停止・再開始を繰り返し、例外が出ず、再開始後もプレイヤー弾と敵弾が使える。
