@@ -16,17 +16,25 @@ public class EnemyAttack : EnemyComponentBase
     private CancellationTokenSource _cts;
     private int _remainBulletCount;
     private bool _isEnableToShoot = true;
+    private bool _isInitialized;
 
     public int DamageBoost { get; set; }
 
+    private void OnEnable()
+    {
+        _cts = new CancellationTokenSource();
+        // 無効化で中断した再装填・発射間隔は、再有効化後にやり直す。
+        if (_isInitialized && !_isEnableToShoot) WaitShootCooldownAsync(_cts.Token);
+    }
     void Start()
     {
         _poolManager = SceneReferenceResolver.RequireUnique<BulletObjectPoolManager>(this);
         _remainBulletCount = _maxBulletCount;
-        _cts = new CancellationTokenSource();
+        _isInitialized = true;
     }
     void Update()
     {
+        if (!_isInitialized) return;
         var isPlayerInRange = Physics.CheckSphere(transform.position, Core.ShootRange, Core.PlayerLayerMask);
 
         // 範囲内にプレイヤーが存在するかどうか
@@ -61,8 +69,9 @@ public class EnemyAttack : EnemyComponentBase
     }
     private void OnDisable()
     {
-        _cts.Cancel();
-        _cts.Dispose();
+        _cts?.Cancel();
+        _cts?.Dispose();
+        _cts = null;
     }
 
     private void Shoot()

@@ -19,6 +19,7 @@ public class PlayerAttack : PlayerComponentBase
     private int _remainBulletCount;
     private bool _isPressedShootButton;
     private bool _isEnableToShoot = true;
+    private bool _isInitialized;
 
     public Action<int> OnAmmoCountChanged;
     public Action<float> OnReloadBegin;
@@ -45,15 +46,22 @@ public class PlayerAttack : PlayerComponentBase
         }
     }
 
+    private void OnEnable()
+    {
+        _cts = new CancellationTokenSource();
+        // ñ≥å¯âªÇ≈íÜífÇµÇΩçƒëïìUÅEî≠éÀä‘äuÇÕÅAçƒóLå¯âªå„Ç…Ç‚ÇËíºÇ∑ÅB
+        if (_isInitialized && !_isEnableToShoot) WaitShootCooldownAsync(_cts.Token);
+    }
     void Start()
     {
         _poolManager = SceneReferenceResolver.RequireUnique<BulletObjectPoolManager>(this);
         _lvUpManager = SceneReferenceResolver.RequireUnique<LevelUpSystemManager>(this);
         RemainBulletCount = MaxBulletCount;
-        _cts = new CancellationTokenSource();
+        _isInitialized = true;
     }
     void Update()
     {
+        if (!_isInitialized) return;
         if (Input.GetButtonDown("Fire")) _isPressedShootButton = true;
         if (Input.GetButtonUp("Fire")) _isPressedShootButton = false;
 
@@ -105,8 +113,10 @@ public class PlayerAttack : PlayerComponentBase
     }
     private void OnDisable()
     {
-        _cts.Cancel();
-        _cts.Dispose();
+        _isPressedShootButton = false;
+        _cts?.Cancel();
+        _cts?.Dispose();
+        _cts = null;
     }
 
     private void Shoot()

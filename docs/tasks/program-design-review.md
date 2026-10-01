@@ -82,7 +82,8 @@
 
 ### [ ] D-09 攻撃処理のキャンセル用オブジェクトを有効期間に合わせて管理する
 
-- 問題: `PlayerAttack` と `EnemyAttack` は `Start()` の必須参照取得後に `_cts` を生成する一方、`OnDisable()` では無条件に `Cancel()` と `Dispose()` を呼ぶ。参照取得失敗後や `Start()` 前の無効化では `NullReferenceException` が重なり得る。また、一度無効化したコンポーネントを再有効化しても `Start()` は再実行されず、破棄済み `_cts` の `Token` を射撃時に取得する。
+- 実施状況: キャンセル用オブジェクトを有効化時に生成し、無効化時は null を許容して破棄する。初期化が完了していない間は `Update()` を進めず、中断した発射間隔・再装填の待機は再有効化後にやり直す。コード確認済み、再生確認待ち。
+- 変更前の問題: `PlayerAttack` と `EnemyAttack` は `Start()` の必須参照取得後に `_cts` を生成する一方、`OnDisable()` では無条件に `Cancel()` と `Dispose()` を呼んでいた。参照取得失敗後や `Start()` 前の無効化では `NullReferenceException` が重なり得た。一度無効化したコンポーネントを再有効化しても、破棄済み `_cts` の `Token` を射撃時に取得していた。
 - 根拠: `Assets/Scripts/Player/PlayerAttack.cs` と `Assets/Scripts/Enemy/EnemyAttack.cs` の `Start()`、`Update()`、`OnDisable()`。D-05 で追加した `RequireUnique<T>()` は参照が不足または重複すると例外を送出する。
 - 完了条件: 初期化に失敗した場合も無効化処理が安全に終了し、再有効化後の射撃で有効なキャンセル用オブジェクトを使用する。参照不足の元の例外が確認できる。
 - 確認: 必須参照を欠いた状態での無効化、正常に初期化した攻撃コンポーネントの無効化・再有効化・射撃をそれぞれ確認する。
