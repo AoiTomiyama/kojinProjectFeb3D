@@ -14,22 +14,25 @@ public class EnemyAttack : EnemyComponentBase
 
     private BulletObjectPoolManager _poolManager;
     private CancellationTokenSource _cts;
-    private int _remainBulletCount;
-    private bool _isEnableToShoot = true;
+    private WeaponAmmoState _ammo;
     private bool _isInitialized;
 
     public int DamageBoost { get; set; }
+
+    private void Awake()
+    {
+        _ammo = new WeaponAmmoState(_maxBulletCount, _coolDown, _reloadTime);
+    }
 
     private void OnEnable()
     {
         _cts = new CancellationTokenSource();
         // 無効化で中断した再装填・発射間隔は、再有効化後にやり直す。
-        if (_isInitialized && !_isEnableToShoot) WaitShootCooldownAsync(_cts.Token);
+        if (_isInitialized && !_ammo.IsReady) WaitShootCooldownAsync(_cts.Token);
     }
     void Start()
     {
         _poolManager = SceneReferenceResolver.RequireUnique<BulletObjectPoolManager>(this);
-        _remainBulletCount = _maxBulletCount;
         _isInitialized = true;
     }
     void Update()
@@ -41,7 +44,7 @@ public class EnemyAttack : EnemyComponentBase
         if (!isPlayerInRange) return;
 
         // クールダウンを終えているか
-        if (!_isEnableToShoot) return;
+        if (!_ammo.IsReady) return;
 
         // レイキャストを飛ばし、その命中先にプレイヤーがいたか
         var dir = (Core.Target.position - _muzzle.position).normalized;
@@ -50,7 +53,6 @@ public class EnemyAttack : EnemyComponentBase
         {
             Shoot();
 
-            _isEnableToShoot = false;
             CancellationToken token = _cts.Token;
             WaitShootCooldownAsync(token);
         }
@@ -58,14 +60,13 @@ public class EnemyAttack : EnemyComponentBase
 
     private async void WaitShootCooldownAsync(CancellationToken token)
     {
-        var waitTime = (_remainBulletCount <= 0) ? _reloadTime : _coolDown;
+        _ammo.StartWait();
+        var waitTime = _ammo.PendingWaitSeconds;
         bool isCancelled = await UniTask.Delay((int)(1000 * waitTime), cancellationToken: token)
             .SuppressCancellationThrow();
         if (isCancelled) return;
 
-        if (_remainBulletCount <= 0) _remainBulletCount = _maxBulletCount;
-
-        _isEnableToShoot = true;
+        _ammo.CompleteWait();
     }
     private void OnDisable()
     {
@@ -80,6 +81,7 @@ public class EnemyAttack : EnemyComponentBase
 
         for (int i = 1; i <= _synchronousBulletCount; i++)
         {
+            if (_ammo.RemainingAmmo <= 0) return;
             var bullet = _poolManager.Get(BulletTypeEnum.EnemyBullet);
             bullet.Parameter = _bulletParameter;
             bullet.gameObject.transform.position = _muzzle.position;
@@ -90,8 +92,8 @@ public class EnemyAttack : EnemyComponentBase
             // パラメーターを設定してから初期化処理を行う。
             bullet.OnGetFromPool();
 
-            _remainBulletCount--;
-            if (_remainBulletCount == 0) return;
+            _ammo.TryConsumeShot();
+            if (_ammo.RemainingAmmo == 0) return;
         }
     }
     private void OnDrawGizmos()

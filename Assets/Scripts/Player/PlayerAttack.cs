@@ -16,9 +16,8 @@ public class PlayerAttack : PlayerComponentBase
     private BulletObjectPoolManager _poolManager;
     private LevelUpSystemManager _lvUpManager;
     private CancellationTokenSource _cts;
-    private int _remainBulletCount;
+    private WeaponAmmoState _ammo;
     private bool _isPressedShootButton;
-    private bool _isEnableToShoot = true;
     private bool _isInitialized;
 
     public Action<int> OnAmmoCountChanged;
@@ -28,29 +27,34 @@ public class PlayerAttack : PlayerComponentBase
     public int DamageBoost { get; set; }
     public int RemainBulletCount 
     {
-        get => _remainBulletCount;
+        get => _ammo.RemainingAmmo;
         set
         {
-            _remainBulletCount = value;
-            OnAmmoCountChanged?.Invoke(value);
+            _ammo.SetRemainingAmmo(value);
+            OnAmmoCountChanged?.Invoke(RemainBulletCount);
         }
     }
 
     public int MaxBulletCount 
     {
-        get => _maxBulletCount;
+        get => _ammo.Capacity;
         set
         {
             _maxBulletCount = Mathf.Max(1, value);
-            _remainBulletCount = _maxBulletCount;
+            _ammo.SetCapacity(_maxBulletCount);
         }
+    }
+
+    private void Awake()
+    {
+        _ammo = new WeaponAmmoState(_maxBulletCount, _coolDown, _reloadTime);
     }
 
     private void OnEnable()
     {
         _cts = new CancellationTokenSource();
         // 無効化で中断した再装填・発射間隔は、再有効化後にやり直す。
-        if (_isInitialized && !_isEnableToShoot) WaitShootCooldownAsync(_cts.Token);
+        if (_isInitialized && !_ammo.IsReady) WaitShootCooldownAsync(_cts.Token);
     }
     void Start()
     {
@@ -65,11 +69,10 @@ public class PlayerAttack : PlayerComponentBase
         if (Input.GetButtonDown("Fire")) _isPressedShootButton = true;
         if (Input.GetButtonUp("Fire")) _isPressedShootButton = false;
 
-        if (_isPressedShootButton && _isEnableToShoot && !_lvUpManager.IsMenuActivated)
+        if (_isPressedShootButton && _ammo.IsReady && !_lvUpManager.IsMenuActivated)
         {
             Shoot();
 
-            _isEnableToShoot = false;
             CancellationToken token = _cts.Token;
             WaitShootCooldownAsync(token);
         }
@@ -85,31 +88,31 @@ public class PlayerAttack : PlayerComponentBase
         _coolDown *= powerUp.CoolTimeMultiply;
         _reloadTime += powerUp.ReloadTimeAdd;
         _reloadTime *= powerUp.ReloadTimeMultiply;
+        _ammo.SetTimings(_coolDown, _reloadTime);
         MaxBulletCount += powerUp.MaxAmmoSizeAdd;
         _synchronousBulletCount += powerUp.SyncBulletAdd;
 
-        OnAmmoCountChanged?.Invoke(_remainBulletCount);
+        OnAmmoCountChanged?.Invoke(RemainBulletCount);
     }
 
     private async void WaitShootCooldownAsync(CancellationToken token)
     {
-        if (RemainBulletCount <= 0)
+        var waitKind = _ammo.StartWait();
+        var waitTime = _ammo.PendingWaitSeconds;
+        if (waitKind == WeaponWaitKind.Reload)
         {
-            OnReloadBegin?.Invoke(_reloadTime);
+            OnReloadBegin?.Invoke(waitTime);
         }
         else
         {
-            OnCoolDownBegin?.Invoke(_coolDown);
+            OnCoolDownBegin?.Invoke(waitTime);
         }
 
-        var waitTime = (RemainBulletCount <= 0) ? _reloadTime : _coolDown;
         bool isCancelled = await UniTask.Delay((int)(1000 * waitTime), cancellationToken: token)
             .SuppressCancellationThrow();
         if (isCancelled) return;
         
-        if (RemainBulletCount <= 0) RemainBulletCount = MaxBulletCount;
-
-        _isEnableToShoot = true;
+        if (_ammo.CompleteWait()) OnAmmoCountChanged?.Invoke(RemainBulletCount);
     }
     private void OnDisable()
     {
@@ -125,6 +128,7 @@ public class PlayerAttack : PlayerComponentBase
 
         for (int i = 1; i <= _synchronousBulletCount; i++)
         {
+            if (RemainBulletCount <= 0) return;
             var bullet = _poolManager.Get(BulletTypeEnum.PlayerBullet);
             bullet.Parameter = _bulletParameter;
             bullet.gameObject.transform.position = _muzzle.position;
@@ -135,7 +139,8 @@ public class PlayerAttack : PlayerComponentBase
             // パラメーターを設定してから初期化処理を行う。
             bullet.OnGetFromPool();
 
-            RemainBulletCount--;
+            _ammo.TryConsumeShot();
+            OnAmmoCountChanged?.Invoke(RemainBulletCount);
             if (RemainBulletCount == 0) return;
         }
     }
