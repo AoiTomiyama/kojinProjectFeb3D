@@ -1,11 +1,11 @@
 /// <summary>
-/// ダメージを受ける物であることを保証するインターフェイス
+/// 繝繝｡繝ｼ繧ｸ繧貞女縺代ｋ迚ｩ縺ｧ縺ゅｋ縺薙→繧剃ｿ晁ｨｼ縺吶ｋ繧､繝ｳ繧ｿ繝ｼ繝輔ぉ繧､繧ｹ
 /// </summary>
 public interface IDamageable
 {
     /// <summary>
-    /// 何かしらからダメージを受けた際に呼び出される関数
+    /// 菴輔°縺励ｉ縺九ｉ繝繝｡繝ｼ繧ｸ繧貞女縺代◆髫帙↓蜻ｼ縺ｳ蜃ｺ縺輔ｌ繧矩未謨ｰ
     /// </summary>
-    /// <param name="damageAmount">ダメージの値</param>
+    /// <param name="damageAmount">繝繝｡繝ｼ繧ｸ縺ｮ蛟､</param>
     public void Damage(int damageAmount);
 }

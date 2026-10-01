@@ -4,7 +4,7 @@ using UnityEngine.AI;
 [RequireComponent(typeof(NavMeshAgent))]
 public class EnemyMove : EnemyComponentBase
 {
-    [SerializeField, Header("Š´’m”ÍˆÍ")] 
+    [SerializeField, Header("æ„ŸçŸ¥ç¯„å›²")] 
     private float _detectRange;
     NavMeshAgent _agent;
     bool _playerIsInDetectRange;
@@ -20,7 +20,7 @@ public class EnemyMove : EnemyComponentBase
             _agent.SetDestination(Core.Target.position);
         }
 
-        // ƒvƒŒƒCƒ„[‚ª”ÍˆÍ“à‚©‚ÂAƒvƒŒƒCƒ„[‚Ü‚Å‚ÉÕ•Á‚ª‚È‚¢‚Æ‚«‚É’â~‚·‚éB
+        // ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒç¯„å›²å†…ã‹ã¤ã€ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã¾ã§ã«é®è”½ãŒãªã„ã¨ãã«åœæ­¢ã™ã‚‹ã€‚
         var playerIsInFireRange = Physics.CheckSphere(transform.position, Core.ShootRange, Core.PlayerLayerMask);
         if (!playerIsInFireRange) return;
 
@@ -35,11 +35,11 @@ public class EnemyMove : EnemyComponentBase
     }
     private void OnDrawGizmos()
     {
-        // Š´’m”ÍˆÍ
+        // æ„ŸçŸ¥ç¯„å›²
         Gizmos.color = (_playerIsInDetectRange) ? Color.yellow : Color.green;
         Gizmos.DrawWireSphere(transform.position, _detectRange);
 
-        // Ë’ö‹——£
+        // å°„ç¨‹è·é›¢
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, Core.ShootRange);
     }

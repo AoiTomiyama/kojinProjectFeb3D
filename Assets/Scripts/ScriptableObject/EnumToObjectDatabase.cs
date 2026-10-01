@@ -15,10 +15,10 @@ public class EnumToObjectDatabase : ScriptableObject
 
     public List<EnumToGameObjectPair> Mappings;
     /// <summary>
-    /// ƒf[ƒ^ƒx[ƒX‚©‚çæ“¾‚·‚éB
+    /// ãƒ‡ãƒ¼ã‚¿ãƒ™ãƒ¼ã‚¹ã‹ã‚‰å–å¾—ã™ã‚‹ã€‚
     /// </summary>
-    /// <param name="type">—v‹‚·‚éí—Ş</param>
-    /// <returns>—v‹‚Æˆê’v‚µ‚½ƒvƒŒƒnƒu</returns>
+    /// <param name="type">è¦æ±‚ã™ã‚‹ç¨®é¡</param>
+    /// <returns>è¦æ±‚ã¨ä¸€è‡´ã—ãŸãƒ—ãƒ¬ãƒãƒ–</returns>
     public GameObject GetGameObject(BulletTypeEnum type)
     {
         foreach (var mapping in Mappings)

@@ -20,7 +20,7 @@ public class LevelUpSystemManager : MonoBehaviour
     [SerializeField] private Image _hasPickupNotice;
     [SerializeField] private VerticalLayoutGroup _buttonLayoutGroup;
 
-    [SerializeField, Header("ŸƒŒƒxƒ‹‚É•K—v‚ÈŒoŒ±’l")]
+    [SerializeField, Header("æ¬¡ãƒ¬ãƒ™ãƒ«ã«å¿…è¦ãªçµŒé¨“å€¤")]
     private List<int> _requireExpList = new List<int>();
 
     [SerializeField] private Button[] _buttons;
@@ -56,7 +56,7 @@ public class LevelUpSystemManager : MonoBehaviour
         _upgradePanel.gameObject.SetActive(_isMenuActivated);
         _hasPickupNotice.gameObject.SetActive(_pickCount > 0);
 
-        // ƒƒjƒ…[‚ª”ñ•\¦‚Å‚àA’Š‘I‘ÎÛ‚Ìqƒ{ƒ^ƒ“‚ğ‚·‚×‚Ä•Û‚·‚éB
+        // ãƒ¡ãƒ‹ãƒ¥ãƒ¼ãŒéè¡¨ç¤ºã§ã‚‚ã€æŠ½é¸å¯¾è±¡ã®å­ãƒœã‚¿ãƒ³ã‚’ã™ã¹ã¦ä¿æŒã™ã‚‹ã€‚
         _buttons = _buttonLayoutGroup.GetComponentsInChildren<Button>(true);
         Reroll();
     }
@@ -68,11 +68,11 @@ public class LevelUpSystemManager : MonoBehaviour
 
         if (_requireExpList.Count == 0)
         {
-            Debug.LogError("•K—vŒoŒ±’l‚ªİ’è‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB", this);
+            Debug.LogError("å¿…è¦çµŒé¨“å€¤ãŒè¨­å®šã•ã‚Œã¦ã„ã¾ã›ã‚“ã€‚", this);
             return;
         }
 
-        // ŒoŒ±’l‚ÆƒŒƒxƒ‹‚ğæ‚ÉŠm’è‚µA•\¦ƒAƒjƒ[ƒVƒ‡ƒ“‚ÉƒQ[ƒ€ó‘Ô‚ğˆÏ‚Ë‚È‚¢B
+        // çµŒé¨“å€¤ã¨ãƒ¬ãƒ™ãƒ«ã‚’å…ˆã«ç¢ºå®šã—ã€è¡¨ç¤ºã‚¢ãƒ‹ãƒ¡ãƒ¼ã‚·ãƒ§ãƒ³ã«ã‚²ãƒ¼ãƒ çŠ¶æ…‹ã‚’å§”ã­ãªã„ã€‚
         _currentExp += amount;
         bool leveledUp = false;
         while (_currentLevel < _requireExpList.Count)
@@ -80,7 +80,7 @@ public class LevelUpSystemManager : MonoBehaviour
             int requiredExp = _requireExpList[_currentLevel];
             if (requiredExp <= 0)
             {
-                Debug.LogError("•K—vŒoŒ±’l‚Í³‚Ì’l‚Åİ’è‚µ‚Ä‚­‚¾‚³‚¢B", this);
+                Debug.LogError("å¿…è¦çµŒé¨“å€¤ã¯æ­£ã®å€¤ã§è¨­å®šã—ã¦ãã ã•ã„ã€‚", this);
                 return;
             }
             if (_currentExp < requiredExp) break;
@@ -95,7 +95,7 @@ public class LevelUpSystemManager : MonoBehaviour
         _expBar.DOKill();
         if (_currentLevel >= _requireExpList.Count)
         {
-            // ÅIƒŒƒxƒ‹“’BŒã‚ÍŒoŒ±’l‚ğ’~Ï‚¹‚¸Aƒo[‚ğ–ƒ^ƒ“‚ÉŒÅ’è‚·‚éB
+            // æœ€çµ‚ãƒ¬ãƒ™ãƒ«åˆ°é”å¾Œã¯çµŒé¨“å€¤ã‚’è“„ç©ã›ãšã€ãƒãƒ¼ã‚’æº€ã‚¿ãƒ³ã«å›ºå®šã™ã‚‹ã€‚
             _currentExp = 0;
             _expBar.fillAmount = 1f;
             return;
@@ -119,7 +119,7 @@ public class LevelUpSystemManager : MonoBehaviour
     {
         if (_buttons == null || _buttons.Length < 3)
         {
-            Debug.LogError("‹­‰»Œó•â‚Ìƒ{ƒ^ƒ“‚ª3Œ–¢–‚Ì‚½‚ß’Š‘I‚Å‚«‚Ü‚¹‚ñB", this);
+            Debug.LogError("å¼·åŒ–å€™è£œã®ãƒœã‚¿ãƒ³ãŒ3ä»¶æœªæº€ã®ãŸã‚æŠ½é¸ã§ãã¾ã›ã‚“ã€‚", this);
             return false;
         }
 
@@ -128,7 +128,7 @@ public class LevelUpSystemManager : MonoBehaviour
             button.gameObject.SetActive(false);
         }
 
-        // æ“ª3Œ‚¾‚¯‚ğ•”•ª“I‚ÉƒVƒƒƒbƒtƒ‹‚µAd•¡‚Ì‚È‚¢Œó•â‚ğ‘I‚ÔB
+        // å…ˆé ­3ä»¶ã ã‘ã‚’éƒ¨åˆ†çš„ã«ã‚·ãƒ£ãƒƒãƒ•ãƒ«ã—ã€é‡è¤‡ã®ãªã„å€™è£œã‚’é¸ã¶ã€‚
         var indices = new int[_buttons.Length];
         for (int i = 0; i < indices.Length; i++) indices[i] = i;
         for (int i = 0; i < 3; i++)

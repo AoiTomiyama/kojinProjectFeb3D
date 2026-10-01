@@ -22,6 +22,7 @@
 - 作業前に `git status --short` を確認する。既存の未コミット変更を保護し、同じファイルを編集する前に差分を読む。
 - Windows 環境で Git が所有者の相違を拒否したら、各コマンドに `git -c safe.directory=<リポジトリの絶対パス>` を指定する。ユーザーのグローバル Git 設定は変更しない。
 - シーン、Prefab、ScriptableObject、アセットを編集または移動するときは Unity YAML の参照と `.meta` の GUID を維持する。
+- Git 管理下のテキストは UTF-8 で保存する。C# も Shift_JIS / CP932 へ戻さず、既存の改行を維持する。新規ファイルは `.editorconfig` に従う。
 - 生成物の `Library/`、`Temp/`、`obj/`、`.sln`、`.csproj` は成果物として編集しない。
 - 不具合候補はコード上の根拠と Unity Editor で確認した事実を区別する。指定バージョンの Editor で再生できない場合はその旨を報告する。
 

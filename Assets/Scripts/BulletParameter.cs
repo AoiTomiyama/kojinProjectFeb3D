@@ -2,21 +2,21 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// ’e‚Ìƒpƒ‰ƒ[ƒ^[BˆĞ—Í‚â‘¬“x‚Ì’l‚ğ‚ÂB
+/// å¼¾ã®ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ãƒ¼ã€‚å¨åŠ›ã‚„é€Ÿåº¦ã®å€¤ã‚’æŒã¤ã€‚
 /// </summary>
 [Serializable]
 public struct BulletParameter
 {
-    [Header("’e‚ÌˆĞ—Í")]
+    [Header("å¼¾ã®å¨åŠ›")]
     public int Damage;
 
-    [Header("’e‚Ì‘¬“x")]
+    [Header("å¼¾ã®é€Ÿåº¦")]
     public float Speed;
 
-    [SerializeField, Header("’e‚Ì‘ØİŠÔ"), Range(1f, 100f)]
+    [SerializeField, Header("å¼¾ã®æ»åœ¨æ™‚é–“"), Range(1f, 100f)]
     private float duration;
 
-    [Header("’e‚Ì”½Ë‰ñ”")]
+    [Header("å¼¾ã®åå°„å›æ•°")]
     public int RicochetCount;
 
     public float Duration 

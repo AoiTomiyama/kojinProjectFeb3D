@@ -2,26 +2,26 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// �G�⎩�@���甭�˂����e�̊��N���X�B
+/// 敵や自機から発射される弾の基底クラス。
 /// </summary>
 public abstract class PooledAttackBase : MonoBehaviour
 {
     /// <summary>
-    /// �I�u�W�F�N�g�v�[���ɖ߂��ۂɎ��s����f���Q�[�g
+    /// オブジェクトプールに戻す際に実行するデリゲート
     /// </summary>
     public Action OnReturnToPool { get; set; }
     /// <summary>
-    /// �e�̃p�����[�^�[
+    /// 弾のパラメーター
     /// </summary>
     public BulletParameter Parameter { get; set; }
     /// <summary>
-    /// �I�u�W�F�N�g�v�[��������o���ۂɎ��s����֐�
-    /// �\���̂̕ϐ����󂯎��֌W��AOnEnable�̏�����C�ӂ̃^�C�~���O�ōs���K�v��������B
+    /// オブジェクトプールから取り出す際に実行する関数
+    /// 構造体の変数を受け取る関係上、OnEnableの処理を任意のタイミングで行う必要性がある。
     /// </summary>
     public abstract void OnGetFromPool();
     /// <summary>
-    /// �I�u�W�F�N�g�v�[���ɓo�^����ۂɎ��s����֐�
-    /// �����I��Start�֐��Ɠ��`�B
+    /// オブジェクトプールに登録する際に実行する関数
+    /// 実質的にStart関数と同義。
     /// </summary>
     public abstract void OnInitialize();
 }

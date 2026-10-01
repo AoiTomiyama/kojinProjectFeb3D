@@ -13,13 +13,13 @@ public class PlayerUIViewer : PlayerComponentBase
     private void Start()
     {
         Core.OnHealthChanged += RefreshHealth;
-        // PlayerCore.Start ‚æ‚èŒã‚ÉŽÀs‚³‚ê‚Ä‚à‰Šú‘Ì—Í‚ð•\Ž¦‚Å‚«‚é‚æ‚¤‚É‚·‚éB
+        // PlayerCore.Start ã‚ˆã‚Šå¾Œã«å®Ÿè¡Œã•ã‚Œã¦ã‚‚åˆæœŸä½“åŠ›ã‚’è¡¨ç¤ºã§ãã‚‹ã‚ˆã†ã«ã™ã‚‹ã€‚
         RefreshHealth();
 
         var attack = Core.Attack;
-        if (attack == null) throw new System.InvalidOperationException("PlayerUIViewer: PlayerAttack ‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñB");
+        if (attack == null) throw new System.InvalidOperationException("PlayerUIViewer: PlayerAttack ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã€‚");
         attack.OnAmmoCountChanged += value => _ammoText.text = value.ToString();
-        // UŒ‚ˆ—‚Ì Start ‚ªæ‚Å‚àA’Ê’m‚ðŽæ‚è“¦‚µ‚½‰Šú’e”‚ð•\Ž¦‚·‚éB
+        // æ”»æ’ƒå‡¦ç†ã® Start ãŒå…ˆã§ã‚‚ã€é€šçŸ¥ã‚’å–ã‚Šé€ƒã—ãŸåˆæœŸå¼¾æ•°ã‚’è¡¨ç¤ºã™ã‚‹ã€‚
         _ammoText.text = attack.RemainBulletCount.ToString();
         attack.OnCoolDownBegin += time =>
         {

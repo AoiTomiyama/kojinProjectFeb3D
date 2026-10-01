@@ -5,13 +5,13 @@ using UnityEngine;
 
 public class PlayerAttack : PlayerComponentBase
 {
-    [SerializeField, Header("Å‘å‘•’e”")] private int _maxBulletCount;
-    [SerializeField, Header("“¯”­Ë”")] private int _synchronousBulletCount;
-    [SerializeField, Header("ŠgU”ÍˆÍ"), Range(1, 180)] private int _spreadAngle;
-    [SerializeField, Header("”­ËŠÔŠu")] private float _coolDown;
-    [SerializeField, Header("Ä‘•“UŠÔ")] private float _reloadTime;
-    [SerializeField, Header("’e‚Ì‰Šú’l")] private BulletParameter _bulletParameter;
-    [SerializeField, Header("”­ËŒû")] private Transform _muzzle;
+    [SerializeField, Header("æœ€å¤§è£…å¼¾æ•°")] private int _maxBulletCount;
+    [SerializeField, Header("åŒæ™‚ç™ºå°„æ•°")] private int _synchronousBulletCount;
+    [SerializeField, Header("æ‹¡æ•£ç¯„å›²"), Range(1, 180)] private int _spreadAngle;
+    [SerializeField, Header("ç™ºå°„é–“éš”")] private float _coolDown;
+    [SerializeField, Header("å†è£…å¡«æ™‚é–“")] private float _reloadTime;
+    [SerializeField, Header("å¼¾ã®åˆæœŸå€¤")] private BulletParameter _bulletParameter;
+    [SerializeField, Header("ç™ºå°„å£")] private Transform _muzzle;
 
     private BulletObjectPoolManager _poolManager;
     private LevelUpSystemManager _lvUpManager;
@@ -49,7 +49,7 @@ public class PlayerAttack : PlayerComponentBase
     private void OnEnable()
     {
         _cts = new CancellationTokenSource();
-        // –³Œø‰»‚Å’†’f‚µ‚½Ä‘•“UE”­ËŠÔŠu‚ÍAÄ—LŒø‰»Œã‚É‚â‚è’¼‚·B
+        // ç„¡åŠ¹åŒ–ã§ä¸­æ–­ã—ãŸå†è£…å¡«ãƒ»ç™ºå°„é–“éš”ã¯ã€å†æœ‰åŠ¹åŒ–å¾Œã«ã‚„ã‚Šç›´ã™ã€‚
         if (_isInitialized && !_isEnableToShoot) WaitShootCooldownAsync(_cts.Token);
     }
     void Start()
@@ -132,7 +132,7 @@ public class PlayerAttack : PlayerComponentBase
             var angle = _spreadAngle / 2f - i * th;
             var dir = Quaternion.AngleAxis(angle, Vector3.up) * transform.forward;
             bullet.gameObject.transform.forward = dir;
-            // ƒpƒ‰ƒ[ƒ^[‚ğİ’è‚µ‚Ä‚©‚ç‰Šú‰»ˆ—‚ğs‚¤B
+            // ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ãƒ¼ã‚’è¨­å®šã—ã¦ã‹ã‚‰åˆæœŸåŒ–å‡¦ç†ã‚’è¡Œã†ã€‚
             bullet.OnGetFromPool();
 
             RemainBulletCount--;
@@ -141,7 +141,7 @@ public class PlayerAttack : PlayerComponentBase
     }
     private void OnDrawGizmos()
     {
-        // ’e‚Ì”­Ë—\‘ªü
+        // å¼¾ã®ç™ºå°„äºˆæ¸¬ç·š
         Gizmos.color = Color.yellow;
         float th = 1f * _spreadAngle / (_synchronousBulletCount + 1f);
 

@@ -11,16 +11,16 @@ public class EnemyCore : MonoBehaviour, IDamageable
     private Action<int> OnDeath;
     public UnityEvent OnDied;
 
-    [SerializeField, Header("€–S‚ÌƒGƒtƒFƒNƒg")]
+    [SerializeField, Header("æ­»äº¡æ™‚ã®ã‚¨ãƒ•ã‚§ã‚¯ãƒˆ")]
     private GameObject _deathEffect;
 
-    [SerializeField, Header("“|‚µ‚½‚Æ‚«‚ÌŒoŒ±’l—Ê")]
+    [SerializeField, Header("å€’ã—ãŸã¨ãã®çµŒé¨“å€¤é‡")]
     private int _expAmount;
 
-    [SerializeField, Header("Ë’ö‹——£")] 
+    [SerializeField, Header("å°„ç¨‹è·é›¢")] 
     private float _shootRange;
 
-    [Header("Å‘å‘Ì—Í")]
+    [Header("æœ€å¤§ä½“åŠ›")]
     public int MaxHealth;
     private int _health;
     public int Health
@@ -42,7 +42,7 @@ public class EnemyCore : MonoBehaviour, IDamageable
         Health = MaxHealth;
         _target = SceneReferenceResolver.RequireUnique<PlayerCore>(this).transform;
         _playerLayer = _target.gameObject.layer;
-        // Physics.CheckSphere ‚É‚Í”Ô†‚Å‚Í‚È‚­ƒrƒbƒgƒ}ƒXƒN‚ğ“n‚·B
+        // Physics.CheckSphere ã«ã¯ç•ªå·ã§ã¯ãªããƒ“ãƒƒãƒˆãƒã‚¹ã‚¯ã‚’æ¸¡ã™ã€‚
         _playerLayerMask = 1 << _playerLayer;
         
         var lvUpManager = SceneReferenceResolver.RequireUnique<LevelUpSystemManager>(this);

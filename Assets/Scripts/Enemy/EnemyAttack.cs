@@ -4,13 +4,13 @@ using UnityEngine;
 
 public class EnemyAttack : EnemyComponentBase
 {
-    [SerializeField, Header("Å‘å‘•’e”")] private int _maxBulletCount;
-    [SerializeField, Header("“¯”­Ë”")] private int _synchronousBulletCount;
-    [SerializeField, Header("ŠgU”ÍˆÍ"), Range(1, 180)] private int _spreadAngle;
-    [SerializeField, Header("”­ËŠÔŠu")] private float _coolDown;
-    [SerializeField, Header("Ä‘•“UŠÔ")] private float _reloadTime;
-    [SerializeField, Header("’e‚Ì‰Šú’l")] private BulletParameter _bulletParameter;
-    [SerializeField, Header("”­ËŒû")] private Transform _muzzle;
+    [SerializeField, Header("æœ€å¤§è£…å¼¾æ•°")] private int _maxBulletCount;
+    [SerializeField, Header("åŒæ™‚ç™ºå°„æ•°")] private int _synchronousBulletCount;
+    [SerializeField, Header("æ‹¡æ•£ç¯„å›²"), Range(1, 180)] private int _spreadAngle;
+    [SerializeField, Header("ç™ºå°„é–“éš”")] private float _coolDown;
+    [SerializeField, Header("å†è£…å¡«æ™‚é–“")] private float _reloadTime;
+    [SerializeField, Header("å¼¾ã®åˆæœŸå€¤")] private BulletParameter _bulletParameter;
+    [SerializeField, Header("ç™ºå°„å£")] private Transform _muzzle;
 
     private BulletObjectPoolManager _poolManager;
     private CancellationTokenSource _cts;
@@ -23,7 +23,7 @@ public class EnemyAttack : EnemyComponentBase
     private void OnEnable()
     {
         _cts = new CancellationTokenSource();
-        // –³Œø‰»‚Å’†’f‚µ‚½Ä‘•“UE”­ËŠÔŠu‚ÍAÄ—LŒø‰»Œã‚É‚â‚è’¼‚·B
+        // ç„¡åŠ¹åŒ–ã§ä¸­æ–­ã—ãŸå†è£…å¡«ãƒ»ç™ºå°„é–“éš”ã¯ã€å†æœ‰åŠ¹åŒ–å¾Œã«ã‚„ã‚Šç›´ã™ã€‚
         if (_isInitialized && !_isEnableToShoot) WaitShootCooldownAsync(_cts.Token);
     }
     void Start()
@@ -37,13 +37,13 @@ public class EnemyAttack : EnemyComponentBase
         if (!_isInitialized) return;
         var isPlayerInRange = Physics.CheckSphere(transform.position, Core.ShootRange, Core.PlayerLayerMask);
 
-        // ”ÍˆÍ“à‚ÉƒvƒŒƒCƒ„[‚ª‘¶İ‚·‚é‚©‚Ç‚¤‚©
+        // ç¯„å›²å†…ã«ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒå­˜åœ¨ã™ã‚‹ã‹ã©ã†ã‹
         if (!isPlayerInRange) return;
 
-        // ƒN[ƒ‹ƒ_ƒEƒ“‚ğI‚¦‚Ä‚¢‚é‚©
+        // ã‚¯ãƒ¼ãƒ«ãƒ€ã‚¦ãƒ³ã‚’çµ‚ãˆã¦ã„ã‚‹ã‹
         if (!_isEnableToShoot) return;
 
-        // ƒŒƒCƒLƒƒƒXƒg‚ğ”ò‚Î‚µA‚»‚Ì–½’†æ‚ÉƒvƒŒƒCƒ„[‚ª‚¢‚½‚©
+        // ãƒ¬ã‚¤ã‚­ãƒ£ã‚¹ãƒˆã‚’é£›ã°ã—ã€ãã®å‘½ä¸­å…ˆã«ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒã„ãŸã‹
         var dir = (Core.Target.position - _muzzle.position).normalized;
         var ray = new Ray(_muzzle.position, dir);
         if (Physics.Raycast(ray, out var hit, Core.ShootRange) && hit.collider.gameObject.layer == Core.PlayerLayer)
@@ -87,7 +87,7 @@ public class EnemyAttack : EnemyComponentBase
             var angle = _spreadAngle / 2f - i * th;
             var dir = Quaternion.AngleAxis(angle, Vector3.up) * transform.forward;
             bullet.gameObject.transform.forward = dir;
-            // ƒpƒ‰ƒ[ƒ^[‚ğİ’è‚µ‚Ä‚©‚ç‰Šú‰»ˆ—‚ğs‚¤B
+            // ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ãƒ¼ã‚’è¨­å®šã—ã¦ã‹ã‚‰åˆæœŸåŒ–å‡¦ç†ã‚’è¡Œã†ã€‚
             bullet.OnGetFromPool();
 
             _remainBulletCount--;
@@ -96,7 +96,7 @@ public class EnemyAttack : EnemyComponentBase
     }
     private void OnDrawGizmos()
     {
-        // ’e‚Ì”­Ë—\‘ªü
+        // å¼¾ã®ç™ºå°„äºˆæ¸¬ç·š
         Gizmos.color = Color.yellow;
         float th = 1f * _spreadAngle / (_synchronousBulletCount + 1f);
 

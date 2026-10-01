@@ -4,7 +4,7 @@ using UnityEngine.Pool;
 
 public class BulletObjectPoolManager : MonoBehaviour
 {
-    [Header("ƒIƒuƒWƒFƒNƒgƒv[ƒ‹‚Ìİ’è")]
+    [Header("ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆãƒ—ãƒ¼ãƒ«ã®è¨­å®š")]
     [SerializeField] private int _initCount = 50;
     [SerializeField] private int _maxCount = 200;
     [SerializeField] private EnumToObjectDatabase _objectDatabase;
@@ -15,11 +15,11 @@ public class BulletObjectPoolManager : MonoBehaviour
     {
         if (_objectDatabase == null)
         {
-            throw new System.InvalidOperationException("BulletObjectPoolManager: ’e‚Ìƒf[ƒ^ƒx[ƒX‚ªİ’è‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB");
+            throw new System.InvalidOperationException("BulletObjectPoolManager: å¼¾ã®ãƒ‡ãƒ¼ã‚¿ãƒ™ãƒ¼ã‚¹ãŒè¨­å®šã•ã‚Œã¦ã„ã¾ã›ã‚“ã€‚");
         }
         if (_soundEffects == null)
         {
-            throw new System.InvalidOperationException("BulletObjectPoolManager: Œø‰Ê‰¹—p AudioSource ‚ªİ’è‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB");
+            throw new System.InvalidOperationException("BulletObjectPoolManager: åŠ¹æœéŸ³ç”¨ AudioSource ãŒè¨­å®šã•ã‚Œã¦ã„ã¾ã›ã‚“ã€‚");
         }
         InitPool();
     }
@@ -31,10 +31,10 @@ public class BulletObjectPoolManager : MonoBehaviour
             _objectPoolDict[pair.Type] = new ObjectPool<PooledAttackBase>(
                 () =>
                 {
-                    // pair‚É‰ˆ‚Á‚½ƒvƒŒƒnƒu‚ğƒCƒ“ƒXƒ^ƒ“ƒX‰»‚µ‚½‚¢‚Ì‚Åƒ‰ƒ€ƒ_®‚ğ—p‚¢‚éB
+                    // pairã«æ²¿ã£ãŸãƒ—ãƒ¬ãƒãƒ–ã‚’ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹åŒ–ã—ãŸã„ã®ã§ãƒ©ãƒ ãƒ€å¼ã‚’ç”¨ã„ã‚‹ã€‚
                     var bullet = Instantiate(_objectDatabase.GetGameObject(pair.Type), transform);
                     var component = bullet.GetComponent<PooledAttackBase>();
-                    // ƒv[ƒ‹¶¬‚ÉA’e‚ªg—p‚·‚éƒV[ƒ“‚ÌŒø‰Ê‰¹o—Í‚ğ“n‚·B
+                    // ãƒ—ãƒ¼ãƒ«ç”Ÿæˆæ™‚ã«ã€å¼¾ãŒä½¿ç”¨ã™ã‚‹ã‚·ãƒ¼ãƒ³ã®åŠ¹æœéŸ³å‡ºåŠ›ã‚’æ¸¡ã™ã€‚
                     if (component is BulletShotBehaviour shot) shot.SetAudioSource(_soundEffects);
                     component.OnInitialize();
                     component.OnReturnToPool += () =>
@@ -49,7 +49,7 @@ public class BulletObjectPoolManager : MonoBehaviour
                 OnGetFromPool, OnReleaseToPool, OnDisposePoolObject,
                 true, _initCount, _maxCount
                 );
-            // ƒv[ƒ‹‚ğ–‚½‚µ‚Ä‚¨‚­‚½‚ß—\‚ß¶¬‚µ‚Ä‚¨‚­
+            // ãƒ—ãƒ¼ãƒ«ã‚’æº€ãŸã—ã¦ãŠããŸã‚äºˆã‚ç”Ÿæˆã—ã¦ãŠã
             var list = new List<PooledAttackBase>();
             for (int i = 0; i < _initCount; i++)
             {

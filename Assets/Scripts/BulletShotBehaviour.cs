@@ -10,9 +10,9 @@ public class BulletShotBehaviour : PooledAttackBase
     private CancellationTokenSource _cts;
     private Rigidbody _rb;
     private int _hitCount;
-    [SerializeField, Header("Õ“Ë‚ÌƒGƒtƒFƒNƒg")] 
+    [SerializeField, Header("è¡çªæ™‚ã®ã‚¨ãƒ•ã‚§ã‚¯ãƒˆ")] 
     private GameObject _hitParticle;
-    [SerializeField, Header("ƒ_ƒ[ƒW•\‹L")]
+    [SerializeField, Header("ãƒ€ãƒ¡ãƒ¼ã‚¸è¡¨è¨˜")]
     private GameObject _damageText;
     [SerializeField]
     private AudioClip _shootClip;
@@ -34,7 +34,7 @@ public class BulletShotBehaviour : PooledAttackBase
     {
         if (_aus == null)
         {
-            throw new System.InvalidOperationException("BulletShotBehaviour: Œø‰Ê‰¹—p AudioSource ‚ª‰Šú‰»‚³‚ê‚Ä‚¢‚Ü‚¹‚ñB");
+            throw new System.InvalidOperationException("BulletShotBehaviour: åŠ¹æœéŸ³ç”¨ AudioSource ãŒåˆæœŸåŒ–ã•ã‚Œã¦ã„ã¾ã›ã‚“ã€‚");
         }
         _aus.PlayOneShot(_shootClip);
         

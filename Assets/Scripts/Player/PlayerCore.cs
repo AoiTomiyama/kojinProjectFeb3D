@@ -5,7 +5,7 @@ using UnityEngine.Events;
 
 public class PlayerCore : MonoBehaviour, IDamageable
 {
-    // ”í’e‚ÉUŒ‚—Í‚âˆÚ“®‘¬“x‚ğã‚°‚é‚½‚ß‚ÉƒAƒNƒZƒX‰Â”\‚É‚µ‚½B
+    // è¢«å¼¾æ™‚ã«æ”»æ’ƒåŠ›ã‚„ç§»å‹•é€Ÿåº¦ã‚’ä¸Šã’ã‚‹ãŸã‚ã«ã‚¢ã‚¯ã‚»ã‚¹å¯èƒ½ã«ã—ãŸã€‚
     private PlayerMove _move;
     private PlayerAttack _attack;
     public PlayerMove Move { get => _move; }
@@ -14,10 +14,10 @@ public class PlayerCore : MonoBehaviour, IDamageable
     public Action OnHealthChanged;
     public UnityEvent OnDied;
 
-    [SerializeField, Header("€–S‚ÌƒGƒtƒFƒNƒg")]
+    [SerializeField, Header("æ­»äº¡æ™‚ã®ã‚¨ãƒ•ã‚§ã‚¯ãƒˆ")]
     private GameObject _deathEffect;
 
-    [SerializeField, Header("Å‘å‘Ì—Í")]
+    [SerializeField, Header("æœ€å¤§ä½“åŠ›")]
     private int _maxHealth;
     private int _health;
     public int Health
@@ -37,7 +37,7 @@ public class PlayerCore : MonoBehaviour, IDamageable
         {
             if (_maxHealth != value)
             {
-                // Å‘å‘Ì—Í‚Ì’l‚ª•ÏX‚³‚ê‚½‚Æ‚«A‘Ì—Í‚ğ‡‚í‚¹‚éB
+                // æœ€å¤§ä½“åŠ›ã®å€¤ãŒå¤‰æ›´ã•ã‚ŒãŸã¨ãã€ä½“åŠ›ã‚’åˆã‚ã›ã‚‹ã€‚
                 _maxHealth = value;
                 Health = value;
             }
@@ -57,7 +57,7 @@ public class PlayerCore : MonoBehaviour, IDamageable
 
     public void ApplyPowerUp(PowerUpParameter powerUp)
     {
-        // ”\—Í’l‚²‚Æ‚Ì•ÏX‚ğ’S“–ƒRƒ“ƒ|[ƒlƒ“ƒg‚ÖU‚è•ª‚¯‚éB
+        // èƒ½åŠ›å€¤ã”ã¨ã®å¤‰æ›´ã‚’æ‹…å½“ã‚³ãƒ³ãƒãƒ¼ãƒãƒ³ãƒˆã¸æŒ¯ã‚Šåˆ†ã‘ã‚‹ã€‚
         MaxHealth = (int)((MaxHealth + powerUp.MaxHealthAdd) * powerUp.MaxHealthMultiply);
         _move.Speed *= powerUp.MoveSpeedMultiply;
         _attack.ApplyPowerUp(powerUp);
