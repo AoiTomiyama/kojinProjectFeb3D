@@ -77,34 +77,16 @@ public class EnemyAttack : EnemyComponentBase
 
     private void Shoot()
     {
-        var th = 1f * _spreadAngle / (_synchronousBulletCount + 1);
-
-        for (int i = 1; i <= _synchronousBulletCount; i++)
-        {
-            if (_ammo.RemainingAmmo <= 0) return;
-            var bullet = _poolManager.Get(BulletTypeEnum.EnemyBullet);
-            bullet.Parameter = _bulletParameter;
-            bullet.gameObject.transform.position = _muzzle.position;
-
-            var angle = _spreadAngle / 2f - i * th;
-            var dir = Quaternion.AngleAxis(angle, Vector3.up) * transform.forward;
-            bullet.gameObject.transform.forward = dir;
-            // パラメーターを設定してから初期化処理を行う。
-            bullet.OnGetFromPool();
-
-            _ammo.TryConsumeShot();
-            if (_ammo.RemainingAmmo == 0) return;
-        }
+        BulletFireSequence.Fire(_poolManager, BulletTypeEnum.EnemyBullet, _bulletParameter,
+            _muzzle, transform.forward, _synchronousBulletCount, _spreadAngle, _ammo);
     }
     private void OnDrawGizmos()
     {
         // 弾の発射予測線
         Gizmos.color = Color.yellow;
-        float th = 1f * _spreadAngle / (_synchronousBulletCount + 1f);
-
-        for (int i = 1; i <= _synchronousBulletCount; i++)
+        for (int i = 0; i < _synchronousBulletCount; i++)
         {
-            var angle = _spreadAngle / 2f - i * th;
+            var angle = BulletSpread.GetAngle(_synchronousBulletCount, _spreadAngle, i);
             var dir = Quaternion.AngleAxis(angle, Vector3.up) * transform.forward;
             Gizmos.DrawLine(transform.position, transform.position + dir * 10);
         }
