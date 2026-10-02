@@ -1,17 +1,19 @@
 # プレイヤー能力値と強化の現行仕様
 
-タグ: `現行仕様` `プレイヤー` `体力` `弾数` `強化` `攻撃処理` `弾プール`
+タグ: `現行仕様` `プレイヤー` `体力` `弾数` `強化` `攻撃処理` `弾プール` `ScriptableObject` `初期設定`
 
 ## 体力
 
 - `Assets/Scripts/Player/PlayerCore.cs` の `MaxHealth` を別の値に設定すると、現在体力も新しい最大体力に合わせ、`OnHealthChanged` を通知する。同じ値を設定した場合は更新しない。
 - `Assets/Scripts/Player/PlayerCore.cs` の `ApplyPowerUp()` は、最大体力の加算、乗算の順に適用し、移動速度と射撃能力の変更を担当コンポーネントへ振り分ける。最大体力が変わると現在体力が新しい最大値になる。
 - `Assets/Scripts/Player/PlayerUIViewer.cs` はイベント購読直後と体力変更時に、体力バーと `現在体力/最大体力` の数値を更新する。`PlayerCore.Start()` と UI の `Start()` の順序に依存しない。
-- `Assets/Prefab/Player.prefab` の基本最大体力は100。`InGame.unity` の配置個体は `_maxHealth: 50` に上書きされる。
+- `PlayerInitialStats` の `PlayerBaseStats` は最大体力100・移動速度1000を定義し、`Player.prefab` が参照する。`InGame.unity` の配置個体は最大体力50・移動速度1000の `InGamePlayerStats` を参照する。`PlayerCore` と `PlayerMove` は開始時に個体ごとの値へコピーし、強化後も設定アセットを変更しない。
 
 ## InGame シーンの弾数と強化
 
-- `Assets/Scenes/InGame.unity` のプレイヤーは最大装弾数を5発に上書きしている。`PlayerAttack.Start()` は残弾数を最大値に設定し、`PlayerUIViewer.Start()` は通知を購読した直後に現在の残弾数を描画する。開始順やシーンに保存された表示文字列に依存しない。
+- `Player.prefab` は `PlayerWeapon`、`InGame.unity` の配置個体は最大装弾数5発・拡散角20度・弾の滞在時間15秒の `InGamePlayerWeapon` を参照する。`PlayerAttack` は `WeaponDefinition` の値を個体ごとの実行時値へコピーし、`PlayerUIViewer.Start()` は通知を購読した直後に現在の残弾数を描画する。開始順やシーンに保存された表示文字列に依存しない。
+- `Enemy.prefab` は `EnemyWeapon`、派生Prefab `Enemy Type Beta.prefab` は `EnemyBetaWeapon` を参照する。`InGame.unity` の個別調整した派生敵は `InGameEnemyWeapon` を参照する。各 `EnemyAttack` は弾の値と残弾を個体ごとに保持する。いずれの設定アセットもプレイ中に書き換えない。
+- 強化ボタンの `PowerUpParameter` はPrefab・シーンに保存する値型の設定であり、選択時に値を渡す。強化による加算・乗算はプレイヤーの実行時値にだけ適用する。
 - 強化候補「最大体力 +100%／ダメージ -50%」のパラメータは `MaxHealthMultiply = 2`、`DamageMultiply = 0.5`。`PlayerCore.ApplyPowerUp()` が最大体力を2倍にし、`PlayerAttack.ApplyPowerUp()` が弾のダメージを半分にする。最大体力の変更時に現在体力も更新される。
 
 ## 強化候補と経験値
@@ -57,3 +59,4 @@
 - 2026-10-01: A-03 は Unity 2022.3.62f2 の一時チェックアウトで改修前後を比較し、初期表示、強化メニュー開閉、途中経験値・レベル上昇・最大レベルの表示、演出中の連続更新、再抽選後の候補3件を確認した。改修後は表示コンポーネントだけを無効化した際、バーが確定済み進捗へ戻り、経験値状態が変わらないことも確認した。GUIの手動目視は含まない。
 - 2026-10-01: A-04 は一時的な .NET コンソールで発射、弾切れ、発射間隔、再装填、待機の再開始、最大装弾数変更、個体間の状態独立を確認。Unity 2022.3.62f2 の一時チェックアウトで、改修前後の `InGame.unity` を同じバッチPlay手順で比較し、プレイヤーと敵の発射・再装填・無効化と再有効化後の射撃を確認した。両ログに同じ弾の命中エフェクトの `MissingReferenceException` があり、攻撃状態の確認は通過した。GUIの手動操作は含まない。
 - 2026-10-02: A-05 は一時的な .NET コンソールで単発中央、3発の左右角度、残弾不足時の先頭2発、残弾0と不正な添字を確認。Unity 2022.3.62f2 の一時チェックアウトで `InGame.unity` をバッチPlayし、プレイヤー・敵それぞれ3発設定／残弾2発から2発が生成され、向きが22.5度と0度、残弾が0、初期化時の速度が向きと設定速度に一致することを確認した。GUIの手動操作は含まない。
+- 2026-10-03: A-06 は Unity 2022.3.62f2 の一時チェックアウトで `InGame.unity` をバッチPlayし、プレイヤーの初期体力50・移動速度1000・最大装弾数5、通常敵・派生敵・個別調整した派生敵の設定参照を確認した。強化後の体力・弾威力・装弾数は実行時だけ変更され、設定アセットと同じ設定を参照する別個体は変わらなかった。Playを停止・再開した後は初期体力50・移動速度1000・最大装弾数5に戻った。GUIの手動操作は含まない。

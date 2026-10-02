@@ -35,24 +35,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2817885548481149084, guid: 691395a73e1e3044a9ec37646b52b7e0,
         type: 3}
-      propertyPath: _coolDown
-      value: 0.3
-      objectReference: {fileID: 0}
-    - target: {fileID: 2817885548481149084, guid: 691395a73e1e3044a9ec37646b52b7e0,
-        type: 3}
-      propertyPath: _bulletParameter.Speed
-      value: 20
-      objectReference: {fileID: 0}
-    - target: {fileID: 2817885548481149084, guid: 691395a73e1e3044a9ec37646b52b7e0,
-        type: 3}
-      propertyPath: _bulletParameter.Damage
-      value: 6
-      objectReference: {fileID: 0}
-    - target: {fileID: 2817885548481149084, guid: 691395a73e1e3044a9ec37646b52b7e0,
-        type: 3}
-      propertyPath: _synchronousBulletCount
-      value: 1
-      objectReference: {fileID: 0}
+      propertyPath: _definition
+      value:
+      objectReference: {fileID: 11400000, guid: 9562699b22704ce88250515499aca89e, type: 2}
     - target: {fileID: 3945788651574608559, guid: 691395a73e1e3044a9ec37646b52b7e0,
         type: 3}
       propertyPath: m_LocalScale.x

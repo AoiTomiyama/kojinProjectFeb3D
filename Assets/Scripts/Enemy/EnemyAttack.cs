@@ -4,13 +4,12 @@ using UnityEngine;
 
 public class EnemyAttack : EnemyComponentBase
 {
-    [SerializeField, Header("最大装弾数")] private int _maxBulletCount;
-    [SerializeField, Header("同時発射数")] private int _synchronousBulletCount;
-    [SerializeField, Header("拡散範囲"), Range(1, 180)] private int _spreadAngle;
-    [SerializeField, Header("発射間隔")] private float _coolDown;
-    [SerializeField, Header("再装填時間")] private float _reloadTime;
-    [SerializeField, Header("弾の初期値")] private BulletParameter _bulletParameter;
+    [SerializeField] private WeaponDefinition _definition;
     [SerializeField, Header("発射口")] private Transform _muzzle;
+
+    private int _synchronousBulletCount;
+    private int _spreadAngle;
+    private BulletParameter _bulletParameter;
 
     private BulletObjectPoolManager _poolManager;
     private CancellationTokenSource _cts;
@@ -21,7 +20,12 @@ public class EnemyAttack : EnemyComponentBase
 
     private void Awake()
     {
-        _ammo = new WeaponAmmoState(_maxBulletCount, _coolDown, _reloadTime);
+        if (_definition == null) throw new System.InvalidOperationException("EnemyAttack: 武器の初期設定がありません。");
+        // 同じ定義を使う敵同士でも、残弾と射撃状態は個体ごとに持つ。
+        _synchronousBulletCount = _definition.SynchronousBulletCount;
+        _spreadAngle = _definition.SpreadAngle;
+        _bulletParameter = _definition.BulletParameter;
+        _ammo = new WeaponAmmoState(_definition.MaxBulletCount, _definition.CoolDown, _definition.ReloadTime);
     }
 
     private void OnEnable()
@@ -84,9 +88,11 @@ public class EnemyAttack : EnemyComponentBase
     {
         // 弾の発射予測線
         Gizmos.color = Color.yellow;
-        for (int i = 0; i < _synchronousBulletCount; i++)
+        int shots = Application.isPlaying ? _synchronousBulletCount : _definition != null ? _definition.SynchronousBulletCount : 0;
+        int spread = Application.isPlaying ? _spreadAngle : _definition != null ? _definition.SpreadAngle : 0;
+        for (int i = 0; i < shots; i++)
         {
-            var angle = BulletSpread.GetAngle(_synchronousBulletCount, _spreadAngle, i);
+            var angle = BulletSpread.GetAngle(shots, spread, i);
             var dir = Quaternion.AngleAxis(angle, Vector3.up) * transform.forward;
             Gizmos.DrawLine(transform.position, transform.position + dir * 10);
         }

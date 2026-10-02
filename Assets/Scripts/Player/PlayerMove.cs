@@ -6,10 +6,16 @@ public class PlayerMove : PlayerComponentBase
     Rigidbody _rb;
     LineRenderer _lr;
     Transform _camera;
-    [SerializeField] private float _speed;
+    private float _speed;
     [SerializeField] private Transform _lookAt;
 
     public float Speed { get => _speed; set => _speed = value; }
+
+    private void Awake()
+    {
+        // 強化後の速度は各プレイヤーの実行時値として保持する。
+        _speed = GetComponent<PlayerCore>().InitialStats.MoveSpeed;
+    }
 
     void Start()
     {

@@ -17,9 +17,10 @@ public class PlayerCore : MonoBehaviour, IDamageable
     [SerializeField, Header("死亡時のエフェクト")]
     private GameObject _deathEffect;
 
-    [SerializeField, Header("最大体力")]
+    [SerializeField] private PlayerInitialStats _initialStats;
     private int _maxHealth;
     private int _health;
+    public PlayerInitialStats InitialStats => _initialStats;
     public int Health
     {
         get => _health;
@@ -46,6 +47,9 @@ public class PlayerCore : MonoBehaviour, IDamageable
 
     private void Awake()
     {
+        if (_initialStats == null) throw new InvalidOperationException("PlayerCore: 初期能力値が設定されていません。");
+        // ScriptableObject の値は変更せず、このプレイヤーだけの実行時値へ複製する。
+        _maxHealth = _initialStats.MaxHealth;
         _move = GetComponent<PlayerMove>();
         _attack = GetComponentInChildren<PlayerAttack>();
     }

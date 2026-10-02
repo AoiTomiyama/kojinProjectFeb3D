@@ -363,16 +363,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f125c708f27f424bb7b503e01efb9bc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxBulletCount: 50
-  _synchronousBulletCount: 3
-  _spreadAngle: 53
-  _coolDown: 1
-  _reloadTime: 5
-  _bulletParameter:
-    Damage: 10
-    Speed: 10
-    duration: 3
-    RicochetCount: 0
+  _definition: {fileID: 11400000, guid: e4e1a31955544d339073262494d87c41, type: 2}
   _muzzle: {fileID: 1186526263740670349}
 --- !u!1001 &749419754061825085
 PrefabInstance:

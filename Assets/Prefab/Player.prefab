@@ -103,7 +103,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e2fda1cf332b7db4c883c2c034c4349a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxHealth: 100
+  _initialStats: {fileID: 11400000, guid: 9db98cb88bca4328ad903dd419c0b47f, type: 2}
 --- !u!114 &2695249922277676767
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -116,7 +116,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8326872d117ad1e40882973f49e0bbc0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _speed: 1000
   _lookAt: {fileID: 0}
 --- !u!114 &2930391980714307413
 MonoBehaviour:
@@ -130,17 +129,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 810f03623cf9e8346a7508f0b8dbe131, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _maxBulletCount: 10
-  _synchronousBulletCount: 1
-  _spreadAngle: 49
-  _coolDown: 0.4
-  _reloadTime: 2
-  _bulletParameter:
-    Damage: 10
-    Speed: 20
-    duration: 5
-    PiercingCount: 0
-    RicochetCount: 0
+  _definition: {fileID: 11400000, guid: 0917a8d013e248b58ed773552e17408c, type: 2}
   _muzzle: {fileID: 6480376048920742600}
 --- !u!54 &4439283396728655288
 Rigidbody:

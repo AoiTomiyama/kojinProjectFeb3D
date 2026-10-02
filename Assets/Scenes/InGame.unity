@@ -4085,44 +4085,9 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8821076025528757936, guid: b83926a90620b404db212ed5cd75b83d,
         type: 3}
-      propertyPath: _coolDown
-      value: 3
-      objectReference: {fileID: 0}
-    - target: {fileID: 8821076025528757936, guid: b83926a90620b404db212ed5cd75b83d,
-        type: 3}
-      propertyPath: _reloadTime
-      value: 7
-      objectReference: {fileID: 0}
-    - target: {fileID: 8821076025528757936, guid: b83926a90620b404db212ed5cd75b83d,
-        type: 3}
-      propertyPath: _spreadAngle
-      value: 97
-      objectReference: {fileID: 0}
-    - target: {fileID: 8821076025528757936, guid: b83926a90620b404db212ed5cd75b83d,
-        type: 3}
-      propertyPath: _maxBulletCount
-      value: 30
-      objectReference: {fileID: 0}
-    - target: {fileID: 8821076025528757936, guid: b83926a90620b404db212ed5cd75b83d,
-        type: 3}
-      propertyPath: _bulletParameter.Speed
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 8821076025528757936, guid: b83926a90620b404db212ed5cd75b83d,
-        type: 3}
-      propertyPath: _bulletParameter.Damage
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 8821076025528757936, guid: b83926a90620b404db212ed5cd75b83d,
-        type: 3}
-      propertyPath: _synchronousBulletCount
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 8821076025528757936, guid: b83926a90620b404db212ed5cd75b83d,
-        type: 3}
-      propertyPath: _bulletParameter.duration
-      value: 6
-      objectReference: {fileID: 0}
+      propertyPath: _definition
+      value:
+      objectReference: {fileID: 11400000, guid: 0e3348860049488691e61ed9149af912, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -19331,24 +19296,14 @@ PrefabInstance:
       objectReference: {fileID: 1405705391}
     - target: {fileID: 2930391980714307413, guid: ba034f97c914a7a45b871c857947fa32,
         type: 3}
-      propertyPath: _spreadAngle
-      value: 20
-      objectReference: {fileID: 0}
-    - target: {fileID: 2930391980714307413, guid: ba034f97c914a7a45b871c857947fa32,
-        type: 3}
-      propertyPath: _maxBulletCount
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 2930391980714307413, guid: ba034f97c914a7a45b871c857947fa32,
-        type: 3}
-      propertyPath: _bulletParameter.duration
-      value: 15
-      objectReference: {fileID: 0}
+      propertyPath: _definition
+      value:
+      objectReference: {fileID: 11400000, guid: 5e080435b21c4ec9abfe3eb94e651e44, type: 2}
     - target: {fileID: 8297659993257822016, guid: ba034f97c914a7a45b871c857947fa32,
         type: 3}
-      propertyPath: _maxHealth
-      value: 50
-      objectReference: {fileID: 0}
+      propertyPath: _initialStats
+      value:
+      objectReference: {fileID: 11400000, guid: 668fbb028ae04e31a5f2bff696aa1b54, type: 2}
     - target: {fileID: 8297659993257822016, guid: ba034f97c914a7a45b871c857947fa32,
         type: 3}
       propertyPath: _deathEffect
