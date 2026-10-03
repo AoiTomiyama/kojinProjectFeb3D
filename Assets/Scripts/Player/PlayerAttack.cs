@@ -49,7 +49,8 @@ public class PlayerAttack : PlayerComponentBase
 
     private void Awake()
     {
-        if (_definition == null) throw new InvalidOperationException("PlayerAttack: 武器の初期設定がありません。");
+        if (_definition == null)
+            throw new System.InvalidOperationException($"{name}: PlayerAttack._definition が設定されていません。");
         // 強化による変更は ScriptableObject に書き戻さず、この攻撃者だけに反映する。
         _maxBulletCount = _definition.MaxBulletCount;
         _synchronousBulletCount = _definition.SynchronousBulletCount;
@@ -68,6 +69,8 @@ public class PlayerAttack : PlayerComponentBase
     }
     void Start()
     {
+        if (_muzzle == null)
+            throw new System.InvalidOperationException($"{name}: PlayerAttack._muzzle が設定されていません。");
         _poolManager = SceneReferenceResolver.RequireUnique<BulletObjectPoolManager>(this);
         _lvUpManager = SceneReferenceResolver.RequireUnique<LevelUpSystemManager>(this);
         RemainBulletCount = MaxBulletCount;

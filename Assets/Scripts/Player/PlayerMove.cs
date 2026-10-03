@@ -14,13 +14,18 @@ public class PlayerMove : PlayerComponentBase
     private void Awake()
     {
         // 強化後の速度は各プレイヤーの実行時値として保持する。
-        _speed = GetComponent<PlayerCore>().InitialStats.MoveSpeed;
+        var core = Core;
+        if (core.InitialStats == null)
+            throw new System.InvalidOperationException($"{name}: PlayerCore.InitialStats が設定されていません。");
+        _speed = core.InitialStats.MoveSpeed;
     }
 
     void Start()
     {
         _rb = GetComponent<Rigidbody>();
         _lr = GetComponent<LineRenderer>();
+        if (_rb == null || _lr == null)
+            throw new System.InvalidOperationException($"{name}: Rigidbody と LineRenderer が同じGameObjectに必要です。");
         _camera = SceneReferenceResolver.RequireUnique<Camera>(this).transform;
     }
     void Update()

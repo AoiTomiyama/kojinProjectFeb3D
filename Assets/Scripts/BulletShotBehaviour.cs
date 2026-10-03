@@ -29,6 +29,7 @@ public class BulletShotBehaviour : PooledAttackBase
     public override void OnInitialize()
     {
         _rb = GetComponent<Rigidbody>();
+        if (_rb == null) throw new System.InvalidOperationException($"{name}: Rigidbody が同じGameObjectに必要です。");
     }
     public override void OnGetFromPool()
     {
@@ -36,6 +37,8 @@ public class BulletShotBehaviour : PooledAttackBase
         {
             throw new System.InvalidOperationException("BulletShotBehaviour: 効果音用 AudioSource が初期化されていません。");
         }
+        if (_shootClip == null)
+            throw new System.InvalidOperationException($"{name}: BulletShotBehaviour._shootClip が設定されていません。");
         _aus.PlayOneShot(_shootClip);
         
         _cts = new CancellationTokenSource();
@@ -61,6 +64,8 @@ public class BulletShotBehaviour : PooledAttackBase
     }
     private void OnCollisionEnter(Collision collision)
     {
+        if (_hitParticle == null)
+            throw new System.InvalidOperationException($"{name}: BulletShotBehaviour._hitParticle が設定されていません。");
         Instantiate(_hitParticle, transform.position, Quaternion.identity);
         _hitCount++;
         if (_hitCount > Parameter.RicochetCount)
@@ -69,8 +74,12 @@ public class BulletShotBehaviour : PooledAttackBase
         }
         if (collision.gameObject.TryGetComponent<IDamageable>(out var component))
         {
+            if (_damageText == null)
+                throw new System.InvalidOperationException($"{name}: BulletShotBehaviour._damageText が設定されていません。");
             component.Damage(Parameter.Damage);
-            var text = Instantiate(_damageText, transform.position, Quaternion.identity).GetComponent<TextMeshPro>();
+            var textObject = Instantiate(_damageText, transform.position, Quaternion.identity);
+            var text = textObject.GetComponent<TextMeshPro>();
+            if (text == null) throw new System.InvalidOperationException($"{textObject.name}: TextMeshPro が必要です。");
             text.text = Parameter.Damage.ToString();
         }
     }

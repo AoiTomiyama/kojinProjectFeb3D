@@ -53,7 +53,9 @@ public class EnemyCore : MonoBehaviour, IDamageable
         Health -= damageAmount;
         if (Health <= 0)
         {
-            OnDeath?.Invoke(_expAmount); 
+            if (_deathEffect == null)
+                throw new System.InvalidOperationException($"{name}: EnemyCore._deathEffect が設定されていません。");
+            OnDeath?.Invoke(_expAmount);
             OnDied?.Invoke();
             Instantiate(_deathEffect, transform.position, Quaternion.identity);
             gameObject.SetActive(false);

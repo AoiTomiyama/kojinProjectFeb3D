@@ -27,6 +27,7 @@ public class LevelUpSystemManager : MonoBehaviour
         _progression = new ExperienceProgression(_requireExpList);
         _candidateSelection = new UpgradeCandidateSelection();
         _view = GetComponent<LevelUpUIView>();
+        if (_view == null) throw new System.InvalidOperationException($"{name}: LevelUpUIView が同じGameObjectに必要です。");
     }
 
     private void Start()

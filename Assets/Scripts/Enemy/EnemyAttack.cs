@@ -20,7 +20,8 @@ public class EnemyAttack : EnemyComponentBase
 
     private void Awake()
     {
-        if (_definition == null) throw new System.InvalidOperationException("EnemyAttack: 武器の初期設定がありません。");
+        if (_definition == null)
+            throw new System.InvalidOperationException($"{name}: EnemyAttack._definition が設定されていません。");
         // 同じ定義を使う敵同士でも、残弾と射撃状態は個体ごとに持つ。
         _synchronousBulletCount = _definition.SynchronousBulletCount;
         _spreadAngle = _definition.SpreadAngle;
@@ -36,6 +37,8 @@ public class EnemyAttack : EnemyComponentBase
     }
     void Start()
     {
+        if (_muzzle == null)
+            throw new System.InvalidOperationException($"{name}: EnemyAttack._muzzle が設定されていません。");
         _poolManager = SceneReferenceResolver.RequireUnique<BulletObjectPoolManager>(this);
         _isInitialized = true;
     }

@@ -12,6 +12,17 @@ public class PlayerUIViewer : PlayerComponentBase
     [SerializeField] private TextMeshProUGUI _healthText;
     private void Start()
     {
+        // 表示先を検証してから購読し、設定欠落時に購読だけを残さない。
+        if (_healthImage == null)
+            throw new System.InvalidOperationException($"{name}: PlayerUIViewer._healthImage が設定されていません。");
+        if (_reloadTimeImage == null)
+            throw new System.InvalidOperationException($"{name}: PlayerUIViewer._reloadTimeImage が設定されていません。");
+        if (_coolDownTimeImage == null)
+            throw new System.InvalidOperationException($"{name}: PlayerUIViewer._coolDownTimeImage が設定されていません。");
+        if (_ammoText == null)
+            throw new System.InvalidOperationException($"{name}: PlayerUIViewer._ammoText が設定されていません。");
+        if (_healthText == null)
+            throw new System.InvalidOperationException($"{name}: PlayerUIViewer._healthText が設定されていません。");
         Core.OnHealthChanged += RefreshHealth;
         // PlayerCore.Start より後に実行されても初期体力を表示できるようにする。
         RefreshHealth();

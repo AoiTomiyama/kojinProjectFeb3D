@@ -52,6 +52,7 @@
 
 ### [ ] D-05 シーン内の必須参照を明示する
 
+- 改修前の追加証拠（2026-10-03）: A-06完了時のUnity 2022.3.62f2バッチPlayログでは `InGame.unity` の開始、プレイヤー・敵の初期化、強化、Play停止・再開が通過し、必須参照取得に関する例外は記録されなかった。A-07の比較前提として使用する。射撃音の聴取とGUI操作は含まない。
 - 実施状況: `SceneReferenceResolver.RequireUnique<T>()` で初期化時に対象が1件であることを検証するよう変更。プレイヤーの射撃 UI は同一オブジェクトの攻撃コンポーネントを参照し、効果音出力は弾プールから弾へ渡す。`InGame.unity` でプレイヤー、カメラ、レベル管理、弾プール、効果音参照が各1件であること、敵弾はプレイヤー弾の Prefab Variant として `BulletShotBehaviour` を継承すること、`.meta` GUID の一意性を静的に確認済み。再生確認待ち。
 - 変更前の問題: 複数のスクリプトが `FindAnyObjectByType`、`Camera.main`、`GameObject.Find("SE")` に依存していた。対象の改名・未配置・複数配置時に、意図した参照先を保証できなかった。
 - 根拠: `Assets/Scripts/BulletShotBehaviour.cs`、`Player/PlayerAttack.cs`、`Enemy/EnemyCore.cs`、`CursorPointer.cs` など。

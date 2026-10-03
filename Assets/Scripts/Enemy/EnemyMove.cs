@@ -11,6 +11,7 @@ public class EnemyMove : EnemyComponentBase
     private void Start()
     {
         _agent = GetComponent<NavMeshAgent>();
+        if (_agent == null) throw new System.InvalidOperationException($"{name}: NavMeshAgent が同じGameObjectに必要です。");
     }
     void Update()
     {

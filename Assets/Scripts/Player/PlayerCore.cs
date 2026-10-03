@@ -47,11 +47,15 @@ public class PlayerCore : MonoBehaviour, IDamageable
 
     private void Awake()
     {
-        if (_initialStats == null) throw new InvalidOperationException("PlayerCore: 初期能力値が設定されていません。");
+        if (_initialStats == null)
+            throw new System.InvalidOperationException($"{name}: PlayerCore._initialStats が設定されていません。");
         // ScriptableObject の値は変更せず、このプレイヤーだけの実行時値へ複製する。
         _maxHealth = _initialStats.MaxHealth;
+        // 現行Prefabでは同じGameObjectが移動・攻撃・体力を所有する。
         _move = GetComponent<PlayerMove>();
-        _attack = GetComponentInChildren<PlayerAttack>();
+        _attack = GetComponent<PlayerAttack>();
+        if (_move == null || _attack == null)
+            throw new InvalidOperationException($"{name}: PlayerMove と PlayerAttack が同じGameObjectに必要です。");
     }
 
     private void Start()
@@ -72,6 +76,8 @@ public class PlayerCore : MonoBehaviour, IDamageable
         Health -= damageAmount;
         if (Health <= 0)
         {
+            if (_deathEffect == null)
+                throw new System.InvalidOperationException($"{name}: PlayerCore._deathEffect が設定されていません。");
             Instantiate(_deathEffect, transform.position, Quaternion.identity);
             OnDied?.Invoke();
             gameObject.SetActive(false);

@@ -4,7 +4,7 @@
 
 ## 記録の前提
 
-- 対象: `Assets/Scripts/` の現行コード。2026-10-01 の静的調査と設計検討に基づく。A-01〜A-06 は実装・検証済みで、他の採用済みタスクは未着手。
+- 対象: `Assets/Scripts/` の現行コード。2026-10-01 の静的調査と設計検討に基づく。A-01〜A-07 は実装・検証済みで、他の採用済みタスクは未着手。
 - A-01〜A-09 は採用済みのタスク。A-10 以降は純粋C#化を広げるための追加候補で、採用は未決定。
 - 完了後に目指す責務と依存方向は [目標アーキテクチャと機能追加の指針](../knowledge/target-architecture.md) に記録する。各タスクの実装状況はこの一覧で管理する。
 - 既存の不具合修正と再生確認は [プログラム設計レビューの改修タスク](program-design-review.md) に記録する。特に関連する D-01〜D-09 の再生確認結果を、対応箇所の改修前に残す。
@@ -61,12 +61,13 @@
 - 参照: `Assets/Scripts/BulletParameter.cs`、`Assets/Scripts/PowerUpParameter.cs`、`Assets/Scripts/Player/PlayerCore.cs`。
 - 実施結果（2026-10-03）: プレイヤーの初期体力・移動速度と、プレイヤー・敵の武器初期値を ScriptableObject に移し、Prefab・派生Prefab・シーンの上書き値を対応する設定アセットへ移行した。強化で変わる体力・速度・武器値と残弾は各コンポーネントの実行時値と `WeaponAmmoState` に保持する。強化ボタンの `PowerUpParameter` は値型の読み取り用設定として維持した。Unity 2022.3.62f2 のバッチPlayで既存のシーン設定、強化、複数個体の独立性、Play停止・再開による初期値への復帰を確認した。詳細は [現行仕様](../specs/player-stats-and-upgrades.md) を参照する。
 
-### [ ] A-07 シーン参照の依存関係を整理
+### [x] A-07 シーン参照の依存関係を整理
 
 - 現状: 複数のコンポーネントが `SceneReferenceResolver.RequireUnique<T>()` でシーン内の管理クラスを検索する。
 - 作業: 必須参照ごとに、同一オブジェクト・Inspector指定・初期化時の検索のどれで取得するかを決める。検索が必要な箇所は件数の検証を維持する。
 - 完了条件: コンポーネントが必要とする参照先をコードまたはInspectorから追え、欠落時に対象を特定できる。Prefabとシーンの参照を検証する。
 - 参照: `Assets/Scripts/SceneReferenceResolver.cs` と各呼び出し元。
+- 実施結果（2026-10-03）: 同じGameObjectの部品はGetComponent、必須部品とInspector参照は呼び出し側のnullチェックで取得方法を明示した。シーン検索の共通処理は別シーンを除外し、欠落・重複時には要求元と必要な型を診断する。PrefabとシーンのGUID・配置は維持した。共通検証導入時にUnity 2022.3.62f2でPrefab・シーン起動・射撃を検証し、呼び出し側のnullチェックへの簡素化後は差分レビューとコンパイルで確認した。[参照一覧](../specs/component-dependencies.md) と [検証結果](../specs/player-stats-and-upgrades.md) を記録した。
 
 ### [ ] A-08 イベント購読の寿命を統一
 
