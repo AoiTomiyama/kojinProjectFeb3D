@@ -6,7 +6,7 @@
 
 - `Assets/Scripts/Player/PlayerCore.cs` の `MaxHealth` を別の値に設定すると、現在体力も新しい最大体力に合わせ、`OnHealthChanged` を通知する。同じ値を設定した場合は更新しない。
 - `Assets/Scripts/Player/PlayerCore.cs` の `ApplyPowerUp()` は、最大体力の加算、乗算の順に適用し、移動速度と射撃能力の変更を担当コンポーネントへ振り分ける。最大体力が変わると現在体力が新しい最大値になる。
-- `Assets/Scripts/Player/PlayerUIViewer.cs` はイベント購読直後と体力変更時に、体力バーと `現在体力/最大体力` の数値を更新する。`PlayerCore.Start()` と UI の `Start()` の順序に依存しない。
+- `Assets/Scripts/Player/PlayerUIViewer.cs` は初回の購読、再有効化、体力変更時に、体力バーと `現在体力/最大体力` の数値を更新する。`PlayerCore.Start()` と UI の `Start()` の順序に依存しない。
 - `PlayerInitialStats` の `PlayerBaseStats` は最大体力100・移動速度1000を定義し、`Player.prefab` が参照する。`InGame.unity` の配置個体は最大体力50・移動速度1000の `InGamePlayerStats` を参照する。`PlayerCore` と `PlayerMove` は開始時に個体ごとの値へコピーし、強化後も設定アセットを変更しない。
 
 ## InGame シーンの弾数と強化
@@ -40,6 +40,13 @@
 - 発射間隔または再装填の待機中に無効化された場合、再有効化後にその待機を最初からやり直す。プレイヤーの射撃ボタン押下状態は無効化時に解除する。
 - 必須参照の取得に失敗して初期化が完了しなかった攻撃コンポーネントは、後続の `Update()` で射撃処理を進めない。
 
+## 体力・弾数UIの購読期間
+
+- `PlayerUIViewer` と `EnemyUIViewer` は初回の `Start()` で必須参照を確定して購読する。最初の `OnEnable()` が通知元の `Awake()` より先になる場合を避け、初期体力・弾数は購読直後に現在値から表示する。
+- 以後は `OnEnable()` で購読と再描画、`OnDisable()` で解除する。名前付きメソッドで登録・解除し、コンポーネントまたはGameObjectの無効化、再有効化、破棄を同じ期間で扱う。敵の体力バーも現在値を即時表示し、最大体力が0以下なら表示比率を0にする。
+- プレイヤーUIは無効化時に再装填・発射間隔バーのTweenを停止する。再有効化時は `PlayerAttack` の読み取り専用の待機種類・開始時の時間・残り時間から進捗を復元し、再装填は線形、発射間隔は従来のイージングで残りの演出を行う。待機中でないバーは完了表示にする。
+- UIだけを無効化しても攻撃側の待機は進む。攻撃側も無効化した場合の待機再開始は既存仕様を維持する。表示は待機の完了や残弾の確定を担当しない。
+
 ## シーン内の必須参照
 
 - `SceneReferenceResolver.RequireUnique<T>()` は、プレイヤー、カメラ、レベル管理、弾プールのように要求元と同じシーンに一つ必要なコンポーネントを初期化時に取得する。別シーンと非アクティブなGameObjectは対象に含めず、0件・複数件では要求元と必要な型を含む例外を出す。同じGameObjectの部品は `GetComponent()` で取得し、必須部品とInspector参照は呼び出し側でnullチェックする。取得方法の一覧は [コンポーネントの必須参照と取得範囲](component-dependencies.md) を参照する。
@@ -51,6 +58,8 @@
 - `BulletObjectPoolManager.OnDisposePoolObject()` は、Unity がプールをクリアする時点で弾のコンポーネントが既に破棄されていれば何もしない。生存する弾だけを破棄し、シーンとプールの破棄順序による例外を防ぐ。
 
 ## 確認状況
+
+- 2026-10-03: A-08 は Unity 2022.3.62f2 の Test Runner で `UiEventLifetimeTests.ViewersSubscribeOnlyWhileEnabledAndRestoreCurrentState` を実行し、1件成功・失敗0件、Editor終了コード0。Edit ModeテストからPlayへ移行し、実際の `InGame.unity` の初期表示、3回のUI無効化・再有効化と購読数、無効期間中の状態変更と再表示、GameObject全体の切り替え、再装填・発射間隔のTween停止と途中復元、通知元を残したUI破棄後の解除を確認した。結果XMLはローカル一時ディレクトリの `kojin-a08-tests-final.xml`、実行ログは `kojin-a08-tests-final.log`。コンパイルも成功した。テストは `Assets/Editor/UiEventLifetimeTests.cs` に残し、Test RunnerのEditModeで同じクラス名を指定して再実行できる。射撃・移動は止めてUIの寿命を検証しており、GUIの手動目視は含まない。
 
 - 2026-09-30: コード、Prefab、Unity YAML の静的照合で確認。上記のシーン参照は各1件で、アセットの `.meta` GUID に重複はなかった。Unity Editor での再生確認は未実施。`dotnet build Assembly-CSharp.csproj --no-restore` は、指定バージョンの Unity Source Generator がないため失敗した。
 - 2026-10-01: 弾プールの破棄処理は Unity 2022.3.62f2 のバッチモードで、破棄済み弾の確認と Play モード2回の往復を確認。両回でプレイヤー弾と敵弾の発射時初期化が通過した。

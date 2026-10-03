@@ -10,6 +10,10 @@ public class PlayerUIViewer : PlayerComponentBase
     [SerializeField] private Image _coolDownTimeImage;
     [SerializeField] private TextMeshProUGUI _ammoText;
     [SerializeField] private TextMeshProUGUI _healthText;
+    private PlayerCore _player;
+    private PlayerAttack _attack;
+    private bool _isInitialized;
+
     private void Start()
     {
         // 表示先を検証してから購読し、設定欠落時に購読だけを残さない。
@@ -23,35 +27,79 @@ public class PlayerUIViewer : PlayerComponentBase
             throw new System.InvalidOperationException($"{name}: PlayerUIViewer._ammoText が設定されていません。");
         if (_healthText == null)
             throw new System.InvalidOperationException($"{name}: PlayerUIViewer._healthText が設定されていません。");
-        Core.OnHealthChanged += RefreshHealth;
-        // PlayerCore.Start より後に実行されても初期体力を表示できるようにする。
+        _player = Core;
+        _attack = _player.Attack;
+        if (_attack == null) throw new System.InvalidOperationException("PlayerUIViewer: PlayerAttack が見つかりません。");
+        // 最初の OnEnable は他コンポーネントの Awake より先になり得るため、Start で参照を確定する。
+        _isInitialized = true;
+        OnEnable();
+    }
+
+    private void OnEnable()
+    {
+        if (!_isInitialized) return;
+        _player.OnHealthChanged += RefreshHealth;
+        _attack.OnAmmoCountChanged += RefreshAmmo;
+        _attack.OnCoolDownBegin += BeginCooldown;
+        _attack.OnReloadBegin += BeginReload;
+        // 無効期間の通知を再送させず、状態の所有者から現在値を読み直す。
         RefreshHealth();
-
-        var attack = Core.Attack;
-        if (attack == null) throw new System.InvalidOperationException("PlayerUIViewer: PlayerAttack が見つかりません。");
-        attack.OnAmmoCountChanged += value => _ammoText.text = value.ToString();
-        // 攻撃処理の Start が先でも、通知を取り逃した初期弾数を表示する。
-        _ammoText.text = attack.RemainBulletCount.ToString();
-        attack.OnCoolDownBegin += time =>
-        {
-            _coolDownTimeImage.fillAmount = 0;
-            _coolDownTimeImage.DOFillAmount(1, time);
-        };
-
-        attack.OnReloadBegin += time =>
-        {
-            _reloadTimeImage.fillAmount = 0;
-            _reloadTimeImage.DOFillAmount(1, time).SetEase(Ease.Linear);
-        };
+        RefreshAmmo(_attack.RemainBulletCount);
+        RestoreWaitBars();
     }
     private void RefreshHealth()
     {
-        _healthImage.fillAmount = Core.MaxHealth > 0 ? (float)Core.Health / Core.MaxHealth : 0f;
-        _healthText.text = $"{Core.Health}/{Core.MaxHealth}";
+        _healthImage.fillAmount = _player.MaxHealth > 0 ? (float)_player.Health / _player.MaxHealth : 0f;
+        _healthText.text = $"{_player.Health}/{_player.MaxHealth}";
     }
 
-    private void OnDestroy()
+    private void RefreshAmmo(int value) => _ammoText.text = value.ToString();
+
+    private void BeginCooldown(float time)
     {
-        if (Core != null) Core.OnHealthChanged -= RefreshHealth;
+        _coolDownTimeImage.DOKill();
+        _coolDownTimeImage.fillAmount = 0f;
+        _coolDownTimeImage.DOFillAmount(1f, time);
+    }
+
+    private void BeginReload(float time)
+    {
+        _reloadTimeImage.DOKill();
+        _reloadTimeImage.fillAmount = 0f;
+        _reloadTimeImage.DOFillAmount(1f, time).SetEase(Ease.Linear);
+    }
+
+    private void RestoreWaitBars()
+    {
+        _coolDownTimeImage.fillAmount = 1f;
+        _reloadTimeImage.fillAmount = 1f;
+        float remaining = _attack.RemainingWaitSeconds;
+        if (remaining <= 0f) return;
+        float elapsed = _attack.WaitDurationSeconds - remaining;
+        if (_attack.WaitKind == WeaponWaitKind.Reload)
+        {
+            _reloadTimeImage.fillAmount = elapsed / _attack.WaitDurationSeconds;
+            _reloadTimeImage.DOFillAmount(1f, remaining).SetEase(Ease.Linear);
+        }
+        else if (_attack.WaitKind == WeaponWaitKind.Cooldown)
+        {
+            // 通常の発射間隔バーと同じイージングを、待機全体の経過時間から再現する。
+            _coolDownTimeImage.DOFillAmount(1f, _attack.WaitDurationSeconds)
+                .From(0f).Goto(elapsed, true);
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (_player != null) _player.OnHealthChanged -= RefreshHealth;
+        if (_attack != null)
+        {
+            _attack.OnAmmoCountChanged -= RefreshAmmo;
+            _attack.OnCoolDownBegin -= BeginCooldown;
+            _attack.OnReloadBegin -= BeginReload;
+        }
+        // 表示が止まる期間に古いTweenが動いたり、再購読後の演出と競合したりしないようにする。
+        if (_coolDownTimeImage != null) _coolDownTimeImage.DOKill();
+        if (_reloadTimeImage != null) _reloadTimeImage.DOKill();
     }
 }

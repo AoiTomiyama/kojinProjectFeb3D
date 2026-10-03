@@ -21,6 +21,12 @@ public class PlayerAttack : PlayerComponentBase
     private WeaponAmmoState _ammo;
     private bool _isPressedShootButton;
     private bool _isInitialized;
+    private float _waitEndTime;
+
+    // UIの再有効化時に待機表示を復元するための読み取り専用状態。待機の実行は攻撃側が所有する。
+    public WeaponWaitKind WaitKind => _ammo.PendingWait;
+    public float WaitDurationSeconds { get; private set; }
+    public float RemainingWaitSeconds => _ammo.IsReady ? 0f : Mathf.Max(0f, _waitEndTime - Time.time);
 
     public Action<int> OnAmmoCountChanged;
     public Action<float> OnReloadBegin;
@@ -112,6 +118,8 @@ public class PlayerAttack : PlayerComponentBase
     {
         var waitKind = _ammo.StartWait();
         var waitTime = _ammo.PendingWaitSeconds;
+        WaitDurationSeconds = waitTime;
+        _waitEndTime = Time.time + waitTime;
         if (waitKind == WeaponWaitKind.Reload)
         {
             OnReloadBegin?.Invoke(waitTime);
