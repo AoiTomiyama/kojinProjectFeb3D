@@ -14,6 +14,8 @@
 
 ## 現行の依存関係
 
+機能ごとの状態の所有者、通知と寿命、拡張時の変更箇所は [ゲーム機能の責務・依存方向と拡張箇所](gameplay-architecture.md) を参照する。この一覧は必須参照の取得方法を示す。
+
 | 要求元 | 同じGameObjectから取得 | Inspector指定・外部から渡す参照 | 同じシーンで1件検索 |
 | --- | --- | --- | --- |
 | `PlayerCore` | `PlayerMove`、`PlayerAttack` | `PlayerInitialStats`、死亡エフェクト | なし |

@@ -16,7 +16,7 @@
 - `Packages/manifest.json` は UniTask と lilToon を Git URL から取得する。
 - プレイヤーの移動・射撃、敵の追跡・射撃、弾のプール、経験値・強化 UI が実装されている。動作の保証はコードとシーンの静的調査だけではできない。
 - 設計レビューで挙げた問題、対応順、完了条件は `docs/tasks/program-design-review.md` に記録している。D-10 は Unity 2022.3.62f2 のバッチモードで検証済み。D-01〜D-09 はコード・設定修正済みで、各機能の再生確認待ち。再開時は検証の結果を追記する。
-- 拡張性向上の採用済みタスク A-01〜A-09 は `docs/tasks/architecture-improvement.md`、目標設計と今後の機能追加の判断は `docs/knowledge/target-architecture.md` を参照する。目標設計は現行実装の完了状態を示さない。
+- 拡張性向上の採用済みタスク A-01〜A-09 は完了し、結果は `docs/tasks/architecture-improvement.md` に記録している。現行の責務・依存方向と、強化・弾種・敵行動の追加時に変更・検証する箇所は `docs/specs/gameplay-architecture.md`、設計方針は `docs/knowledge/target-architecture.md` を参照する。純粋C#化の追加候補 A-10〜A-13 は採用未決定。
 
 ## 作業上の注意
 
