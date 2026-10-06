@@ -61,6 +61,8 @@ public class BulletShotGameplay : PooledAttackBaseGameplay
     {
         _cts?.Cancel();
         _cts?.Dispose();
+        // 返却後に再取得され、発射初期化前に破棄される場合も二重に破棄しない。
+        _cts = null;
     }
     private void OnCollisionEnter(Collision collision)
     {

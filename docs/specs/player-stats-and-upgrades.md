@@ -56,6 +56,7 @@
 ## 弾プールの破棄
 
 - `BulletPoolInfrastructure.OnDisposePoolObject()` は、Unity がプールをクリアする時点で弾のコンポーネントが既に破棄されていれば何もしない。生存する弾だけを破棄し、シーンとプールの破棄順序による例外を防ぐ。
+- `BulletShotGameplay.OnDisable()` は待機を中断・破棄した後にキャンセル用オブジェクトの参照をnullにする。返却済みの弾を再取得し、次の発射初期化より前に破棄しても、破棄済みオブジェクトへ再びアクセスしない。2026-10-06に `BulletLifetimeTests.ReturnedBulletCanBeDestroyedBeforeNextShotInitialization` でプレイヤー弾と敵弾の両方を検証した。
 
 ## 確認状況
 
