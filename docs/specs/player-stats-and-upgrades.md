@@ -60,6 +60,7 @@
 
 ## 確認状況
 
+- 2026-10-06: 現行コード・シーン・設定でUnity Test Runnerの56件がすべて成功し、終了コード0。敵死亡から経験値への接続、実際の弾衝突、保存されたButton.onClickからの強化、初期表示・被弾・再装填、遮蔽判定、参照不足の診断までを自動確認した。具体的な範囲と再実行手順は [GUI操作なしでのゲーム機能検証](../tasks/headless-verification.md) を参照する。以下の旧検証記録は当時の範囲を示す。
 - 2026-10-03: A-08 は Unity 2022.3.62f2 の Test Runner で `UiEventLifetimeTests.ViewersSubscribeOnlyWhileEnabledAndRestoreCurrentState` を実行し、1件成功・失敗0件、Editor終了コード0。Edit ModeテストからPlayへ移行し、実際の `InGame.unity` の初期表示、3回のUI無効化・再有効化と購読数、無効期間中の状態変更と再表示、GameObject全体の切り替え、再装填・発射間隔のTween停止と途中復元、通知元を残したUI破棄後の解除を確認した。結果XMLはローカル一時ディレクトリの `kojin-a08-tests-final.xml`、実行ログは `kojin-a08-tests-final.log`。コンパイルも成功した。テストは `Assets/Editor/UiEventLifetimeTests.cs` に残し、Test RunnerのEditModeで同じクラス名を指定して再実行できる。射撃・移動は止めてUIの寿命を検証しており、GUIの手動目視は含まない。
 
 - 2026-09-30: コード、Prefab、Unity YAML の静的照合で確認。上記のシーン参照は各1件で、アセットの `.meta` GUID に重複はなかった。Unity Editor での再生確認は未実施。`dotnet build Assembly-CSharp.csproj --no-restore` は、指定バージョンの Unity Source Generator がないため失敗した。
