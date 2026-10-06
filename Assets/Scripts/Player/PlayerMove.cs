@@ -26,7 +26,7 @@ public class PlayerMove : PlayerComponentBase
         _lr = GetComponent<LineRenderer>();
         if (_rb == null || _lr == null)
             throw new System.InvalidOperationException($"{name}: Rigidbody と LineRenderer が同じGameObjectに必要です。");
-        _camera = SceneReferenceResolver.RequireUnique<Camera>(this).transform;
+        _camera = SceneReferenceResolverInfrastructure.RequireUnique<Camera>(this).transform;
     }
     void Update()
     {

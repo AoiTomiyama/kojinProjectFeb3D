@@ -32,7 +32,7 @@ public class LevelUpSystemManager : MonoBehaviour
 
     private void Start()
     {
-        _player = SceneReferenceResolver.RequireUnique<PlayerCore>(this);
+        _player = SceneReferenceResolverInfrastructure.RequireUnique<PlayerCore>(this);
         _view.Initialize(_isMenuActivated, _progression.Level, _progression.Progress,
             _killCount, RerollToken, PickCount);
         _candidateIds = new int[_view.CandidateCount];

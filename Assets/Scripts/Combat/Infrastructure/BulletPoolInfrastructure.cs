@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Pool;
 
-public class BulletObjectPoolManager : MonoBehaviour
+public class BulletPoolInfrastructure : MonoBehaviour
 {
     [Header("オブジェクトプールの設定")]
     [SerializeField] private int _initCount = 50;
@@ -14,9 +14,9 @@ public class BulletObjectPoolManager : MonoBehaviour
     private void Start()
     {
         if (_objectDatabase == null)
-            throw new System.InvalidOperationException($"{name}: BulletObjectPoolManager._objectDatabase が設定されていません。");
+            throw new System.InvalidOperationException($"{name}: BulletPoolInfrastructure._objectDatabase が設定されていません。");
         if (_soundEffects == null)
-            throw new System.InvalidOperationException($"{name}: BulletObjectPoolManager._soundEffects が設定されていません。");
+            throw new System.InvalidOperationException($"{name}: BulletPoolInfrastructure._soundEffects が設定されていません。");
         InitPool();
     }
     private void InitPool()

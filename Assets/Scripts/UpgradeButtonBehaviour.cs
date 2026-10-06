@@ -8,7 +8,7 @@ public class UpgradeButtonBehaviour : MonoBehaviour
     LevelUpSystemManager _lvUpManager;
     private void Start()
     {
-        _lvUpManager = SceneReferenceResolver.RequireUnique<LevelUpSystemManager>(this);
+        _lvUpManager = SceneReferenceResolverInfrastructure.RequireUnique<LevelUpSystemManager>(this);
     }
     public void Upgrade()
     {

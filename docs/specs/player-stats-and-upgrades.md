@@ -49,13 +49,13 @@
 
 ## シーン内の必須参照
 
-- `SceneReferenceResolver.RequireUnique<T>()` は、プレイヤー、カメラ、レベル管理、弾プールのように要求元と同じシーンに一つ必要なコンポーネントを初期化時に取得する。別シーンと非アクティブなGameObjectは対象に含めず、0件・複数件では要求元と必要な型を含む例外を出す。同じGameObjectの部品は `GetComponent()` で取得し、必須部品とInspector参照は呼び出し側でnullチェックする。取得方法の一覧は [コンポーネントの必須参照と取得範囲](component-dependencies.md) を参照する。
-- `PlayerUIViewer` は同じプレイヤーの `PlayerCore.Attack` を使う。弾の効果音は `BulletObjectPoolManager` に設定された `AudioSource` をプール生成時に渡し、GameObject 名に依存しない。
+- `SceneReferenceResolverInfrastructure.RequireUnique<T>()` は、プレイヤー、カメラ、レベル管理、弾プールのように要求元と同じシーンに一つ必要なコンポーネントを初期化時に取得する。別シーンと非アクティブなGameObjectは対象に含めず、0件・複数件では要求元と必要な型を含む例外を出す。同じGameObjectの部品は `GetComponent()` で取得し、必須部品とInspector参照は呼び出し側でnullチェックする。取得方法の一覧は [コンポーネントの必須参照と取得範囲](component-dependencies.md) を参照する。
+- `PlayerUIViewer` は同じプレイヤーの `PlayerCore.Attack` を使う。弾の効果音は `BulletPoolInfrastructure` に設定された `AudioSource` をプール生成時に渡し、GameObject 名に依存しない。
 - 現行の `InGame.unity` はプレイヤー、カメラ、レベル管理、弾プールを各1件置き、弾プールの `_soundEffects` に `SE` の AudioSource を設定する。
 
 ## 弾プールの破棄
 
-- `BulletObjectPoolManager.OnDisposePoolObject()` は、Unity がプールをクリアする時点で弾のコンポーネントが既に破棄されていれば何もしない。生存する弾だけを破棄し、シーンとプールの破棄順序による例外を防ぐ。
+- `BulletPoolInfrastructure.OnDisposePoolObject()` は、Unity がプールをクリアする時点で弾のコンポーネントが既に破棄されていれば何もしない。生存する弾だけを破棄し、シーンとプールの破棄順序による例外を防ぐ。
 
 ## 確認状況
 

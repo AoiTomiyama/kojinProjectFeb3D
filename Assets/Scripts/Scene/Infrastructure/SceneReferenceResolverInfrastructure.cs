@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 /// <summary>要求元と同じシーンの必須参照を、件数を検証して取得する。</summary>
-public static class SceneReferenceResolver
+public static class SceneReferenceResolverInfrastructure
 {
     public static T RequireUnique<T>(Component requester) where T : Component
     {

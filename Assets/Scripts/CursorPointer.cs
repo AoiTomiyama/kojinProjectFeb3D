@@ -11,8 +11,8 @@ public class CursorPointer : MonoBehaviour
     Camera _camera;
     private void Start()
     {
-        _lvUpManager = SceneReferenceResolver.RequireUnique<LevelUpSystemManager>(this);
-        _camera = SceneReferenceResolver.RequireUnique<Camera>(this);
+        _lvUpManager = SceneReferenceResolverInfrastructure.RequireUnique<LevelUpSystemManager>(this);
+        _camera = SceneReferenceResolverInfrastructure.RequireUnique<Camera>(this);
     }
     void Update()
     {

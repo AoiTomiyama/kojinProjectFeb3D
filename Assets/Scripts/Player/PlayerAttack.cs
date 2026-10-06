@@ -15,7 +15,7 @@ public class PlayerAttack : PlayerComponentBase
     private float _reloadTime;
     private BulletParameter _bulletParameter;
 
-    private BulletObjectPoolManager _poolManager;
+    private BulletPoolInfrastructure _poolManager;
     private LevelUpSystemManager _lvUpManager;
     private CancellationTokenSource _cts;
     private WeaponAmmoState _ammo;
@@ -77,8 +77,8 @@ public class PlayerAttack : PlayerComponentBase
     {
         if (_muzzle == null)
             throw new System.InvalidOperationException($"{name}: PlayerAttack._muzzle が設定されていません。");
-        _poolManager = SceneReferenceResolver.RequireUnique<BulletObjectPoolManager>(this);
-        _lvUpManager = SceneReferenceResolver.RequireUnique<LevelUpSystemManager>(this);
+        _poolManager = SceneReferenceResolverInfrastructure.RequireUnique<BulletPoolInfrastructure>(this);
+        _lvUpManager = SceneReferenceResolverInfrastructure.RequireUnique<LevelUpSystemManager>(this);
         RemainBulletCount = MaxBulletCount;
         _isInitialized = true;
     }

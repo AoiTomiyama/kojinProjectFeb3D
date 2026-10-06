@@ -42,7 +42,7 @@ flowchart TD
     Attack --> Ammo[WeaponAmmoState]
     Attack --> Fire[BulletFireSequence]
     Fire --> Spread[BulletSpread]
-    Fire --> Pool[BulletObjectPoolManager]
+    Fire --> Pool[BulletPoolInfrastructure]
     Pool --> Bullet[PooledAttackBase / BulletShotBehaviour]
     PlayerUI[PlayerUIViewer] --> Player
     PlayerUI --> Attack
@@ -61,7 +61,7 @@ flowchart TD
 | プレイヤー能力値・強化 | `PlayerCore` が体力・最大体力、`PlayerMove` が速度、`PlayerAttack` が武器値を保持 | [初期能力値](../../Assets/Scripts/ScriptableObject/PlayerInitialStats.cs)、[武器定義](../../Assets/Scripts/ScriptableObject/WeaponDefinition.cs) をAwakeで複製。ボタンの [PowerUpParameter](../../Assets/Scripts/PowerUpParameter.cs) は値型の強化設定 | [Core](../../Assets/Scripts/Player/PlayerCore.cs) の `ApplyPowerUp()` が体力と速度を更新し、[Attack](../../Assets/Scripts/Player/PlayerAttack.cs) に武器の変更を渡す。整数化・加算乗算順はここに残る |
 | 射撃・待機 | 各攻撃コンポーネントが個別に作る [WeaponAmmoState](../../Assets/Scripts/WeaponAmmoState.cs) が装弾数・残弾・待機種類・射撃可否を保持 | 武器定義の装弾数、同時発射数、拡散角、待機時間、弾パラメーター | PlayerAttackは入力、[EnemyAttack](../../Assets/Scripts/Enemy/EnemyAttack.cs) は物理判定を受ける。両者がUniTaskで時間を待ち、キャンセル後の再開始を担当。PlayerAttackはUI復元用の待機時間も保持 |
 | 拡散・弾の発射 | [BulletSpread](../../Assets/Scripts/BulletSpread.cs) は状態を持たない計算。[BulletFireSequence](../../Assets/Scripts/BulletFireSequence.cs) が発射成功後にAmmoの残弾を消費 | 攻撃側から同時発射数、拡散角、残弾、発射口、弾種、`BulletParameter` を渡す | 角度計算の結果をQuaternionで向きへ変換し、プール取得→パラメーターと配置→発射時初期化→残弾消費の順で実行 |
-| 弾の再利用・命中 | [PoolManager](../../Assets/Scripts/BulletObjectPoolManager.cs) が種類別のプール、[BulletShotBehaviour](../../Assets/Scripts/BulletShotBehaviour.cs) が取得ごとの命中回数と寿命待機を保持 | [弾種列挙](../../Assets/Scripts/Enum/BulletTypeEnum.cs)、[対応データベース](../../Assets/Scripts/ScriptableObject/EnumToObjectDatabase.cs)、Prefab、AudioSource | 生成時に [PooledAttackBase](../../Assets/Scripts/BaseClass/PooledAttackBase.cs) を初期化。発射時に速度・音・寿命・命中回数を設定。衝突時に [IDamageable](../../Assets/Scripts/Interface/IDamageable.cs) を呼び、演出を生成し、反射上限・寿命で返却 |
+| 弾の再利用・命中 | [PoolManager](../../Assets/Scripts/Combat/Infrastructure/BulletPoolInfrastructure.cs) が種類別のプール、[BulletShotBehaviour](../../Assets/Scripts/BulletShotBehaviour.cs) が取得ごとの命中回数と寿命待機を保持 | [弾種列挙](../../Assets/Scripts/Enum/BulletTypeEnum.cs)、[対応データベース](../../Assets/Scripts/ScriptableObject/EnumToObjectDatabase.cs)、Prefab、AudioSource | 生成時に [PooledAttackBase](../../Assets/Scripts/BaseClass/PooledAttackBase.cs) を初期化。発射時に速度・音・寿命・命中回数を設定。衝突時に [IDamageable](../../Assets/Scripts/Interface/IDamageable.cs) を呼び、演出を生成し、反射上限・寿命で返却 |
 | 敵の体力・行動 | [EnemyCore](../../Assets/Scripts/Enemy/EnemyCore.cs) が体力、対象、射程、レイヤーを保持。[EnemyMove](../../Assets/Scripts/Enemy/EnemyMove.cs) が感知結果を保持 | Coreの最大体力・撃破経験値・射程、Moveの感知範囲、Attackの武器設定。PlayerCore、レベル管理、弾プールへ依存 | Physicsで感知・射線を判断し、NavMeshAgentで追跡・停止、Transformで旋回する。移動と攻撃の条件判断はそれぞれのUpdateに残る |
 | 体力・弾数の表示 | 状態の所有者はCoreとAttack。UIは参照先と初期化済みフラグだけを保持 | [PlayerUIViewer](../../Assets/Scripts/Player/PlayerUIViewer.cs)、[EnemyUIViewer](../../Assets/Scripts/Enemy/EnemyUIViewer.cs) のImage・文字参照 | 変更通知を受けて描画し、再有効化時は現在値を読み直す。待機バーのTweenは表示専用 |
 

@@ -6,7 +6,7 @@
 
 同じGameObjectの部品は呼び出し側の `GetComponent<T>()` で取得する。必須の部品とInspector参照は、初期化時または使用時にその場でnullを確認し、欠落した参照を含むエラーを出す。任意の参照はnullなら処理を省略する。この確認のための共通ヘルパーは作らない。
 
-`Assets/Scripts/SceneReferenceResolver.cs` の `RequireUnique<T>()` は要求元と同じシーンのアクティブなGameObjectから1件取得する。無効化されたコンポーネントも、GameObjectがアクティブなら検索対象になる。0件または複数件なら、シーン名、要求元、必要な型と件数を含むエラーを出す。nullチェックだけでは複数配置を検出できないため、シーン検索の件数検証は共通処理として維持する。
+`Assets/Scripts/Scene/Infrastructure/SceneReferenceResolverInfrastructure.cs` の `RequireUnique<T>()` は要求元と同じシーンのアクティブなGameObjectから1件取得する。無効化されたコンポーネントも、GameObjectがアクティブなら検索対象になる。0件または複数件なら、シーン名、要求元、必要な型と件数を含むエラーを出す。nullチェックだけでは複数配置を検出できないため、シーン検索の件数検証は共通処理として維持する。
 
 取得済みのCoreが破棄された場合、購読解除のためのアクセスで再検索はしない。
 
@@ -29,7 +29,7 @@
 | `CursorPointer`、`LookAtCamera` | なし | 照準の物理判定設定 | `Camera`、照準側のレベル管理 |
 | `UpgradeButtonBehaviour` | なし | 値型の強化設定 | レベル管理 |
 | `FollowObject` | なし | 追従対象、位置の補正値 | なし |
-| `BulletObjectPoolManager` | 生成した弾の `PooledAttackBase` | 弾データベース、効果音用 `AudioSource` | なし |
+| `BulletPoolInfrastructure` | 生成した弾の `PooledAttackBase` | 弾データベース、効果音用 `AudioSource` | なし |
 | `BulletShotBehaviour` | `Rigidbody` | 命中エフェクト、ダメージ文字、発射音。効果音出力はプールから注入 | なし |
 
 Coreと行動部品は同じGameObjectに置く。シーン固有の参照をPrefabへ直接保存できない動的な敵・弾では、初期化時のシーン検索と生成元からの注入を使用する。`PlayerMove._lookAt` は未設定なら旋回を行わない既存仕様を維持する。

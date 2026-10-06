@@ -53,7 +53,7 @@
 ### [ ] D-05 シーン内の必須参照を明示する
 
 - 改修前の追加証拠（2026-10-03）: A-06完了時のUnity 2022.3.62f2バッチPlayログでは `InGame.unity` の開始、プレイヤー・敵の初期化、強化、Play停止・再開が通過し、必須参照取得に関する例外は記録されなかった。A-07の比較前提として使用する。射撃音の聴取とGUI操作は含まない。
-- 実施状況: `SceneReferenceResolver.RequireUnique<T>()` で初期化時に対象が1件であることを検証するよう変更。プレイヤーの射撃 UI は同一オブジェクトの攻撃コンポーネントを参照し、効果音出力は弾プールから弾へ渡す。`InGame.unity` でプレイヤー、カメラ、レベル管理、弾プール、効果音参照が各1件であること、敵弾はプレイヤー弾の Prefab Variant として `BulletShotBehaviour` を継承すること、`.meta` GUID の一意性を静的に確認済み。再生確認待ち。
+- 実施状況: `SceneReferenceResolverInfrastructure.RequireUnique<T>()` で初期化時に対象が1件であることを検証するよう変更。プレイヤーの射撃 UI は同一オブジェクトの攻撃コンポーネントを参照し、効果音出力は弾プールから弾へ渡す。`InGame.unity` でプレイヤー、カメラ、レベル管理、弾プール、効果音参照が各1件であること、敵弾はプレイヤー弾の Prefab Variant として `BulletShotBehaviour` を継承すること、`.meta` GUID の一意性を静的に確認済み。再生確認待ち。
 - 変更前の問題: 複数のスクリプトが `FindAnyObjectByType`、`Camera.main`、`GameObject.Find("SE")` に依存していた。対象の改名・未配置・複数配置時に、意図した参照先を保証できなかった。
 - 根拠: `Assets/Scripts/BulletShotBehaviour.cs`、`Player/PlayerAttack.cs`、`Enemy/EnemyCore.cs`、`CursorPointer.cs` など。
 - 完了条件: 必須の参照を Inspector または初期化処理で明示し、不足時は対象が分かるエラーを出す。取得方法を変更する際は、プール生成時の弾にも参照を渡す。
@@ -96,8 +96,8 @@
 
 - 実施状況: `OnDisposePoolObject()` が破棄済みコンポーネントを受け取った場合は `gameObject` にアクセスせず終了するよう修正。Unity 2022.3.62f2 のバッチモードで確認済み。
 - 検証結果（2026-10-01）: 一時チェックアウトに同じシーン・Editor 設定を用意し、元のコードでは破棄済み弾を渡す確認で `MissingReferenceException` を再現した。修正後は同じ確認が通過し、Play モードの開始・停止・再開始を2回実施してプール由来の例外は0件。各 Play モードでプレイヤー弾・敵弾の取得、発射時初期化、返却を確認した。GUI の手動操作はこの検証に含めていない。
-- 観測事実: 2026-10-01、Unity 2022.3.62f2 の Editor で Play モードを繰り返した際、`Editor.log` に `MissingReferenceException` が1件記録された。スタックトレースは `BulletObjectPoolManager.OnDisposePoolObject()` の `parameter.gameObject` を指し、Unity の `ObjectPool<T>.Clear()` と `PoolManager.Reset()` から呼ばれている。ログには Domain Reload と Scene Reload が無効である旨も記録されている。
+- 観測事実: 2026-10-01、Unity 2022.3.62f2 の Editor で Play モードを繰り返した際、`Editor.log` に `MissingReferenceException` が1件記録された。スタックトレースは `BulletPoolInfrastructure.OnDisposePoolObject()` の `parameter.gameObject` を指し、Unity の `ObjectPool<T>.Clear()` と `PoolManager.Reset()` から呼ばれている。ログには Domain Reload と Scene Reload が無効である旨も記録されている。
 - 原因候補: プールのリセット時、既に破棄された `BulletShotBehaviour` を取り出して `gameObject` にアクセスしている。破棄順序とプール内の参照の寿命を確認する。
-- 根拠: `Assets/Scripts/BulletObjectPoolManager.cs` の `OnDisposePoolObject()` と、上記 Unity Editor の実行ログ。
+- 根拠: `Assets/Scripts/Combat/Infrastructure/BulletPoolInfrastructure.cs` の `OnDisposePoolObject()` と、上記 Unity Editor の実行ログ。
 - 完了条件: 弾の破棄とプールのクリアが、参照先の破棄順序に依存せず安全に終わる。
 - 確認: 同じ Editor 設定で Play モードの開始・停止・再開始を繰り返し、例外が出ず、再開始後もプレイヤー弾と敵弾が使える。

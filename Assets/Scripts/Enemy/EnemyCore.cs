@@ -40,12 +40,12 @@ public class EnemyCore : MonoBehaviour, IDamageable
     void Start()
     {
         Health = MaxHealth;
-        _target = SceneReferenceResolver.RequireUnique<PlayerCore>(this).transform;
+        _target = SceneReferenceResolverInfrastructure.RequireUnique<PlayerCore>(this).transform;
         _playerLayer = _target.gameObject.layer;
         // Physics.CheckSphere には番号ではなくビットマスクを渡す。
         _playerLayerMask = 1 << _playerLayer;
         
-        var lvUpManager = SceneReferenceResolver.RequireUnique<LevelUpSystemManager>(this);
+        var lvUpManager = SceneReferenceResolverInfrastructure.RequireUnique<LevelUpSystemManager>(this);
         OnDeath += lvUpManager.GainExperience;
     }
     public void Damage(int damageAmount)

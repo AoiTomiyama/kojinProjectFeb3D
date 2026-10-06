@@ -6,7 +6,7 @@ public class LookAtCamera : MonoBehaviour
 
     private void Start()
     {
-        _camera = SceneReferenceResolver.RequireUnique<Camera>(this);
+        _camera = SceneReferenceResolverInfrastructure.RequireUnique<Camera>(this);
     }
 
     void Update()

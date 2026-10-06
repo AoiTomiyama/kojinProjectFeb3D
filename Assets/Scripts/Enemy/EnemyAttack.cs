@@ -11,7 +11,7 @@ public class EnemyAttack : EnemyComponentBase
     private int _spreadAngle;
     private BulletParameter _bulletParameter;
 
-    private BulletObjectPoolManager _poolManager;
+    private BulletPoolInfrastructure _poolManager;
     private CancellationTokenSource _cts;
     private WeaponAmmoState _ammo;
     private bool _isInitialized;
@@ -39,7 +39,7 @@ public class EnemyAttack : EnemyComponentBase
     {
         if (_muzzle == null)
             throw new System.InvalidOperationException($"{name}: EnemyAttack._muzzle が設定されていません。");
-        _poolManager = SceneReferenceResolver.RequireUnique<BulletObjectPoolManager>(this);
+        _poolManager = SceneReferenceResolverInfrastructure.RequireUnique<BulletPoolInfrastructure>(this);
         _isInitialized = true;
     }
     void Update()

@@ -63,10 +63,10 @@
 
 ### [x] A-07 シーン参照の依存関係を整理
 
-- 現状: 複数のコンポーネントが `SceneReferenceResolver.RequireUnique<T>()` でシーン内の管理クラスを検索する。
+- 現状: 複数のコンポーネントが `SceneReferenceResolverInfrastructure.RequireUnique<T>()` でシーン内の管理クラスを検索する。
 - 作業: 必須参照ごとに、同一オブジェクト・Inspector指定・初期化時の検索のどれで取得するかを決める。検索が必要な箇所は件数の検証を維持する。
 - 完了条件: コンポーネントが必要とする参照先をコードまたはInspectorから追え、欠落時に対象を特定できる。Prefabとシーンの参照を検証する。
-- 参照: `Assets/Scripts/SceneReferenceResolver.cs` と各呼び出し元。
+- 参照: `Assets/Scripts/Scene/Infrastructure/SceneReferenceResolverInfrastructure.cs` と各呼び出し元。
 - 実施結果（2026-10-03）: 同じGameObjectの部品はGetComponent、必須部品とInspector参照は呼び出し側のnullチェックで取得方法を明示した。シーン検索の共通処理は別シーンを除外し、欠落・重複時には要求元と必要な型を診断する。PrefabとシーンのGUID・配置は維持した。共通検証導入時にUnity 2022.3.62f2でPrefab・シーン起動・射撃を検証し、呼び出し側のnullチェックへの簡素化後は差分レビューとコンパイルで確認した。[参照一覧](../specs/component-dependencies.md) と [検証結果](../specs/player-stats-and-upgrades.md) を記録した。
 
 ### [x] A-08 イベント購読の寿命を統一
