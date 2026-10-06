@@ -2,12 +2,9 @@
 
 タグ: `作業方針` `Unity` `設計レビュー` `再開情報`
 
-## 対話と報告
+## 共通規則との関係
 
-- 結論を先に率直な日本語で述べ、確認した根拠と理由を簡潔につなげる。会話を知らない人にも、対象機能と変更後の動作が分かるようにする。
-- 報告は成果、判断理由、検証結果を中心にする。未実施の確認は、利用判断に影響する箇所で明示する。
-- 実装では目的と判断理由が追えるコメントを残す。動作を変えたら関連する現行仕様の文書も更新する。
-- 文書には検索できる主題とタグを付け、現行仕様、設計判断、検証証拠、再開情報を区別する。
+このローカル環境では `~/.codex/AGENTS.md` の対話・記録・作業効率・Git運用規則を適用する。報告は `~/.codex/knowledge/policies/review-verification-reporting.md`、Unityの参照・GUID維持と生成物保護は `~/.codex/knowledge/policies/unity-project-workflow.md` を正本とし、作業に該当する規則だけ参照する。別環境でこのガイドを再利用するときは共通規則も併せて提供する。固有条件は以下に残す。
 
 ## プロジェクトの現状
 
@@ -21,17 +18,11 @@
 
 ## 作業上の注意
 
-- 作業前に `git status --short` を確認する。既存の未コミット変更を保護し、同じファイルを編集する前に差分を読む。
-- Windows 環境で Git が所有者の相違を拒否したら、各コマンドに `git -c safe.directory=<リポジトリの絶対パス>` を指定する。ユーザーのグローバル Git 設定は変更しない。
-- シーン、Prefab、ScriptableObject、アセットを編集または移動するときは Unity YAML の参照と `.meta` の GUID を維持する。
 - Git 管理下のテキストは UTF-8 で保存する。C# も Shift_JIS / CP932 へ戻さず、既存の改行を維持する。新規ファイルは `.editorconfig` に従う。
 - ゲーム用スクリプトは `Assets/Scripts/<機能>/<レイヤー>/` に置き、型名・ファイル名の末尾に `Domain`、`Gameplay`、`Presentation`、`Configuration`、`Infrastructure` を付ける。設定アセットは `Assets/GameData/`、Editorテストは `Assets/Editor/` に置く。契約の配置と例外、改名一覧は `docs/specs/script-layout-and-naming.md` を参照する。
-- 生成物の `Library/`、`Temp/`、`obj/`、`.sln`、`.csproj` は成果物として編集しない。
 - 不具合候補はコード上の根拠と Unity Editor で確認した事実を区別する。指定バージョンの Editor で再生できない場合はその旨を報告する。
 - GUIなしで確認できる項目は既存のUnity Test Runnerテストを使って自走する。新しい重要な条件には `Assets/Editor/` の回帰テストを追加し、使い捨ての検証スクリプトを増やさない。Editorプロセスの終了コード、結果XML、例外ログを確認する。Windowsビルドは `ProjectAssetReferenceTests.BuildWindowsPlayer` を使用する。
 
 ## 知識の記録
 
-- 現在のコードと検証結果を最優先し、次にこのプロジェクト固有の記録、最後にローカル共通知識を参照する。`docs/knowledge/README.md` と `~/.codex/knowledge/README.md` はタスクに関連する場合だけ読む。
-- 固有の実装事実はプロジェクト内に記録する。複数プロジェクトで確認済みか独立した根拠がある知見だけを、適用条件とともに共通知識へ昇格する。
-- 共通知識へ昇格しても元のプロジェクト文書は残し、固有差分と参照を記す。絶対ユーザーパス、秘密情報、認証情報、個人情報、未検証の推測は共通知識に保存しない。
+共通知識の参照・昇格は `~/.codex/AGENTS.md` の「二層集合知」「共通規則の適用と昇格」に従う。プロジェクト固有の仕様は `docs/specs/`、採用した設計判断は `docs/knowledge/`、タスク状態と検証証拠は `docs/tasks/` に記録する。
