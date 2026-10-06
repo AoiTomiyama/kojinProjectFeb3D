@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PlayerUIViewer : PlayerComponentBaseGameplay
+public class PlayerStatusViewPresentation : PlayerComponentBaseGameplay
 {
     [SerializeField] private Image _healthImage;
     [SerializeField] private Image _reloadTimeImage;
@@ -18,18 +18,18 @@ public class PlayerUIViewer : PlayerComponentBaseGameplay
     {
         // 表示先を検証してから購読し、設定欠落時に購読だけを残さない。
         if (_healthImage == null)
-            throw new System.InvalidOperationException($"{name}: PlayerUIViewer._healthImage が設定されていません。");
+            throw new System.InvalidOperationException($"{name}: PlayerStatusViewPresentation._healthImage が設定されていません。");
         if (_reloadTimeImage == null)
-            throw new System.InvalidOperationException($"{name}: PlayerUIViewer._reloadTimeImage が設定されていません。");
+            throw new System.InvalidOperationException($"{name}: PlayerStatusViewPresentation._reloadTimeImage が設定されていません。");
         if (_coolDownTimeImage == null)
-            throw new System.InvalidOperationException($"{name}: PlayerUIViewer._coolDownTimeImage が設定されていません。");
+            throw new System.InvalidOperationException($"{name}: PlayerStatusViewPresentation._coolDownTimeImage が設定されていません。");
         if (_ammoText == null)
-            throw new System.InvalidOperationException($"{name}: PlayerUIViewer._ammoText が設定されていません。");
+            throw new System.InvalidOperationException($"{name}: PlayerStatusViewPresentation._ammoText が設定されていません。");
         if (_healthText == null)
-            throw new System.InvalidOperationException($"{name}: PlayerUIViewer._healthText が設定されていません。");
+            throw new System.InvalidOperationException($"{name}: PlayerStatusViewPresentation._healthText が設定されていません。");
         _player = Core;
         _attack = _player.Attack;
-        if (_attack == null) throw new System.InvalidOperationException("PlayerUIViewer: PlayerAttackGameplay が見つかりません。");
+        if (_attack == null) throw new System.InvalidOperationException("PlayerStatusViewPresentation: PlayerAttackGameplay が見つかりません。");
         // 最初の OnEnable は他コンポーネントの Awake より先になり得るため、Start で参照を確定する。
         _isInitialized = true;
         OnEnable();

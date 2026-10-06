@@ -124,7 +124,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 7847674204715870033}
-        m_TargetAssemblyTypeName: UpgradeButtonBehaviour, Assembly-CSharp
+        m_TargetAssemblyTypeName: UpgradeButtonPresentation, Assembly-CSharp
         m_MethodName: Upgrade
         m_Mode: 1
         m_Arguments:

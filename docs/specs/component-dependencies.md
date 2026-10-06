@@ -23,12 +23,12 @@
 | `PlayerAttackGameplay` | 共通基底の `PlayerCoreGameplay` | `WeaponDefinitionConfiguration`、発射口 | 弾プール、レベル管理 |
 | `EnemyCoreGameplay` | なし | 死亡エフェクト | `PlayerCoreGameplay`、レベル管理 |
 | `EnemyAttackGameplay`、`EnemyMoveGameplay` | 共通基底の `EnemyCoreGameplay`、移動側の `NavMeshAgent` | 攻撃側の武器設定・発射口 | 攻撃側の弾プール |
-| `PlayerUIViewer`、`EnemyUIViewer` | 共通基底のCore。プレイヤーUIはCoreが取得した攻撃部品を使用 | バー、文字などの表示先 | なし |
-| `LevelUpCoordinatorGameplay` | `LevelUpUIView` | 必要経験値リスト | `PlayerCoreGameplay` |
-| `LevelUpUIView` | ボタン配置先の子から候補ボタンを取得 | バー、文字、パネル、ボタン配置先 | なし |
-| `PlayerAimPointerGameplay`、`LookAtCamera` | なし | 照準の物理判定設定 | `Camera`、照準側のレベル管理 |
-| `UpgradeButtonBehaviour` | なし | 値型の強化設定 | レベル管理 |
-| `FollowObject` | なし | 追従対象、位置の補正値 | なし |
+| `PlayerStatusViewPresentation`、`EnemyHealthViewPresentation` | 共通基底のCore。プレイヤーUIはCoreが取得した攻撃部品を使用 | バー、文字などの表示先 | なし |
+| `LevelUpCoordinatorGameplay` | `LevelUpViewPresentation` | 必要経験値リスト | `PlayerCoreGameplay` |
+| `LevelUpViewPresentation` | ボタン配置先の子から候補ボタンを取得 | バー、文字、パネル、ボタン配置先 | なし |
+| `PlayerAimPointerGameplay`、`CameraBillboardPresentation` | なし | 照準の物理判定設定 | `Camera`、照準側のレベル管理 |
+| `UpgradeButtonPresentation` | なし | 値型の強化設定 | レベル管理 |
+| `CameraFollowPresentation` | なし | 追従対象、位置の補正値 | なし |
 | `BulletPoolInfrastructure` | 生成した弾の `PooledAttackBaseGameplay` | 弾データベース、効果音用 `AudioSource` | なし |
 | `BulletShotGameplay` | `Rigidbody` | 命中エフェクト、ダメージ文字、発射音。効果音出力はプールから注入 | なし |
 

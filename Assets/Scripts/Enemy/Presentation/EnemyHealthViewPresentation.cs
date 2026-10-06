@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class EnemyUIViewer : EnemyComponentBaseGameplay
+public class EnemyHealthViewPresentation : EnemyComponentBaseGameplay
 {
     [SerializeField] private Image _healthImage;
     private EnemyCoreGameplay _enemy;
@@ -10,7 +10,7 @@ public class EnemyUIViewer : EnemyComponentBaseGameplay
     private void Start()
     {
         if (_healthImage == null)
-            throw new System.InvalidOperationException($"{name}: EnemyUIViewer._healthImage が設定されていません。");
+            throw new System.InvalidOperationException($"{name}: EnemyHealthViewPresentation._healthImage が設定されていません。");
         // 初回は全コンポーネントの Awake 後に参照を確定する。
         _enemy = Core;
         _isInitialized = true;

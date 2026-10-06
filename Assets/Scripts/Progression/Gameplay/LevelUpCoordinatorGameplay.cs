@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(LevelUpUIView))]
+[RequireComponent(typeof(LevelUpViewPresentation))]
 public class LevelUpCoordinatorGameplay : MonoBehaviour
 {
     private ExperienceProgressionDomain _progression;
     private UpgradeCandidateSelectionDomain _candidateSelection;
-    private LevelUpUIView _view;
+    private LevelUpViewPresentation _view;
     private int _killCount;
 
     [SerializeField, Header("次レベルに必要な経験値")]
@@ -26,8 +26,8 @@ public class LevelUpCoordinatorGameplay : MonoBehaviour
     {
         _progression = new ExperienceProgressionDomain(_requireExpList);
         _candidateSelection = new UpgradeCandidateSelectionDomain();
-        _view = GetComponent<LevelUpUIView>();
-        if (_view == null) throw new System.InvalidOperationException($"{name}: LevelUpUIView が同じGameObjectに必要です。");
+        _view = GetComponent<LevelUpViewPresentation>();
+        if (_view == null) throw new System.InvalidOperationException($"{name}: LevelUpViewPresentation が同じGameObjectに必要です。");
     }
 
     private void Start()

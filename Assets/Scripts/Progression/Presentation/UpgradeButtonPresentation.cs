@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class UpgradeButtonBehaviour : MonoBehaviour
+public class UpgradeButtonPresentation : MonoBehaviour
 {
     [SerializeField]
     UpgradeParametersConfiguration _powerUp;

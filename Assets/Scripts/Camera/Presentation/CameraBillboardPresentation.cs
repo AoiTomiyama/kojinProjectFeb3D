@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class LookAtCamera : MonoBehaviour
+public class CameraBillboardPresentation : MonoBehaviour
 {
     private Camera _camera;
 

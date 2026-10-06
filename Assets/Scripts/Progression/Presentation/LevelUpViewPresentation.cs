@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>確定済みの経験値・強化状態をシーンのUIへ描画する。</summary>
-public class LevelUpUIView : MonoBehaviour
+public class LevelUpViewPresentation : MonoBehaviour
 {
     [SerializeField] private Image _expBar;
     [SerializeField] private TextMeshProUGUI _levelText;
@@ -24,21 +24,21 @@ public class LevelUpUIView : MonoBehaviour
     public void Initialize(bool menuVisible, int level, float progress, int kills, int tokens, int availableChoices)
     {
         if (_expBar == null)
-            throw new System.InvalidOperationException($"{name}: LevelUpUIView._expBar が設定されていません。");
+            throw new System.InvalidOperationException($"{name}: LevelUpViewPresentation._expBar が設定されていません。");
         if (_levelText == null)
-            throw new System.InvalidOperationException($"{name}: LevelUpUIView._levelText が設定されていません。");
+            throw new System.InvalidOperationException($"{name}: LevelUpViewPresentation._levelText が設定されていません。");
         if (_killCountText == null)
-            throw new System.InvalidOperationException($"{name}: LevelUpUIView._killCountText が設定されていません。");
+            throw new System.InvalidOperationException($"{name}: LevelUpViewPresentation._killCountText が設定されていません。");
         if (_tokenCountText == null)
-            throw new System.InvalidOperationException($"{name}: LevelUpUIView._tokenCountText が設定されていません。");
+            throw new System.InvalidOperationException($"{name}: LevelUpViewPresentation._tokenCountText が設定されていません。");
         if (_pickUpgradeCountText == null)
-            throw new System.InvalidOperationException($"{name}: LevelUpUIView._pickUpgradeCountText が設定されていません。");
+            throw new System.InvalidOperationException($"{name}: LevelUpViewPresentation._pickUpgradeCountText が設定されていません。");
         if (_upgradePanel == null)
-            throw new System.InvalidOperationException($"{name}: LevelUpUIView._upgradePanel が設定されていません。");
+            throw new System.InvalidOperationException($"{name}: LevelUpViewPresentation._upgradePanel が設定されていません。");
         if (_hasPickupNotice == null)
-            throw new System.InvalidOperationException($"{name}: LevelUpUIView._hasPickupNotice が設定されていません。");
+            throw new System.InvalidOperationException($"{name}: LevelUpViewPresentation._hasPickupNotice が設定されていません。");
         if (_buttonLayoutGroup == null)
-            throw new System.InvalidOperationException($"{name}: LevelUpUIView._buttonLayoutGroup が設定されていません。");
+            throw new System.InvalidOperationException($"{name}: LevelUpViewPresentation._buttonLayoutGroup が設定されていません。");
         // 非表示の強化パネル内も抽選対象に含める。
         _buttons = _buttonLayoutGroup.GetComponentsInChildren<Button>(true);
         SetMenuVisible(menuVisible);

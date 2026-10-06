@@ -25,8 +25,8 @@ public class UiEventLifetimeTests
 
         var player = UnityEngine.Object.FindObjectOfType<PlayerCoreGameplay>();
         var attackSource = player.Attack;
-        var playerUi = player.GetComponent<PlayerUIViewer>();
-        var enemyUi = UnityEngine.Object.FindObjectOfType<EnemyUIViewer>();
+        var playerUi = player.GetComponent<PlayerStatusViewPresentation>();
+        var enemyUi = UnityEngine.Object.FindObjectOfType<EnemyHealthViewPresentation>();
         var enemy = enemyUi.GetComponent<EnemyCoreGameplay>();
         var healthText = Field<TextMeshProUGUI>(playerUi, "_healthText");
         var ammoText = Field<TextMeshProUGUI>(playerUi, "_ammoText");
@@ -118,8 +118,8 @@ public class UiEventLifetimeTests
     private static T Field<T>(object owner, string name) =>
         (T)owner.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(owner);
 
-    private static void AssertSubscriptions(PlayerCoreGameplay player, PlayerAttackGameplay attack, PlayerUIViewer playerUi,
-        EnemyCoreGameplay enemy, EnemyUIViewer enemyUi, int expected)
+    private static void AssertSubscriptions(PlayerCoreGameplay player, PlayerAttackGameplay attack, PlayerStatusViewPresentation playerUi,
+        EnemyCoreGameplay enemy, EnemyHealthViewPresentation enemyUi, int expected)
     {
         Assert.AreEqual(expected, Count(player.OnHealthChanged, playerUi), "プレイヤー体力");
         Assert.AreEqual(expected, Count(attack.OnAmmoCountChanged, playerUi), "弾数");

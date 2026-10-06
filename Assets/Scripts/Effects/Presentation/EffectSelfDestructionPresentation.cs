@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class SelfDestruction : MonoBehaviour
+public class EffectSelfDestructionPresentation : MonoBehaviour
 {
     public void DestroySelf() => Destroy(gameObject);
 }

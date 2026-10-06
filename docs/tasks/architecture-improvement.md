@@ -35,7 +35,7 @@
 - 作業: 確定した状態を表示するコンポーネントを分ける。DOTween は表示を変えるだけにし、計算結果の確定を待たせない。
 - 完了条件: 経験値、レベル、強化選択回数、候補、トークンの表示が状態と一致する。表示開始順やアニメーションの中断で状態が変わらない。
 - 依存: A-01、A-02 の結果を受け取れる形にする。
-- 実施結果（2026-10-01）: `LevelUpUIView` がバー・文字・候補ボタン・メニューの表示を担当し、`LevelUpCoordinatorGameplay` は確定済みの状態を渡す。`InGame.unity` の参照を表示側へ移設した。Unity 2022.3.62f2 のバッチPlayで改修前後の表示を比較し、演出中断時も経験値状態が変わらないことを確認した。詳細は [現行仕様](../specs/player-stats-and-upgrades.md) を参照する。
+- 実施結果（2026-10-01）: `LevelUpViewPresentation` がバー・文字・候補ボタン・メニューの表示を担当し、`LevelUpCoordinatorGameplay` は確定済みの状態を渡す。`InGame.unity` の参照を表示側へ移設した。Unity 2022.3.62f2 のバッチPlayで改修前後の表示を比較し、演出中断時も経験値状態が変わらないことを確認した。詳細は [現行仕様](../specs/player-stats-and-upgrades.md) を参照する。
 
 ### [x] A-04 プレイヤーと敵の弾数・再装填状態を共通化
 
@@ -71,10 +71,10 @@
 
 ### [x] A-08 イベント購読の寿命を統一
 
-- 現状: `PlayerUIViewer` と `EnemyUIViewer` が体力変更を購読し、攻撃側も弾数・待機時間を通知する。匿名関数で登録して解除していない箇所がある。
+- 現状: `PlayerStatusViewPresentation` と `EnemyHealthViewPresentation` が体力変更を購読し、攻撃側も弾数・待機時間を通知する。匿名関数で登録して解除していない箇所がある。
 - 作業: 購読と解除の時点をコンポーネントの寿命に合わせる。再有効化時には現在値を表示して、過去の通知を待たない。
 - 完了条件: 無効化・再有効化や破棄後に通知が重複せず、初期値と変更後のUIが一致する。
-- 参照: `Assets/Scripts/Player/PlayerUIViewer.cs`、`Assets/Scripts/Enemy/EnemyUIViewer.cs`。
+- 参照: `Assets/Scripts/Player/Presentation/PlayerStatusViewPresentation.cs`、`Assets/Scripts/Enemy/Presentation/EnemyHealthViewPresentation.cs`。
 - 実施結果（2026-10-03）: 初回のStartで参照を確定し、以後はOnEnableで購読・現在値の表示、OnDisableで名前付きメソッドの解除と待機バーのTween停止を行う。プレイヤーの待機種類・時間は攻撃側から読み取り、UI再有効化時にバーを復元する。Unity 2022.3.62f2 の Test Runner でInGameシーンの初期表示、通知解除、3回の再有効化、GameObject切り替え、無効期間の変更と再表示、待機バー復元、UI破棄後の通知を確認した。継続利用するテストと証拠は [現行仕様](../specs/player-stats-and-upgrades.md) に記録した。
 
 ### [x] A-09 設計境界と依存方向を文書化
