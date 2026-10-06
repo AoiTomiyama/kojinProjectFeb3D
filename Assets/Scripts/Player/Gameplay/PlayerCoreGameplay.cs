@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class PlayerCore : MonoBehaviour, IDamageableDomain
+public class PlayerCoreGameplay : MonoBehaviour, IDamageableDomain
 {
     // 被弾時に攻撃力や移動速度を上げるためにアクセス可能にした。
-    private PlayerMove _move;
-    private PlayerAttack _attack;
-    public PlayerMove Move { get => _move; }
-    public PlayerAttack Attack { get => _attack; }
+    private PlayerMoveGameplay _move;
+    private PlayerAttackGameplay _attack;
+    public PlayerMoveGameplay Move { get => _move; }
+    public PlayerAttackGameplay Attack { get => _attack; }
 
     public Action OnHealthChanged;
     public UnityEvent OnDied;
@@ -48,14 +48,14 @@ public class PlayerCore : MonoBehaviour, IDamageableDomain
     private void Awake()
     {
         if (_initialStats == null)
-            throw new System.InvalidOperationException($"{name}: PlayerCore._initialStats が設定されていません。");
+            throw new System.InvalidOperationException($"{name}: PlayerCoreGameplay._initialStats が設定されていません。");
         // ScriptableObject の値は変更せず、このプレイヤーだけの実行時値へ複製する。
         _maxHealth = _initialStats.MaxHealth;
         // 現行Prefabでは同じGameObjectが移動・攻撃・体力を所有する。
-        _move = GetComponent<PlayerMove>();
-        _attack = GetComponent<PlayerAttack>();
+        _move = GetComponent<PlayerMoveGameplay>();
+        _attack = GetComponent<PlayerAttackGameplay>();
         if (_move == null || _attack == null)
-            throw new InvalidOperationException($"{name}: PlayerMove と PlayerAttack が同じGameObjectに必要です。");
+            throw new InvalidOperationException($"{name}: PlayerMoveGameplay と PlayerAttackGameplay が同じGameObjectに必要です。");
     }
 
     private void Start()
@@ -77,7 +77,7 @@ public class PlayerCore : MonoBehaviour, IDamageableDomain
         if (Health <= 0)
         {
             if (_deathEffect == null)
-                throw new System.InvalidOperationException($"{name}: PlayerCore._deathEffect が設定されていません。");
+                throw new System.InvalidOperationException($"{name}: PlayerCoreGameplay._deathEffect が設定されていません。");
             Instantiate(_deathEffect, transform.position, Quaternion.identity);
             OnDied?.Invoke();
             gameObject.SetActive(false);

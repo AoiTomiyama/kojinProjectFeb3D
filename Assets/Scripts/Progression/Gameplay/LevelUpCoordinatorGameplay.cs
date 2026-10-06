@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [RequireComponent(typeof(LevelUpUIView))]
-public class LevelUpSystemManager : MonoBehaviour
+public class LevelUpCoordinatorGameplay : MonoBehaviour
 {
     private ExperienceProgressionDomain _progression;
     private UpgradeCandidateSelectionDomain _candidateSelection;
@@ -14,7 +14,7 @@ public class LevelUpSystemManager : MonoBehaviour
 
     private int[] _candidateIds;
 
-    PlayerCore _player;
+    PlayerCoreGameplay _player;
 
     private bool _isMenuActivated;
     public bool IsMenuActivated { get => _isMenuActivated; }
@@ -32,7 +32,7 @@ public class LevelUpSystemManager : MonoBehaviour
 
     private void Start()
     {
-        _player = SceneReferenceResolverInfrastructure.RequireUnique<PlayerCore>(this);
+        _player = SceneReferenceResolverInfrastructure.RequireUnique<PlayerCoreGameplay>(this);
         _view.Initialize(_isMenuActivated, _progression.Level, _progression.Progress,
             _killCount, RerollToken, PickCount);
         _candidateIds = new int[_view.CandidateCount];

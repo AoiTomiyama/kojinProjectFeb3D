@@ -2,16 +2,16 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CursorPointer : MonoBehaviour
+public class PlayerAimPointerGameplay : MonoBehaviour
 {
     [SerializeField] LayerMask mask;
     [SerializeField] float _raycastMaxDistance;
 
-    LevelUpSystemManager _lvUpManager;
+    LevelUpCoordinatorGameplay _lvUpManager;
     Camera _camera;
     private void Start()
     {
-        _lvUpManager = SceneReferenceResolverInfrastructure.RequireUnique<LevelUpSystemManager>(this);
+        _lvUpManager = SceneReferenceResolverInfrastructure.RequireUnique<LevelUpCoordinatorGameplay>(this);
         _camera = SceneReferenceResolverInfrastructure.RequireUnique<Camera>(this);
     }
     void Update()

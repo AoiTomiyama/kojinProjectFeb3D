@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshAgent))]
-public class EnemyMove : EnemyComponentBase
+public class EnemyMoveGameplay : EnemyComponentBaseGameplay
 {
     [SerializeField, Header("感知範囲")] 
     private float _detectRange;

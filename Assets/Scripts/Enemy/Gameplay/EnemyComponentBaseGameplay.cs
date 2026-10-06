@@ -1,18 +1,18 @@
 using UnityEngine;
 
-public class EnemyComponentBase : MonoBehaviour
+public class EnemyComponentBaseGameplay : MonoBehaviour
 {
-    private EnemyCore _core;
+    private EnemyCoreGameplay _core;
     private bool _hasResolvedCore;
-    protected EnemyCore Core
+    protected EnemyCoreGameplay Core
     {
         get
         {
             // 破棄時は取得済みの参照を返し、破棄されたCoreを再検索しない。
             if (!_hasResolvedCore)
             {
-                _core = GetComponent<EnemyCore>();
-                if (_core == null) throw new System.InvalidOperationException($"{name}: EnemyCore が同じGameObjectに必要です。");
+                _core = GetComponent<EnemyCoreGameplay>();
+                if (_core == null) throw new System.InvalidOperationException($"{name}: EnemyCoreGameplay が同じGameObjectに必要です。");
                 _hasResolvedCore = true;
             }
             return _core;

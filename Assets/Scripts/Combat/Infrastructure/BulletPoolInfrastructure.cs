@@ -10,7 +10,7 @@ public class BulletPoolInfrastructure : MonoBehaviour
     [SerializeField] private BulletPrefabCatalogConfiguration _objectDatabase;
     [SerializeField] private AudioSource _soundEffects;
 
-    private readonly Dictionary<BulletTypeDomain, ObjectPool<PooledAttackBase>> _objectPoolDict = new();
+    private readonly Dictionary<BulletTypeDomain, ObjectPool<PooledAttackBaseGameplay>> _objectPoolDict = new();
     private void Start()
     {
         if (_objectDatabase == null)
@@ -24,15 +24,15 @@ public class BulletPoolInfrastructure : MonoBehaviour
         var mappings = _objectDatabase.Mappings;
         foreach (var pair in mappings)
         {
-            _objectPoolDict[pair.Type] = new ObjectPool<PooledAttackBase>(
+            _objectPoolDict[pair.Type] = new ObjectPool<PooledAttackBaseGameplay>(
                 () =>
                 {
                     // pairに沿ったプレハブをインスタンス化したいのでラムダ式を用いる。
                     var bullet = Instantiate(_objectDatabase.GetGameObject(pair.Type), transform);
-                    var component = bullet.GetComponent<PooledAttackBase>();
-                    if (component == null) throw new System.InvalidOperationException($"{bullet.name}: PooledAttackBase が必要です。");
+                    var component = bullet.GetComponent<PooledAttackBaseGameplay>();
+                    if (component == null) throw new System.InvalidOperationException($"{bullet.name}: PooledAttackBaseGameplay が必要です。");
                     // プール生成時に、弾が使用するシーンの効果音出力を渡す。
-                    if (component is BulletShotBehaviour shot) shot.SetAudioSource(_soundEffects);
+                    if (component is BulletShotGameplay shot) shot.SetAudioSource(_soundEffects);
                     component.OnInitialize();
                     component.OnReturnToPool += () =>
                     {
@@ -47,7 +47,7 @@ public class BulletPoolInfrastructure : MonoBehaviour
                 true, _initCount, _maxCount
                 );
             // プールを満たしておくため予め生成しておく
-            var list = new List<PooledAttackBase>();
+            var list = new List<PooledAttackBaseGameplay>();
             for (int i = 0; i < _initCount; i++)
             {
                 var component = _objectPoolDict[pair.Type].Get();
@@ -59,16 +59,16 @@ public class BulletPoolInfrastructure : MonoBehaviour
             }
         }
     }
-    private void OnGetFromPool(PooledAttackBase parameter) => parameter.gameObject.SetActive(true);
-    private void OnReleaseToPool(PooledAttackBase parameter) => parameter.gameObject.SetActive(false);
-    private void OnDisposePoolObject(PooledAttackBase parameter)
+    private void OnGetFromPool(PooledAttackBaseGameplay parameter) => parameter.gameObject.SetActive(true);
+    private void OnReleaseToPool(PooledAttackBaseGameplay parameter) => parameter.gameObject.SetActive(false);
+    private void OnDisposePoolObject(PooledAttackBaseGameplay parameter)
     {
         // シーン破棄後にプールがクリアされても、破棄済みの弾にはアクセスしない。
         if (parameter == null) return;
         Destroy(parameter.gameObject);
     }
 
-    public PooledAttackBase Get(BulletTypeDomain type) => _objectPoolDict[type].Get();
-    public void Release(BulletTypeDomain type, PooledAttackBase component) => _objectPoolDict[type].Release(component);
+    public PooledAttackBaseGameplay Get(BulletTypeDomain type) => _objectPoolDict[type].Get();
+    public void Release(BulletTypeDomain type, PooledAttackBaseGameplay component) => _objectPoolDict[type].Release(component);
 
 }

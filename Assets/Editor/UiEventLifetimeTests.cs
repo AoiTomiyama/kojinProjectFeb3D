@@ -18,16 +18,16 @@ public class UiEventLifetimeTests
     {
         EditorSceneManager.OpenScene("Assets/Scenes/InGame.unity");
         // 射撃・移動による被弾を止め、実際のシーン参照を使ってUIの寿命だけを確認する。
-        foreach (var attack in UnityEngine.Object.FindObjectsOfType<EnemyAttack>()) attack.enabled = false;
-        foreach (var move in UnityEngine.Object.FindObjectsOfType<EnemyMove>()) move.enabled = false;
+        foreach (var attack in UnityEngine.Object.FindObjectsOfType<EnemyAttackGameplay>()) attack.enabled = false;
+        foreach (var move in UnityEngine.Object.FindObjectsOfType<EnemyMoveGameplay>()) move.enabled = false;
         yield return new EnterPlayMode();
         yield return null;
 
-        var player = UnityEngine.Object.FindObjectOfType<PlayerCore>();
+        var player = UnityEngine.Object.FindObjectOfType<PlayerCoreGameplay>();
         var attackSource = player.Attack;
         var playerUi = player.GetComponent<PlayerUIViewer>();
         var enemyUi = UnityEngine.Object.FindObjectOfType<EnemyUIViewer>();
-        var enemy = enemyUi.GetComponent<EnemyCore>();
+        var enemy = enemyUi.GetComponent<EnemyCoreGameplay>();
         var healthText = Field<TextMeshProUGUI>(playerUi, "_healthText");
         var ammoText = Field<TextMeshProUGUI>(playerUi, "_ammoText");
         var enemyBar = Field<Image>(enemyUi, "_healthImage");
@@ -76,7 +76,7 @@ public class UiEventLifetimeTests
         {
             attackSource.RemainBulletCount = kind == WeaponWaitKindDomain.Reload ? 0 : 1;
             // 入力を模擬する代わりに、射撃後と同じ既存の非同期待機を開始する。
-            typeof(PlayerAttack).GetMethod("WaitShootCooldownAsync", BindingFlags.Instance | BindingFlags.NonPublic)
+            typeof(PlayerAttackGameplay).GetMethod("WaitShootCooldownAsync", BindingFlags.Instance | BindingFlags.NonPublic)
                 .Invoke(attackSource, new object[] { Field<CancellationTokenSource>(attackSource, "_cts").Token });
             var bar = Field<Image>(playerUi, kind == WeaponWaitKindDomain.Reload ? "_reloadTimeImage" : "_coolDownTimeImage");
             Assert.IsTrue(DOTween.IsTweening(bar));
@@ -118,8 +118,8 @@ public class UiEventLifetimeTests
     private static T Field<T>(object owner, string name) =>
         (T)owner.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic).GetValue(owner);
 
-    private static void AssertSubscriptions(PlayerCore player, PlayerAttack attack, PlayerUIViewer playerUi,
-        EnemyCore enemy, EnemyUIViewer enemyUi, int expected)
+    private static void AssertSubscriptions(PlayerCoreGameplay player, PlayerAttackGameplay attack, PlayerUIViewer playerUi,
+        EnemyCoreGameplay enemy, EnemyUIViewer enemyUi, int expected)
     {
         Assert.AreEqual(expected, Count(player.OnHealthChanged, playerUi), "プレイヤー体力");
         Assert.AreEqual(expected, Count(attack.OnAmmoCountChanged, playerUi), "弾数");

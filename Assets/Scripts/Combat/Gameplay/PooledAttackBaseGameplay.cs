@@ -4,7 +4,7 @@ using UnityEngine;
 /// <summary>
 /// 敵や自機から発射される弾の基底クラス。
 /// </summary>
-public abstract class PooledAttackBase : MonoBehaviour
+public abstract class PooledAttackBaseGameplay : MonoBehaviour
 {
     /// <summary>
     /// オブジェクトプールに戻す際に実行するデリゲート

@@ -3,15 +3,15 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PlayerUIViewer : PlayerComponentBase
+public class PlayerUIViewer : PlayerComponentBaseGameplay
 {
     [SerializeField] private Image _healthImage;
     [SerializeField] private Image _reloadTimeImage;
     [SerializeField] private Image _coolDownTimeImage;
     [SerializeField] private TextMeshProUGUI _ammoText;
     [SerializeField] private TextMeshProUGUI _healthText;
-    private PlayerCore _player;
-    private PlayerAttack _attack;
+    private PlayerCoreGameplay _player;
+    private PlayerAttackGameplay _attack;
     private bool _isInitialized;
 
     private void Start()
@@ -29,7 +29,7 @@ public class PlayerUIViewer : PlayerComponentBase
             throw new System.InvalidOperationException($"{name}: PlayerUIViewer._healthText が設定されていません。");
         _player = Core;
         _attack = _player.Attack;
-        if (_attack == null) throw new System.InvalidOperationException("PlayerUIViewer: PlayerAttack が見つかりません。");
+        if (_attack == null) throw new System.InvalidOperationException("PlayerUIViewer: PlayerAttackGameplay が見つかりません。");
         // 最初の OnEnable は他コンポーネントの Awake より先になり得るため、Start で参照を確定する。
         _isInitialized = true;
         OnEnable();

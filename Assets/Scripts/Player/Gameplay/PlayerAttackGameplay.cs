@@ -3,7 +3,7 @@ using System;
 using System.Threading;
 using UnityEngine;
 
-public class PlayerAttack : PlayerComponentBase
+public class PlayerAttackGameplay : PlayerComponentBaseGameplay
 {
     [SerializeField] private WeaponDefinitionConfiguration _definition;
     [SerializeField, Header("発射口")] private Transform _muzzle;
@@ -16,7 +16,7 @@ public class PlayerAttack : PlayerComponentBase
     private BulletParametersConfiguration _bulletParameter;
 
     private BulletPoolInfrastructure _poolManager;
-    private LevelUpSystemManager _lvUpManager;
+    private LevelUpCoordinatorGameplay _lvUpManager;
     private CancellationTokenSource _cts;
     private WeaponAmmoStateDomain _ammo;
     private bool _isPressedShootButton;
@@ -56,7 +56,7 @@ public class PlayerAttack : PlayerComponentBase
     private void Awake()
     {
         if (_definition == null)
-            throw new System.InvalidOperationException($"{name}: PlayerAttack._definition が設定されていません。");
+            throw new System.InvalidOperationException($"{name}: PlayerAttackGameplay._definition が設定されていません。");
         // 強化による変更は ScriptableObject に書き戻さず、この攻撃者だけに反映する。
         _maxBulletCount = _definition.MaxBulletCount;
         _synchronousBulletCount = _definition.SynchronousBulletCount;
@@ -76,9 +76,9 @@ public class PlayerAttack : PlayerComponentBase
     void Start()
     {
         if (_muzzle == null)
-            throw new System.InvalidOperationException($"{name}: PlayerAttack._muzzle が設定されていません。");
+            throw new System.InvalidOperationException($"{name}: PlayerAttackGameplay._muzzle が設定されていません。");
         _poolManager = SceneReferenceResolverInfrastructure.RequireUnique<BulletPoolInfrastructure>(this);
-        _lvUpManager = SceneReferenceResolverInfrastructure.RequireUnique<LevelUpSystemManager>(this);
+        _lvUpManager = SceneReferenceResolverInfrastructure.RequireUnique<LevelUpCoordinatorGameplay>(this);
         RemainBulletCount = MaxBulletCount;
         _isInitialized = true;
     }
@@ -145,7 +145,7 @@ public class PlayerAttack : PlayerComponentBase
 
     private void Shoot()
     {
-        BulletFireSequence.Fire(_poolManager, BulletTypeDomain.PlayerBullet, _bulletParameter,
+        BulletFireSequenceGameplay.Fire(_poolManager, BulletTypeDomain.PlayerBullet, _bulletParameter,
             _muzzle, transform.forward, _synchronousBulletCount, _spreadAngle, _ammo,
             count => OnAmmoCountChanged?.Invoke(count));
     }

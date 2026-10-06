@@ -1460,7 +1460,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 232733429}
-        m_TargetAssemblyTypeName: LevelUpSystemManager, Assembly-CSharp
+        m_TargetAssemblyTypeName: LevelUpCoordinatorGameplay, Assembly-CSharp
         m_MethodName: TryReroll
         m_Mode: 1
         m_Arguments:
@@ -13871,7 +13871,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 232733429}
-        m_TargetAssemblyTypeName: LevelUpSystemManager, Assembly-CSharp
+        m_TargetAssemblyTypeName: LevelUpCoordinatorGameplay, Assembly-CSharp
         m_MethodName: OpenCloseUpgradeMenu
         m_Mode: 1
         m_Arguments:

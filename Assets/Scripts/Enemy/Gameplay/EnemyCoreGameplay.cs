@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class EnemyCore : MonoBehaviour, IDamageableDomain
+public class EnemyCoreGameplay : MonoBehaviour, IDamageableDomain
 {
     private Transform _target;
     private int _playerLayer;
@@ -40,12 +40,12 @@ public class EnemyCore : MonoBehaviour, IDamageableDomain
     void Start()
     {
         Health = MaxHealth;
-        _target = SceneReferenceResolverInfrastructure.RequireUnique<PlayerCore>(this).transform;
+        _target = SceneReferenceResolverInfrastructure.RequireUnique<PlayerCoreGameplay>(this).transform;
         _playerLayer = _target.gameObject.layer;
         // Physics.CheckSphere には番号ではなくビットマスクを渡す。
         _playerLayerMask = 1 << _playerLayer;
         
-        var lvUpManager = SceneReferenceResolverInfrastructure.RequireUnique<LevelUpSystemManager>(this);
+        var lvUpManager = SceneReferenceResolverInfrastructure.RequireUnique<LevelUpCoordinatorGameplay>(this);
         OnDeath += lvUpManager.GainExperience;
     }
     public void Damage(int damageAmount)
@@ -54,7 +54,7 @@ public class EnemyCore : MonoBehaviour, IDamageableDomain
         if (Health <= 0)
         {
             if (_deathEffect == null)
-                throw new System.InvalidOperationException($"{name}: EnemyCore._deathEffect が設定されていません。");
+                throw new System.InvalidOperationException($"{name}: EnemyCoreGameplay._deathEffect が設定されていません。");
             OnDeath?.Invoke(_expAmount);
             OnDied?.Invoke();
             Instantiate(_deathEffect, transform.position, Quaternion.identity);

@@ -5,10 +5,10 @@ public class UpgradeButtonBehaviour : MonoBehaviour
     [SerializeField]
     UpgradeParametersConfiguration _powerUp;
 
-    LevelUpSystemManager _lvUpManager;
+    LevelUpCoordinatorGameplay _lvUpManager;
     private void Start()
     {
-        _lvUpManager = SceneReferenceResolverInfrastructure.RequireUnique<LevelUpSystemManager>(this);
+        _lvUpManager = SceneReferenceResolverInfrastructure.RequireUnique<LevelUpCoordinatorGameplay>(this);
     }
     public void Upgrade()
     {

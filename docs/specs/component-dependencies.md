@@ -18,21 +18,21 @@
 
 | 要求元 | 同じGameObjectから取得 | Inspector指定・外部から渡す参照 | 同じシーンで1件検索 |
 | --- | --- | --- | --- |
-| `PlayerCore` | `PlayerMove`、`PlayerAttack` | `PlayerInitialStatsConfiguration`、死亡エフェクト | なし |
-| `PlayerMove` | `PlayerCore`、`Rigidbody`、`LineRenderer` | `_lookAt`（任意） | `Camera` |
-| `PlayerAttack` | 共通基底の `PlayerCore` | `WeaponDefinitionConfiguration`、発射口 | 弾プール、レベル管理 |
-| `EnemyCore` | なし | 死亡エフェクト | `PlayerCore`、レベル管理 |
-| `EnemyAttack`、`EnemyMove` | 共通基底の `EnemyCore`、移動側の `NavMeshAgent` | 攻撃側の武器設定・発射口 | 攻撃側の弾プール |
+| `PlayerCoreGameplay` | `PlayerMoveGameplay`、`PlayerAttackGameplay` | `PlayerInitialStatsConfiguration`、死亡エフェクト | なし |
+| `PlayerMoveGameplay` | `PlayerCoreGameplay`、`Rigidbody`、`LineRenderer` | `_lookAt`（任意） | `Camera` |
+| `PlayerAttackGameplay` | 共通基底の `PlayerCoreGameplay` | `WeaponDefinitionConfiguration`、発射口 | 弾プール、レベル管理 |
+| `EnemyCoreGameplay` | なし | 死亡エフェクト | `PlayerCoreGameplay`、レベル管理 |
+| `EnemyAttackGameplay`、`EnemyMoveGameplay` | 共通基底の `EnemyCoreGameplay`、移動側の `NavMeshAgent` | 攻撃側の武器設定・発射口 | 攻撃側の弾プール |
 | `PlayerUIViewer`、`EnemyUIViewer` | 共通基底のCore。プレイヤーUIはCoreが取得した攻撃部品を使用 | バー、文字などの表示先 | なし |
-| `LevelUpSystemManager` | `LevelUpUIView` | 必要経験値リスト | `PlayerCore` |
+| `LevelUpCoordinatorGameplay` | `LevelUpUIView` | 必要経験値リスト | `PlayerCoreGameplay` |
 | `LevelUpUIView` | ボタン配置先の子から候補ボタンを取得 | バー、文字、パネル、ボタン配置先 | なし |
-| `CursorPointer`、`LookAtCamera` | なし | 照準の物理判定設定 | `Camera`、照準側のレベル管理 |
+| `PlayerAimPointerGameplay`、`LookAtCamera` | なし | 照準の物理判定設定 | `Camera`、照準側のレベル管理 |
 | `UpgradeButtonBehaviour` | なし | 値型の強化設定 | レベル管理 |
 | `FollowObject` | なし | 追従対象、位置の補正値 | なし |
-| `BulletPoolInfrastructure` | 生成した弾の `PooledAttackBase` | 弾データベース、効果音用 `AudioSource` | なし |
-| `BulletShotBehaviour` | `Rigidbody` | 命中エフェクト、ダメージ文字、発射音。効果音出力はプールから注入 | なし |
+| `BulletPoolInfrastructure` | 生成した弾の `PooledAttackBaseGameplay` | 弾データベース、効果音用 `AudioSource` | なし |
+| `BulletShotGameplay` | `Rigidbody` | 命中エフェクト、ダメージ文字、発射音。効果音出力はプールから注入 | なし |
 
-Coreと行動部品は同じGameObjectに置く。シーン固有の参照をPrefabへ直接保存できない動的な敵・弾では、初期化時のシーン検索と生成元からの注入を使用する。`PlayerMove._lookAt` は未設定なら旋回を行わない既存仕様を維持する。
+Coreと行動部品は同じGameObjectに置く。シーン固有の参照をPrefabへ直接保存できない動的な敵・弾では、初期化時のシーン検索と生成元からの注入を使用する。`PlayerMoveGameplay._lookAt` は未設定なら旋回を行わない既存仕様を維持する。
 
 加算ロードした別シーンや `DontDestroyOnLoad` のオブジェクトは `RequireUnique<T>()` の取得先にしない。将来シーンをまたぐサービスを導入する場合は、生成元やInspectorから渡す依存関係を別途明示する。
 

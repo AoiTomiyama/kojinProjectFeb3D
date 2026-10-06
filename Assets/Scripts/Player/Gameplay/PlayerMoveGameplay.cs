@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
-public class PlayerMove : PlayerComponentBase
+public class PlayerMoveGameplay : PlayerComponentBaseGameplay
 {
     Rigidbody _rb;
     LineRenderer _lr;
@@ -16,7 +16,7 @@ public class PlayerMove : PlayerComponentBase
         // 強化後の速度は各プレイヤーの実行時値として保持する。
         var core = Core;
         if (core.InitialStats == null)
-            throw new System.InvalidOperationException($"{name}: PlayerCore.InitialStats が設定されていません。");
+            throw new System.InvalidOperationException($"{name}: PlayerCoreGameplay.InitialStats が設定されていません。");
         _speed = core.InitialStats.MoveSpeed;
     }
 

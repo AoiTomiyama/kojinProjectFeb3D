@@ -1,10 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class EnemyUIViewer : EnemyComponentBase
+public class EnemyUIViewer : EnemyComponentBaseGameplay
 {
     [SerializeField] private Image _healthImage;
-    private EnemyCore _enemy;
+    private EnemyCoreGameplay _enemy;
     private bool _isInitialized;
 
     private void Start()

@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Events;
 
 [RequireComponent(typeof(Rigidbody))]
-public class BulletShotBehaviour : PooledAttackBase
+public class BulletShotGameplay : PooledAttackBaseGameplay
 {
     private CancellationTokenSource _cts;
     private Rigidbody _rb;
@@ -35,10 +35,10 @@ public class BulletShotBehaviour : PooledAttackBase
     {
         if (_aus == null)
         {
-            throw new System.InvalidOperationException("BulletShotBehaviour: 効果音用 AudioSource が初期化されていません。");
+            throw new System.InvalidOperationException("BulletShotGameplay: 効果音用 AudioSource が初期化されていません。");
         }
         if (_shootClip == null)
-            throw new System.InvalidOperationException($"{name}: BulletShotBehaviour._shootClip が設定されていません。");
+            throw new System.InvalidOperationException($"{name}: BulletShotGameplay._shootClip が設定されていません。");
         _aus.PlayOneShot(_shootClip);
         
         _cts = new CancellationTokenSource();
@@ -65,7 +65,7 @@ public class BulletShotBehaviour : PooledAttackBase
     private void OnCollisionEnter(Collision collision)
     {
         if (_hitParticle == null)
-            throw new System.InvalidOperationException($"{name}: BulletShotBehaviour._hitParticle が設定されていません。");
+            throw new System.InvalidOperationException($"{name}: BulletShotGameplay._hitParticle が設定されていません。");
         Instantiate(_hitParticle, transform.position, Quaternion.identity);
         _hitCount++;
         if (_hitCount > Parameter.RicochetCount)
@@ -75,7 +75,7 @@ public class BulletShotBehaviour : PooledAttackBase
         if (collision.gameObject.TryGetComponent<IDamageableDomain>(out var component))
         {
             if (_damageText == null)
-                throw new System.InvalidOperationException($"{name}: BulletShotBehaviour._damageText が設定されていません。");
+                throw new System.InvalidOperationException($"{name}: BulletShotGameplay._damageText が設定されていません。");
             component.Damage(Parameter.Damage);
             var textObject = Instantiate(_damageText, transform.position, Quaternion.identity);
             var text = textObject.GetComponent<TextMeshPro>();

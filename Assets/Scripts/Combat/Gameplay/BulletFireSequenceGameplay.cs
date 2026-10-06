@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 
 /// <summary>拡散角をUnityの向きへ変換し、プールから得た弾を発射する共通手順。</summary>
-public static class BulletFireSequence
+public static class BulletFireSequenceGameplay
 {
     public static void Fire(BulletPoolInfrastructure poolManager, BulletTypeDomain bulletType,
         BulletParametersConfiguration parameter, Transform muzzle, Vector3 forward, int requestedShots,
