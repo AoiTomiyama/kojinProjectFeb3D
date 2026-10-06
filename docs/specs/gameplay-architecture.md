@@ -69,6 +69,10 @@ flowchart TD
 
 ## 呼び出し・通知と寿命
 
+### 敵のNavMesh初期化
+
+`Enemy.prefab` のNavMeshAgentは初期状態を無効にし、派生Prefabも継承する。`EnemyMoveGameplay.Start()` が同じGameObjectのAgentを取得して有効化する。各NavMeshSurfaceのOnEnableによるデータ登録が先に済むため、初回シーン読込み中にAgentが未登録のNavMeshを参照する診断を防ぐ。追跡・停止の距離、速度、射線判定は従来の設定を使用する。移動コンポーネントを初期状態から無効にした検証では、そのStartによるAgent有効化も実行されない。
+
 | 発生元 → 受け手 | 入口・通知 | 確定順と登録期間 |
 | --- | --- | --- |
 | `EnemyCoreGameplay` → Manager | 非公開の `OnDeath` から `GainExperience()` | 敵Startで接続。死亡時に経験値・撃破数・トークンを更新し、Viewへ渡す。再有効化のたびに登録するUI購読とは別の、敵生成時の接続 |

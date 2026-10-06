@@ -12,7 +12,8 @@ public class EnemyMoveGameplay : EnemyComponentBaseGameplay
     {
         _agent = GetComponent<NavMeshAgent>();
         if (_agent == null) throw new System.InvalidOperationException($"{name}: NavMeshAgent が同じGameObjectに必要です。");
-        // Editorの事前読込みとPlayerの初回読込みで、NavMesh登録の順序が異なるため起動時に確認する。
+        // Prefabでは無効にしておき、各SurfaceのOnEnableによるNavMesh登録後にAgentを生成する。
+        _agent.enabled = true;
         Debug.Assert(_agent.isOnNavMesh, $"{name}: EnemyMoveGameplay に有効なNavMeshが必要です。");
     }
     void Update()

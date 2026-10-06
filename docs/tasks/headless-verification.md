@@ -2,7 +2,7 @@
 
 タグ: `検証証拠` `再開情報` `Unity Test Runner` `純粋C#` `戦闘` `強化` `ビルド`
 
-## 最新結果（2026-10-06）
+## V-01着手前の全体検証（2026-10-06）
 
 - Unity: プロジェクト指定の **2022.3.62f2**。
 - Test Runner: Edit Modeから必要に応じてPlayへ移行し、**56件成功・失敗0件・スキップ0件、Editor終了コード0**。
@@ -34,12 +34,16 @@
 
 ## 残る診断と追加候補
 
-### [ ] V-01 ビルド版の初回NavMesh生成診断を抑制する
+### [x] V-01 ビルド版の初回NavMesh生成診断を抑制する
 
 - 観測: 初回シーン読込み時に `Failed to create agent because there is no valid NavMesh` が7件出る。Editorの通常開始・再生中のシーン再読込みテストでは同じログは出なかった。
 - 現在の機能確認: `EnemyMoveGameplay.Start()` のDebug.Assertで、Developmentビルドでも初期化時にNavMeshへ接続済みであることを確認した。さらにEditorの実行中シーン読込み後、敵7体全員でisOnNavMeshとSetDestinationが成功した。NavMeshデータの恒常的な欠落や、移動機能の失敗は今回確認されていない。
 - 調査根拠: Navigation 1.1.6のNavMeshSurfaceはOnEnableでAddDataを呼ぶ。ログはその登録とAgentの生成順序に関係する可能性があるが、ネイティブ処理の順序まで追跡して原因を確定していない。
-- 追加候補: Agentを有効にするタイミングをNavMesh登録後へ揃え、Editor・Player双方で起動診断が0件になるか確認する。機能の不具合修正済みタスクD-02・D-05とは別の、診断整理の候補とする。
+- 修正: Enemy.prefabのAgentを初期状態では無効にし、EnemyMoveGameplay.Startで有効化する。SurfaceのOnEnableによる登録を先に済ませ、Agentの早過ぎる生成を避ける。追跡・停止・射撃の設定値と.meta GUIDは維持した。
+- 対象差分: `46d1da0` を基点とする `EnemyMoveGameplay.cs`、`Enemy.prefab`、`SceneGameplayTests.cs` と関連する現行仕様・この記録。
+- 検証: 既存一式の56件中55件が成功。残るシーン読込みテストは、移動を無効化する共通準備を使っていたため、その準備を変更し読込み完了・Start実行を待つ形に修正した。修正後の対象1件は成功・終了コード0。結果は `kojin-v01-tests-final.xml` と `kojin-v01-navigation-final.xml`、同名の.logで確認できる。
+- ビルド・起動: Unity 2022.3.62f2のWindows x64 Developmentビルドはエラー0件・終了コード0（`kojin-v01-build.log`）。ビルド版を10秒間起動し、NavMesh診断は7件から0件、C#例外・接続アサーション失敗も0件（`kojin-v01-startup.log`）。確認後にプロセスを停止した。
+- 効率記録: Test Runner計161.7秒（56.0、58.5、24.2、23.0秒）、ビルド35.8秒、起動10秒。初回失敗後の再検証3回。手戻りはテストの移動無効化と実行順の前提修正で、ゲーム仕様の変更は0回。成功後の同一条件再実行は行っていない。
 
 ### [ ] V-02 外部VFXシェーダーのpow警告を確認する
 

@@ -297,18 +297,23 @@ public class SceneGameplayTests
     [UnityTest]
     public IEnumerator NavigationRegistersForAllEnemiesWhenSceneLoadsDuringPlay()
     {
-        PrepareScene();
+        EditorSceneManager.OpenScene("Assets/Scenes/InGame.unity");
+        // この確認では移動のStartを実行する。ほかのテスト用の移動無効化を持ち込まない。
+        foreach (var attack in Object.FindObjectsOfType<EnemyAttackGameplay>()) attack.enabled = false;
         yield return new EnterPlayMode();
         yield return null;
         int agentCount = Object.FindObjectsOfType<NavMeshAgent>().Length;
-        // Editorの事前登録済みNavMeshを取り除き、Playerと同じ実行中のシーン読込みを行う。
-        NavMesh.RemoveAllNavMeshData();
-        UnityEngine.SceneManagement.SceneManager.LoadScene("InGame");
-        yield return null;
+        // Single読込みで旧Surfaceを破棄し、Playerと同じ実行中の登録を確認する。
+        var load = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync("InGame");
+        while (!load.isDone) yield return null;
         var agents = Object.FindObjectsOfType<NavMeshAgent>();
+        // EditModeのテスト更新とPlayer更新は別のため、フレーム数ではなく初期化の完了を待つ。
+        float deadline = Time.realtimeSinceStartup + 5f;
+        while (agents.Any(agent => !agent.enabled) && Time.realtimeSinceStartup < deadline) yield return null;
         Assert.AreEqual(agentCount, agents.Length);
         foreach (var agent in agents)
         {
+            Assert.IsTrue(agent.enabled, agent.name + ": 移動初期化でAgentを有効化");
             Assert.IsTrue(agent.isOnNavMesh, agent.name + ": シーン読込み後のNavMesh接続");
             Assert.IsTrue(agent.SetDestination(agent.transform.position));
         }
