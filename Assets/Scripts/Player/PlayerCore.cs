@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class PlayerCore : MonoBehaviour, IDamageable
+public class PlayerCore : MonoBehaviour, IDamageableDomain
 {
     // 被弾時に攻撃力や移動速度を上げるためにアクセス可能にした。
     private PlayerMove _move;

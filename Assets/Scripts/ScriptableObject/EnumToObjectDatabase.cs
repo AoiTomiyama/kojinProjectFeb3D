@@ -9,7 +9,7 @@ public class EnumToObjectDatabase : ScriptableObject
     [Serializable]
     public struct EnumToGameObjectPair
     {
-        public BulletTypeEnum Type;
+        public BulletTypeDomain Type;
         public GameObject Prefab;
     }
 
@@ -19,7 +19,7 @@ public class EnumToObjectDatabase : ScriptableObject
     /// </summary>
     /// <param name="type">要求する種類</param>
     /// <returns>要求と一致したプレハブ</returns>
-    public GameObject GetGameObject(BulletTypeEnum type)
+    public GameObject GetGameObject(BulletTypeDomain type)
     {
         foreach (var mapping in Mappings)
         {

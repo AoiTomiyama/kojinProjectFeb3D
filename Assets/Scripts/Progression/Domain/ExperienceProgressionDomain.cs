@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 
 /// <summary>経験値、レベル、未使用の強化選択回数を管理するゲームルール。</summary>
-public sealed class ExperienceProgression
+public sealed class ExperienceProgressionDomain
 {
     private readonly int[] _requiredExperience;
 
@@ -12,7 +12,7 @@ public sealed class ExperienceProgression
     public bool IsAtMaxLevel => Level == _requiredExperience.Length;
     public float Progress => IsAtMaxLevel ? 1f : (float)CurrentExperience / _requiredExperience[Level];
 
-    public ExperienceProgression(IReadOnlyList<int> requiredExperience)
+    public ExperienceProgressionDomain(IReadOnlyList<int> requiredExperience)
     {
         if (requiredExperience == null) throw new ArgumentNullException(nameof(requiredExperience));
         if (requiredExperience.Count == 0)

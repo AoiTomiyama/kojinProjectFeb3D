@@ -13,7 +13,7 @@ public class EnemyAttack : EnemyComponentBase
 
     private BulletPoolInfrastructure _poolManager;
     private CancellationTokenSource _cts;
-    private WeaponAmmoState _ammo;
+    private WeaponAmmoStateDomain _ammo;
     private bool _isInitialized;
 
     public int DamageBoost { get; set; }
@@ -26,7 +26,7 @@ public class EnemyAttack : EnemyComponentBase
         _synchronousBulletCount = _definition.SynchronousBulletCount;
         _spreadAngle = _definition.SpreadAngle;
         _bulletParameter = _definition.BulletParameter;
-        _ammo = new WeaponAmmoState(_definition.MaxBulletCount, _definition.CoolDown, _definition.ReloadTime);
+        _ammo = new WeaponAmmoStateDomain(_definition.MaxBulletCount, _definition.CoolDown, _definition.ReloadTime);
     }
 
     private void OnEnable()
@@ -84,7 +84,7 @@ public class EnemyAttack : EnemyComponentBase
 
     private void Shoot()
     {
-        BulletFireSequence.Fire(_poolManager, BulletTypeEnum.EnemyBullet, _bulletParameter,
+        BulletFireSequence.Fire(_poolManager, BulletTypeDomain.EnemyBullet, _bulletParameter,
             _muzzle, transform.forward, _synchronousBulletCount, _spreadAngle, _ammo);
     }
     private void OnDrawGizmos()
@@ -95,7 +95,7 @@ public class EnemyAttack : EnemyComponentBase
         int spread = Application.isPlaying ? _spreadAngle : _definition != null ? _definition.SpreadAngle : 0;
         for (int i = 0; i < shots; i++)
         {
-            var angle = BulletSpread.GetAngle(shots, spread, i);
+            var angle = BulletSpreadCalculatorDomain.GetAngle(shots, spread, i);
             var dir = Quaternion.AngleAxis(angle, Vector3.up) * transform.forward;
             Gizmos.DrawLine(transform.position, transform.position + dir * 10);
         }

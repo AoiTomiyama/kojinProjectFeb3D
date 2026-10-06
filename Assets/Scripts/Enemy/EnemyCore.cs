@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class EnemyCore : MonoBehaviour, IDamageable
+public class EnemyCore : MonoBehaviour, IDamageableDomain
 {
     private Transform _target;
     private int _playerLayer;

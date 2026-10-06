@@ -18,13 +18,13 @@ public class PlayerAttack : PlayerComponentBase
     private BulletPoolInfrastructure _poolManager;
     private LevelUpSystemManager _lvUpManager;
     private CancellationTokenSource _cts;
-    private WeaponAmmoState _ammo;
+    private WeaponAmmoStateDomain _ammo;
     private bool _isPressedShootButton;
     private bool _isInitialized;
     private float _waitEndTime;
 
     // UIの再有効化時に待機表示を復元するための読み取り専用状態。待機の実行は攻撃側が所有する。
-    public WeaponWaitKind WaitKind => _ammo.PendingWait;
+    public WeaponWaitKindDomain WaitKind => _ammo.PendingWait;
     public float WaitDurationSeconds { get; private set; }
     public float RemainingWaitSeconds => _ammo.IsReady ? 0f : Mathf.Max(0f, _waitEndTime - Time.time);
 
@@ -64,7 +64,7 @@ public class PlayerAttack : PlayerComponentBase
         _coolDown = _definition.CoolDown;
         _reloadTime = _definition.ReloadTime;
         _bulletParameter = _definition.BulletParameter;
-        _ammo = new WeaponAmmoState(_maxBulletCount, _coolDown, _reloadTime);
+        _ammo = new WeaponAmmoStateDomain(_maxBulletCount, _coolDown, _reloadTime);
     }
 
     private void OnEnable()
@@ -120,7 +120,7 @@ public class PlayerAttack : PlayerComponentBase
         var waitTime = _ammo.PendingWaitSeconds;
         WaitDurationSeconds = waitTime;
         _waitEndTime = Time.time + waitTime;
-        if (waitKind == WeaponWaitKind.Reload)
+        if (waitKind == WeaponWaitKindDomain.Reload)
         {
             OnReloadBegin?.Invoke(waitTime);
         }
@@ -145,7 +145,7 @@ public class PlayerAttack : PlayerComponentBase
 
     private void Shoot()
     {
-        BulletFireSequence.Fire(_poolManager, BulletTypeEnum.PlayerBullet, _bulletParameter,
+        BulletFireSequence.Fire(_poolManager, BulletTypeDomain.PlayerBullet, _bulletParameter,
             _muzzle, transform.forward, _synchronousBulletCount, _spreadAngle, _ammo,
             count => OnAmmoCountChanged?.Invoke(count));
     }
@@ -157,7 +157,7 @@ public class PlayerAttack : PlayerComponentBase
         int spread = Application.isPlaying ? _spreadAngle : _definition != null ? _definition.SpreadAngle : 0;
         for (int i = 0; i < shots; i++)
         {
-            var angle = BulletSpread.GetAngle(shots, spread, i);
+            var angle = BulletSpreadCalculatorDomain.GetAngle(shots, spread, i);
             var dir = Quaternion.AngleAxis(angle, Vector3.up) * transform.forward;
             Gizmos.DrawLine(transform.position, transform.position + dir * 10);
         }

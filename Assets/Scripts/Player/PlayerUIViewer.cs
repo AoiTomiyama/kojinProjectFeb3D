@@ -76,12 +76,12 @@ public class PlayerUIViewer : PlayerComponentBase
         float remaining = _attack.RemainingWaitSeconds;
         if (remaining <= 0f) return;
         float elapsed = _attack.WaitDurationSeconds - remaining;
-        if (_attack.WaitKind == WeaponWaitKind.Reload)
+        if (_attack.WaitKind == WeaponWaitKindDomain.Reload)
         {
             _reloadTimeImage.fillAmount = elapsed / _attack.WaitDurationSeconds;
             _reloadTimeImage.DOFillAmount(1f, remaining).SetEase(Ease.Linear);
         }
-        else if (_attack.WaitKind == WeaponWaitKind.Cooldown)
+        else if (_attack.WaitKind == WeaponWaitKindDomain.Cooldown)
         {
             // 通常の発射間隔バーと同じイージングを、待機全体の経過時間から再現する。
             _coolDownTimeImage.DOFillAmount(1f, _attack.WaitDurationSeconds)

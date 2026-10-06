@@ -72,7 +72,7 @@ public class BulletShotBehaviour : PooledAttackBase
         {
             OnReturnToPool?.Invoke();
         }
-        if (collision.gameObject.TryGetComponent<IDamageable>(out var component))
+        if (collision.gameObject.TryGetComponent<IDamageableDomain>(out var component))
         {
             if (_damageText == null)
                 throw new System.InvalidOperationException($"{name}: BulletShotBehaviour._damageText が設定されていません。");

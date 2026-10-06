@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 
 /// <summary>強化候補の抽選と、成功した再抽選に対するトークン消費を管理する。</summary>
-public sealed class UpgradeCandidateSelection
+public sealed class UpgradeCandidateSelectionDomain
 {
     public const int ChoiceCount = 3;
     public const int RerollCost = 3;

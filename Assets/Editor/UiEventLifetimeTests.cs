@@ -72,13 +72,13 @@ public class UiEventLifetimeTests
         Assert.AreEqual("1", ammoText.text);
         Assert.AreEqual(25f / enemy.MaxHealth, enemyBar.fillAmount, 0.001f);
 
-        foreach (var kind in new[] { WeaponWaitKind.Cooldown, WeaponWaitKind.Reload })
+        foreach (var kind in new[] { WeaponWaitKindDomain.Cooldown, WeaponWaitKindDomain.Reload })
         {
-            attackSource.RemainBulletCount = kind == WeaponWaitKind.Reload ? 0 : 1;
+            attackSource.RemainBulletCount = kind == WeaponWaitKindDomain.Reload ? 0 : 1;
             // 入力を模擬する代わりに、射撃後と同じ既存の非同期待機を開始する。
             typeof(PlayerAttack).GetMethod("WaitShootCooldownAsync", BindingFlags.Instance | BindingFlags.NonPublic)
                 .Invoke(attackSource, new object[] { Field<CancellationTokenSource>(attackSource, "_cts").Token });
-            var bar = Field<Image>(playerUi, kind == WeaponWaitKind.Reload ? "_reloadTimeImage" : "_coolDownTimeImage");
+            var bar = Field<Image>(playerUi, kind == WeaponWaitKindDomain.Reload ? "_reloadTimeImage" : "_coolDownTimeImage");
             Assert.IsTrue(DOTween.IsTweening(bar));
             playerUi.enabled = false;
             Assert.IsFalse(DOTween.IsTweening(bar));
@@ -90,7 +90,7 @@ public class UiEventLifetimeTests
             Assert.IsTrue(DOTween.IsTweening(bar));
             float finishAt = Time.time + attackSource.RemainingWaitSeconds + 0.1f;
             while (Time.time < finishAt) yield return null;
-            Assert.AreEqual(WeaponWaitKind.None, attackSource.WaitKind);
+            Assert.AreEqual(WeaponWaitKindDomain.None, attackSource.WaitKind);
             Assert.AreEqual(1f, bar.fillAmount, 0.001f);
         }
 

@@ -1,7 +1,7 @@
 /// <summary>
 /// ダメージを受ける物であることを保証するインターフェイス
 /// </summary>
-public interface IDamageable
+public interface IDamageableDomain
 {
     /// <summary>
     /// 何かしらからダメージを受けた際に呼び出される関数

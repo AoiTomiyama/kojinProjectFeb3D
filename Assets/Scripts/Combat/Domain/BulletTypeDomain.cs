@@ -1,4 +1,4 @@
-public enum BulletTypeEnum
+public enum BulletTypeDomain
 {
     PlayerBullet,
     EnemyBullet,

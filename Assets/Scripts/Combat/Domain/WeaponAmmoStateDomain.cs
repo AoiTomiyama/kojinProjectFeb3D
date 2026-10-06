@@ -1,25 +1,18 @@
 using System;
 
-public enum WeaponWaitKind
-{
-    None,
-    Cooldown,
-    Reload
-}
-
 /// <summary>プレイヤーと敵に共通する残弾・発射待機・再装填の状態。</summary>
-public sealed class WeaponAmmoState
+public sealed class WeaponAmmoStateDomain
 {
     public int Capacity { get; private set; }
     public int RemainingAmmo { get; private set; }
     public bool IsReady { get; private set; } = true;
-    public WeaponWaitKind PendingWait { get; private set; }
+    public WeaponWaitKindDomain PendingWait { get; private set; }
     public float CooldownSeconds { get; private set; }
     public float ReloadSeconds { get; private set; }
-    public float PendingWaitSeconds => PendingWait == WeaponWaitKind.Reload ? ReloadSeconds :
-        PendingWait == WeaponWaitKind.Cooldown ? CooldownSeconds : 0f;
+    public float PendingWaitSeconds => PendingWait == WeaponWaitKindDomain.Reload ? ReloadSeconds :
+        PendingWait == WeaponWaitKindDomain.Cooldown ? CooldownSeconds : 0f;
 
-    public WeaponAmmoState(int capacity, float cooldownSeconds, float reloadSeconds)
+    public WeaponAmmoStateDomain(int capacity, float cooldownSeconds, float reloadSeconds)
     {
         SetCapacity(capacity);
         SetTimings(cooldownSeconds, reloadSeconds);
@@ -50,22 +43,22 @@ public sealed class WeaponAmmoState
         return true;
     }
 
-    public WeaponWaitKind StartWait()
+    public WeaponWaitKindDomain StartWait()
     {
         // 無効化で中断した待機も、再有効化時に現在の残弾から最初から判定する。
-        PendingWait = RemainingAmmo <= 0 ? WeaponWaitKind.Reload : WeaponWaitKind.Cooldown;
+        PendingWait = RemainingAmmo <= 0 ? WeaponWaitKindDomain.Reload : WeaponWaitKindDomain.Cooldown;
         IsReady = false;
         return PendingWait;
     }
 
     public bool CompleteWait()
     {
-        if (PendingWait == WeaponWaitKind.None)
+        if (PendingWait == WeaponWaitKindDomain.None)
             throw new InvalidOperationException("開始していない待機は完了できません。");
 
         bool reloaded = RemainingAmmo <= 0;
         if (reloaded) RemainingAmmo = Capacity;
-        PendingWait = WeaponWaitKind.None;
+        PendingWait = WeaponWaitKindDomain.None;
         IsReady = true;
         return reloaded;
     }

@@ -15,7 +15,7 @@
 
 | 区分 | 現在の実装 | 境界 |
 | --- | --- | --- |
-| 純粋C#のゲームルール | `ExperienceProgression`、`UpgradeCandidateSelection`、`WeaponAmmoState`、`BulletSpread` | Unity型やコンポーネントを参照せず、値と乱数関数を受け取る |
+| 純粋C#のゲームルール | `ExperienceProgressionDomain`、`UpgradeCandidateSelectionDomain`、`WeaponAmmoStateDomain`、`BulletSpreadCalculatorDomain` | Unity型やコンポーネントを参照せず、値と乱数関数を受け取る |
 | Unityとの接続・進行 | `LevelUpSystemManager`、両攻撃コンポーネント、`BulletFireSequence` | ルールを呼び、入力・非同期待機・Prefab配置・通知を扱う |
 | 表示 | `LevelUpUIView`、`PlayerUIViewer`、`EnemyUIViewer` | 確定した値を描画する。経験値・残弾・体力の確定を行わない |
 | 設定 | `PlayerInitialStats`、`WeaponDefinition`、`EnumToObjectDatabase` とInspectorの値 | 初期値と参照先を定義する。強化結果や残弾を共有アセットへ書き戻さない |
@@ -29,8 +29,8 @@
 flowchart TD
     Button[UpgradeButtonBehaviour] --> Manager[LevelUpSystemManager]
     Enemy[EnemyCore] --> Manager
-    Manager --> Progress[ExperienceProgression]
-    Manager --> Selection[UpgradeCandidateSelection]
+    Manager --> Progress[ExperienceProgressionDomain]
+    Manager --> Selection[UpgradeCandidateSelectionDomain]
     Manager --> View[LevelUpUIView]
     Manager --> Player[PlayerCore]
     Player --> Attack[PlayerAttack]
@@ -39,15 +39,15 @@ flowchart TD
     EnemyAttack --> Ammo
     EnemyAttack --> Fire
     EnemyMove[EnemyMove] --> Enemy
-    Attack --> Ammo[WeaponAmmoState]
+    Attack --> Ammo[WeaponAmmoStateDomain]
     Attack --> Fire[BulletFireSequence]
-    Fire --> Spread[BulletSpread]
+    Fire --> Spread[BulletSpreadCalculatorDomain]
     Fire --> Pool[BulletPoolInfrastructure]
     Pool --> Bullet[PooledAttackBase / BulletShotBehaviour]
     PlayerUI[PlayerUIViewer] --> Player
     PlayerUI --> Attack
     EnemyUI[EnemyUIViewer] --> Enemy
-    Bullet --> Damage[IDamageable]
+    Bullet --> Damage[IDamageableDomain]
 ```
 
 プレイヤー攻撃はメニュー状態を読むため `LevelUpSystemManager` にも依存し、敵の移動・攻撃は `EnemyCore` を介して対象・射程・レイヤーを読む。設定アセット・Unity APIなど図に省略した参照と、具体的な取得先は [必須参照の一覧](component-dependencies.md) を参照する。
@@ -56,12 +56,12 @@ flowchart TD
 
 | 機能 | 実行時状態の所有者 | 設定値・依存先 | Unity固有処理と関連コード |
 | --- | --- | --- | --- |
-| 経験値・レベル | `ExperienceProgression` が経験値、レベル、強化選択回数を保持。`LevelUpSystemManager` が撃破数・メニュー開閉を保持 | Managerの必要経験値リストをProgressionが起動時に複製 | [Manager](../../Assets/Scripts/LevelUpSystemManager.cs) の `GainExperience()` が敵から値を受け、[Progression](../../Assets/Scripts/ExperienceProgression.cs) の結果を [View](../../Assets/Scripts/LevelUpUIView.cs) に渡す |
-| 強化候補 | `UpgradeCandidateSelection` が再抽選トークンを保持。Managerが候補ID一覧、Viewがボタン配列と表示を保持 | ボタン配列の添字を候補IDにする。乱数はManagerから `UnityEngine.Random.Range` を渡す | [Selection](../../Assets/Scripts/UpgradeCandidateSelection.cs) が重複のない3件を返し、Viewがボタンを表示・並べ替える。Viewに抽選・残高判定を置かない |
+| 経験値・レベル | `ExperienceProgressionDomain` が経験値、レベル、強化選択回数を保持。`LevelUpSystemManager` が撃破数・メニュー開閉を保持 | Managerの必要経験値リストをProgressionが起動時に複製 | [Manager](../../Assets/Scripts/LevelUpSystemManager.cs) の `GainExperience()` が敵から値を受け、[Progression](../../Assets/Scripts/Progression/Domain/ExperienceProgressionDomain.cs) の結果を [View](../../Assets/Scripts/LevelUpUIView.cs) に渡す |
+| 強化候補 | `UpgradeCandidateSelectionDomain` が再抽選トークンを保持。Managerが候補ID一覧、Viewがボタン配列と表示を保持 | ボタン配列の添字を候補IDにする。乱数はManagerから `UnityEngine.Random.Range` を渡す | [Selection](../../Assets/Scripts/Progression/Domain/UpgradeCandidateSelectionDomain.cs) が重複のない3件を返し、Viewがボタンを表示・並べ替える。Viewに抽選・残高判定を置かない |
 | プレイヤー能力値・強化 | `PlayerCore` が体力・最大体力、`PlayerMove` が速度、`PlayerAttack` が武器値を保持 | [初期能力値](../../Assets/Scripts/ScriptableObject/PlayerInitialStats.cs)、[武器定義](../../Assets/Scripts/ScriptableObject/WeaponDefinition.cs) をAwakeで複製。ボタンの [PowerUpParameter](../../Assets/Scripts/PowerUpParameter.cs) は値型の強化設定 | [Core](../../Assets/Scripts/Player/PlayerCore.cs) の `ApplyPowerUp()` が体力と速度を更新し、[Attack](../../Assets/Scripts/Player/PlayerAttack.cs) に武器の変更を渡す。整数化・加算乗算順はここに残る |
-| 射撃・待機 | 各攻撃コンポーネントが個別に作る [WeaponAmmoState](../../Assets/Scripts/WeaponAmmoState.cs) が装弾数・残弾・待機種類・射撃可否を保持 | 武器定義の装弾数、同時発射数、拡散角、待機時間、弾パラメーター | PlayerAttackは入力、[EnemyAttack](../../Assets/Scripts/Enemy/EnemyAttack.cs) は物理判定を受ける。両者がUniTaskで時間を待ち、キャンセル後の再開始を担当。PlayerAttackはUI復元用の待機時間も保持 |
-| 拡散・弾の発射 | [BulletSpread](../../Assets/Scripts/BulletSpread.cs) は状態を持たない計算。[BulletFireSequence](../../Assets/Scripts/BulletFireSequence.cs) が発射成功後にAmmoの残弾を消費 | 攻撃側から同時発射数、拡散角、残弾、発射口、弾種、`BulletParameter` を渡す | 角度計算の結果をQuaternionで向きへ変換し、プール取得→パラメーターと配置→発射時初期化→残弾消費の順で実行 |
-| 弾の再利用・命中 | [PoolManager](../../Assets/Scripts/Combat/Infrastructure/BulletPoolInfrastructure.cs) が種類別のプール、[BulletShotBehaviour](../../Assets/Scripts/BulletShotBehaviour.cs) が取得ごとの命中回数と寿命待機を保持 | [弾種列挙](../../Assets/Scripts/Enum/BulletTypeEnum.cs)、[対応データベース](../../Assets/Scripts/ScriptableObject/EnumToObjectDatabase.cs)、Prefab、AudioSource | 生成時に [PooledAttackBase](../../Assets/Scripts/BaseClass/PooledAttackBase.cs) を初期化。発射時に速度・音・寿命・命中回数を設定。衝突時に [IDamageable](../../Assets/Scripts/Interface/IDamageable.cs) を呼び、演出を生成し、反射上限・寿命で返却 |
+| 射撃・待機 | 各攻撃コンポーネントが個別に作る [WeaponAmmoStateDomain](../../Assets/Scripts/Combat/Domain/WeaponAmmoStateDomain.cs) が装弾数・残弾・待機種類・射撃可否を保持 | 武器定義の装弾数、同時発射数、拡散角、待機時間、弾パラメーター | PlayerAttackは入力、[EnemyAttack](../../Assets/Scripts/Enemy/EnemyAttack.cs) は物理判定を受ける。両者がUniTaskで時間を待ち、キャンセル後の再開始を担当。PlayerAttackはUI復元用の待機時間も保持 |
+| 拡散・弾の発射 | [BulletSpreadCalculatorDomain](../../Assets/Scripts/Combat/Domain/BulletSpreadCalculatorDomain.cs) は状態を持たない計算。[BulletFireSequence](../../Assets/Scripts/BulletFireSequence.cs) が発射成功後にAmmoの残弾を消費 | 攻撃側から同時発射数、拡散角、残弾、発射口、弾種、`BulletParameter` を渡す | 角度計算の結果をQuaternionで向きへ変換し、プール取得→パラメーターと配置→発射時初期化→残弾消費の順で実行 |
+| 弾の再利用・命中 | [PoolManager](../../Assets/Scripts/Combat/Infrastructure/BulletPoolInfrastructure.cs) が種類別のプール、[BulletShotBehaviour](../../Assets/Scripts/BulletShotBehaviour.cs) が取得ごとの命中回数と寿命待機を保持 | [弾種列挙](../../Assets/Scripts/Combat/Domain/BulletTypeDomain.cs)、[対応データベース](../../Assets/Scripts/ScriptableObject/EnumToObjectDatabase.cs)、Prefab、AudioSource | 生成時に [PooledAttackBase](../../Assets/Scripts/BaseClass/PooledAttackBase.cs) を初期化。発射時に速度・音・寿命・命中回数を設定。衝突時に [IDamageableDomain](../../Assets/Scripts/Combat/Contracts/IDamageableDomain.cs) を呼び、演出を生成し、反射上限・寿命で返却 |
 | 敵の体力・行動 | [EnemyCore](../../Assets/Scripts/Enemy/EnemyCore.cs) が体力、対象、射程、レイヤーを保持。[EnemyMove](../../Assets/Scripts/Enemy/EnemyMove.cs) が感知結果を保持 | Coreの最大体力・撃破経験値・射程、Moveの感知範囲、Attackの武器設定。PlayerCore、レベル管理、弾プールへ依存 | Physicsで感知・射線を判断し、NavMeshAgentで追跡・停止、Transformで旋回する。移動と攻撃の条件判断はそれぞれのUpdateに残る |
 | 体力・弾数の表示 | 状態の所有者はCoreとAttack。UIは参照先と初期化済みフラグだけを保持 | [PlayerUIViewer](../../Assets/Scripts/Player/PlayerUIViewer.cs)、[EnemyUIViewer](../../Assets/Scripts/Enemy/EnemyUIViewer.cs) のImage・文字参照 | 変更通知を受けて描画し、再有効化時は現在値を読み直す。待機バーのTweenは表示専用 |
 
@@ -92,7 +92,7 @@ CoreとPlayerAttackの通知は現状 `Action` フィールド、弾の返却通
 
 ### 新しい弾種を追加する
 
-1. `BulletTypeEnum` に既存の数値を変えず種類を追加し、[対応アセット](../../Assets/Scripts/ScriptableObject/EnumToObjectDatabase.asset) のMappingsに1種類につき1件のPrefabを設定する。プールはStartでこの対応表から生成される。
+1. `BulletTypeDomain` に既存の数値を変えず種類を追加し、[対応アセット](../../Assets/Scripts/ScriptableObject/EnumToObjectDatabase.asset) のMappingsに1種類につき1件のPrefabを設定する。プールはStartでこの対応表から生成される。
 2. PrefabにPooledAttackBaseを継承する部品を配置し、生成時の `OnInitialize()` と発射ごとの `OnGetFromPool()` を実装する。後者では再利用時に残る状態をリセットし、無効化時には時間待機を中断する。音の自動注入は現在BulletShotBehaviourへの型判定なので、別の派生型で音を使うなら注入経路も変更する。
 3. 発射元が `BulletFireSequence.Fire()` へ新しい種類を渡すように変更する。現在はPlayerAttack・EnemyAttackがそれぞれPlayerBullet・EnemyBulletを直接指定しており、WeaponDefinitionに弾種の選択項目はない。Inspectorで選びたい場合は定義・コピー・発射引数まで追加する。
 4. 確認: 種類とPrefabの対応、単発・複数発・残弾不足時の角度と消費、配置後の初期速度、命中とダメージ、寿命・反射回数による返却、再取得時のリセット、音とエフェクト、Play停止・再開。弾プールと命中処理はUnityで確認する。

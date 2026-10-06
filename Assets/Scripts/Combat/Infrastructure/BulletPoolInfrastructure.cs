@@ -10,7 +10,7 @@ public class BulletPoolInfrastructure : MonoBehaviour
     [SerializeField] private EnumToObjectDatabase _objectDatabase;
     [SerializeField] private AudioSource _soundEffects;
 
-    private readonly Dictionary<BulletTypeEnum, ObjectPool<PooledAttackBase>> _objectPoolDict = new();
+    private readonly Dictionary<BulletTypeDomain, ObjectPool<PooledAttackBase>> _objectPoolDict = new();
     private void Start()
     {
         if (_objectDatabase == null)
@@ -68,7 +68,7 @@ public class BulletPoolInfrastructure : MonoBehaviour
         Destroy(parameter.gameObject);
     }
 
-    public PooledAttackBase Get(BulletTypeEnum type) => _objectPoolDict[type].Get();
-    public void Release(BulletTypeEnum type, PooledAttackBase component) => _objectPoolDict[type].Release(component);
+    public PooledAttackBase Get(BulletTypeDomain type) => _objectPoolDict[type].Get();
+    public void Release(BulletTypeDomain type, PooledAttackBase component) => _objectPoolDict[type].Release(component);
 
 }

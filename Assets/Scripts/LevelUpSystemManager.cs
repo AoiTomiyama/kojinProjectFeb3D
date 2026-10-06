@@ -4,8 +4,8 @@ using UnityEngine;
 [RequireComponent(typeof(LevelUpUIView))]
 public class LevelUpSystemManager : MonoBehaviour
 {
-    private ExperienceProgression _progression;
-    private UpgradeCandidateSelection _candidateSelection;
+    private ExperienceProgressionDomain _progression;
+    private UpgradeCandidateSelectionDomain _candidateSelection;
     private LevelUpUIView _view;
     private int _killCount;
 
@@ -24,8 +24,8 @@ public class LevelUpSystemManager : MonoBehaviour
 
     private void Awake()
     {
-        _progression = new ExperienceProgression(_requireExpList);
-        _candidateSelection = new UpgradeCandidateSelection();
+        _progression = new ExperienceProgressionDomain(_requireExpList);
+        _candidateSelection = new UpgradeCandidateSelectionDomain();
         _view = GetComponent<LevelUpUIView>();
         if (_view == null) throw new System.InvalidOperationException($"{name}: LevelUpUIView が同じGameObjectに必要です。");
     }
@@ -87,7 +87,7 @@ public class LevelUpSystemManager : MonoBehaviour
             _view.ShowCandidates(selectedIds);
             _view.ShowRerollTokens(RerollToken);
         }
-        else if (RerollToken >= UpgradeCandidateSelection.RerollCost)
+        else if (RerollToken >= UpgradeCandidateSelectionDomain.RerollCost)
         {
             Debug.LogError("強化候補のボタンが3件未満のため抽選できません。", this);
         }

@@ -1,7 +1,7 @@
 using System;
 
 /// <summary>同時発射数と残弾から、発射数と各弾の拡散角を決める。</summary>
-public static class BulletSpread
+public static class BulletSpreadCalculatorDomain
 {
     public static int GetShotCount(int requestedShots, int remainingAmmo)
     {
