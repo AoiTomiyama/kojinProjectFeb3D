@@ -23,6 +23,25 @@ public class UiEventLifetimeTests
         yield return new EnterPlayMode();
         yield return null;
 
+        // 改名後もシーンの部品と、型名を保存するButton.onClickの呼び出し先が解決することを確認する。
+        foreach (var root in UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects())
+        {
+            foreach (var transform in root.GetComponentsInChildren<Transform>(true))
+                Assert.AreEqual(0, UnityEditor.GameObjectUtility.GetMonoBehavioursWithMissingScriptCount(transform.gameObject));
+            foreach (var button in root.GetComponentsInChildren<Button>(true))
+            {
+                for (int i = 0; i < button.onClick.GetPersistentEventCount(); i++)
+                {
+                    var target = button.onClick.GetPersistentTarget(i);
+                    var method = button.onClick.GetPersistentMethodName(i);
+                    Assert.IsNotNull(target, button.name + ": " + method);
+                    // onClickにはAudioClip等の固定引数を渡す呼び出しも保存される。
+                    Assert.IsTrue(target.GetType().GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                        .Any(candidate => candidate.Name == method), button.name + ": " + method);
+                }
+            }
+        }
+
         var player = UnityEngine.Object.FindObjectOfType<PlayerCoreGameplay>();
         var attackSource = player.Attack;
         var playerUi = player.GetComponent<PlayerStatusViewPresentation>();

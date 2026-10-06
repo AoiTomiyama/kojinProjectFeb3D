@@ -2,8 +2,8 @@
 
 タグ: `現行仕様` `設計境界` `依存関係` `状態の所有者` `機能追加` `A-09`
 
-- 照合日: 2026-10-04
-- 照合版: `b7539d8`（A-08完了）。作業ツリーの既存変更はPackagesとUnityバージョン設定のみで、以下のゲームコードに差分はない。
+- 照合日: 2026-10-06
+- 照合版: A-09完了版 `b4da212` を基点とする命名・配置整理後のコード。改名の対応表は [配置と命名の規則](script-layout-and-naming.md) を参照する。
 - 対象: `Assets/Scripts/`、`Assets/Scenes/InGame.unity` と関連Prefab・設定アセット。
 - 目的: 新しい強化・弾種・敵行動を追加する担当者が、状態の所有者、変更するコードと設定、確認する動作を辿れるようにする。
 
@@ -11,7 +11,7 @@
 
 **ゲームルールの一部を純粋C#に分け、Unityコンポーネントが入力・物理・表示へ接続する構成**。責務を分ける軽量なレイヤード設計に、状態変更の通知（Observer）と弾の再利用（Object Pool）を組み合わせている。
 
-ここで「所有者」は値を保持して変更結果を確定するクラス、「依存先」は直接呼ぶ、参照する、または生成する型を指す。以下はコード上の責務の区分であり、`Assets/Scripts/` にこれらを分離するasmdefはない。配置は既存のPlayer・Enemyフォルダーと共通ファイルを維持している。
+ここで「所有者」は値を保持して変更結果を確定するクラス、「依存先」は直接呼ぶ、参照する、または生成する型を指す。以下はコード上の責務の区分であり、`Assets/Scripts/` にこれらを分離するasmdefはない。配置は機能フォルダーの下にレイヤーフォルダーを置き、型名の末尾にもレイヤー名を付ける。
 
 | 区分 | 現在の実装 | 境界 |
 | --- | --- | --- |
@@ -92,7 +92,7 @@ CoreとPlayerAttackの通知は現状 `Action` フィールド、弾の返却通
 
 ### 新しい弾種を追加する
 
-1. `BulletTypeDomain` に既存の数値を変えず種類を追加し、[対応アセット](../../Assets/Scripts/ScriptableObject/BulletPrefabCatalogConfiguration.asset) のMappingsに1種類につき1件のPrefabを設定する。プールはStartでこの対応表から生成される。
+1. `BulletTypeDomain` に既存の数値を変えず種類を追加し、[対応アセット](../../Assets/GameData/Combat/BulletPrefabCatalog.asset) のMappingsに1種類につき1件のPrefabを設定する。プールはStartでこの対応表から生成される。
 2. PrefabにPooledAttackBaseを継承する部品を配置し、生成時の `OnInitialize()` と発射ごとの `OnGetFromPool()` を実装する。後者では再利用時に残る状態をリセットし、無効化時には時間待機を中断する。音の自動注入は現在BulletShotBehaviourへの型判定なので、別の派生型で音を使うなら注入経路も変更する。
 3. 発射元が `BulletFireSequenceGameplay.Fire()` へ新しい種類を渡すように変更する。現在はPlayerAttack・EnemyAttackがそれぞれPlayerBullet・EnemyBulletを直接指定しており、WeaponDefinitionに弾種の選択項目はない。Inspectorで選びたい場合は定義・コピー・発射引数まで追加する。
 4. 確認: 種類とPrefabの対応、単発・複数発・残弾不足時の角度と消費、配置後の初期速度、命中とダメージ、寿命・反射回数による返却、再取得時のリセット、音とエフェクト、Play停止・再開。弾プールと命中処理はUnityで確認する。
