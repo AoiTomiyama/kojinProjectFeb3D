@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 05e32a8843587724d964d180faccb2cc, type: 3}
-  m_Name: EnumToObjectDatabase
+  m_Name: BulletPrefabCatalog
   m_EditorClassIdentifier: 
   Mappings:
   - Type: 0
