@@ -13,15 +13,19 @@ public class ProjectAssetReferenceTests
     public static void BuildWindowsPlayer()
     {
         string output = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "kojin-static-player", "kojinProjectFeb3D.exe");
+        string[] scenes = EditorBuildSettings.scenes.Where(scene => scene.enabled).Select(scene => scene.path).ToArray();
+        if (scenes.Length == 0) throw new InvalidOperationException("有効なビルド対象シーンが必要です。");
+        // lilToonの最適化処理は開始時のシーンへ戻るため、バッチ起動直後の未保存シーンを避ける。
+        UnityEditor.SceneManagement.EditorSceneManager.OpenScene(scenes[0]);
         var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
         {
-            scenes = EditorBuildSettings.scenes.Where(scene => scene.enabled).Select(scene => scene.path).ToArray(),
+            scenes = scenes,
             target = BuildTarget.StandaloneWindows64,
             locationPathName = output,
             options = BuildOptions.Development
         });
         Debug.Log($"Windows build: {report.summary.result}; errors={report.summary.totalErrors}; output={output}");
-        EditorApplication.Exit(report.summary.result == BuildResult.Succeeded ? 0 : 1);
+        EditorApplication.Exit(report.summary.result == BuildResult.Succeeded && report.summary.totalErrors == 0 ? 0 : 1);
     }
 
     [Test]
