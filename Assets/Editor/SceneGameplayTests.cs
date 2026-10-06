@@ -295,6 +295,27 @@ public class SceneGameplayTests
     }
 
     [UnityTest]
+    public IEnumerator NavigationRegistersForAllEnemiesWhenSceneLoadsDuringPlay()
+    {
+        PrepareScene();
+        yield return new EnterPlayMode();
+        yield return null;
+        int agentCount = Object.FindObjectsOfType<NavMeshAgent>().Length;
+        // Editorの事前登録済みNavMeshを取り除き、Playerと同じ実行中のシーン読込みを行う。
+        NavMesh.RemoveAllNavMeshData();
+        UnityEngine.SceneManagement.SceneManager.LoadScene("InGame");
+        yield return null;
+        var agents = Object.FindObjectsOfType<NavMeshAgent>();
+        Assert.AreEqual(agentCount, agents.Length);
+        foreach (var agent in agents)
+        {
+            Assert.IsTrue(agent.isOnNavMesh, agent.name + ": シーン読込み後のNavMesh接続");
+            Assert.IsTrue(agent.SetDestination(agent.transform.position));
+        }
+        LogAssert.NoUnexpectedReceived();
+    }
+
+    [UnityTest]
     public IEnumerator AimCameraAndMovementReferencesWorkWithoutInteractiveInput()
     {
         PrepareScene();
