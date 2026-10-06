@@ -11,7 +11,8 @@
 
 ## プロジェクトの現状
 
-- Unity の指定バージョンは `ProjectSettings/ProjectVersion.txt` にある `2022.3.28f1`。
+- Unity の指定バージョンは `ProjectSettings/ProjectVersion.txt` にある `2022.3.62f2`。
+- 環境設定の確認（2026-10-06）: manifestの直接依存45件とロックファイルが一致し、更新された9パッケージの導入済み実体も解決バージョンと一致した。同じEditor・Packages設定で直前のUnity Test Runnerは4件成功・終了コード0。実行範囲と証拠は `docs/tasks/script-layout-migration.md` の検証欄を参照する。
 - ゲームの C# コードは `Assets/Scripts/`。ビルド設定で有効なシーンは `Assets/Scenes/InGame.unity` の1件。
 - `Packages/manifest.json` は UniTask と lilToon を Git URL から取得する。
 - プレイヤーの移動・射撃、敵の追跡・射撃、弾のプール、経験値・強化 UI が実装されている。動作の保証はコードとシーンの静的調査だけではできない。
