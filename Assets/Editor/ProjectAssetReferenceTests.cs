@@ -4,10 +4,26 @@ using System.Linq;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
+using UnityEditor.Build.Reporting;
 
 /// <summary>スクリプトの改名・移動で失われやすいアセット参照とUIの呼び出し先を確認する。</summary>
 public class ProjectAssetReferenceTests
 {
+    // CIでも同じシーン・ターゲットを使える入口。出力はリポジトリ外の一時領域へ置く。
+    public static void BuildWindowsPlayer()
+    {
+        string output = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "kojin-static-player", "kojinProjectFeb3D.exe");
+        var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
+        {
+            scenes = EditorBuildSettings.scenes.Where(scene => scene.enabled).Select(scene => scene.path).ToArray(),
+            target = BuildTarget.StandaloneWindows64,
+            locationPathName = output,
+            options = BuildOptions.Development
+        });
+        Debug.Log($"Windows build: {report.summary.result}; errors={report.summary.totalErrors}; output={output}");
+        EditorApplication.Exit(report.summary.result == BuildResult.Succeeded ? 0 : 1);
+    }
+
     [Test]
     public void GameScriptsResolveTheirTypes()
     {
@@ -59,6 +75,38 @@ public class ProjectAssetReferenceTests
             var setting = AssetDatabase.LoadAssetAtPath<ScriptableObject>(path);
             Assert.IsNotNull(setting, path);
             Assert.IsNotNull(MonoScript.FromScriptableObject(setting).GetClass(), path);
+        }
+    }
+
+    [Test]
+    public void AuthoredWeaponsAndBulletCatalogHaveUsableInitialSettings()
+    {
+        foreach (string guid in AssetDatabase.FindAssets("t:WeaponDefinitionConfiguration", new[] { "Assets/GameData" }))
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            var weapon = AssetDatabase.LoadAssetAtPath<WeaponDefinitionConfiguration>(path);
+            Assert.That(weapon.MaxBulletCount, Is.GreaterThan(0), path);
+            Assert.That(weapon.SynchronousBulletCount, Is.GreaterThan(0), path);
+            Assert.That(weapon.CoolDown, Is.GreaterThanOrEqualTo(0), path);
+            Assert.That(weapon.ReloadTime, Is.GreaterThan(0), path);
+            Assert.That(weapon.BulletParametersConfiguration.Duration, Is.GreaterThanOrEqualTo(1), path);
+        }
+        foreach (string guid in AssetDatabase.FindAssets("t:BulletPrefabCatalogConfiguration", new[] { "Assets/GameData" }))
+        {
+            var catalog = AssetDatabase.LoadAssetAtPath<BulletPrefabCatalogConfiguration>(AssetDatabase.GUIDToAssetPath(guid));
+            Assert.AreEqual(catalog.Mappings.Count, catalog.Mappings.Select(mapping => mapping.Type).Distinct().Count());
+            foreach (BulletTypeDomain kind in Enum.GetValues(typeof(BulletTypeDomain)))
+            {
+                var prefab = catalog.GetGameObject(kind);
+                Assert.IsNotNull(prefab, kind.ToString());
+                var bullet = prefab.GetComponent<BulletShotGameplay>();
+                Assert.IsNotNull(bullet);
+                Assert.IsNotNull(prefab.GetComponent<Rigidbody>());
+                Assert.IsNotNull(prefab.GetComponent<Collider>());
+                var serialized = new SerializedObject(bullet);
+                foreach (string field in new[] { "_hitParticle", "_damageText", "_shootClip" })
+                    Assert.IsNotNull(serialized.FindProperty(field).objectReferenceValue, prefab.name + ": " + field);
+            }
         }
     }
 }
