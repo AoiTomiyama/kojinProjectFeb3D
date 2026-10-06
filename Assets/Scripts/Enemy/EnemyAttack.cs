@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class EnemyAttack : EnemyComponentBase
 {
-    [SerializeField] private WeaponDefinition _definition;
+    [SerializeField] private WeaponDefinitionConfiguration _definition;
     [SerializeField, Header("発射口")] private Transform _muzzle;
 
     private int _synchronousBulletCount;
     private int _spreadAngle;
-    private BulletParameter _bulletParameter;
+    private BulletParametersConfiguration _bulletParameter;
 
     private BulletPoolInfrastructure _poolManager;
     private CancellationTokenSource _cts;
@@ -25,7 +25,7 @@ public class EnemyAttack : EnemyComponentBase
         // 同じ定義を使う敵同士でも、残弾と射撃状態は個体ごとに持つ。
         _synchronousBulletCount = _definition.SynchronousBulletCount;
         _spreadAngle = _definition.SpreadAngle;
-        _bulletParameter = _definition.BulletParameter;
+        _bulletParameter = _definition.BulletParametersConfiguration;
         _ammo = new WeaponAmmoStateDomain(_definition.MaxBulletCount, _definition.CoolDown, _definition.ReloadTime);
     }
 

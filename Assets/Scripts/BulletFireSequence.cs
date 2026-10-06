@@ -5,7 +5,7 @@ using UnityEngine;
 public static class BulletFireSequence
 {
     public static void Fire(BulletPoolInfrastructure poolManager, BulletTypeDomain bulletType,
-        BulletParameter parameter, Transform muzzle, Vector3 forward, int requestedShots,
+        BulletParametersConfiguration parameter, Transform muzzle, Vector3 forward, int requestedShots,
         float spreadAngle, WeaponAmmoStateDomain ammo, Action<int> onAmmoChanged = null)
     {
         int shotCount = BulletSpreadCalculatorDomain.GetShotCount(requestedShots, ammo.RemainingAmmo);

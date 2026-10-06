@@ -13,7 +13,7 @@ public abstract class PooledAttackBase : MonoBehaviour
     /// <summary>
     /// 弾のパラメーター
     /// </summary>
-    public BulletParameter Parameter { get; set; }
+    public BulletParametersConfiguration Parameter { get; set; }
     /// <summary>
     /// オブジェクトプールから取り出す際に実行する関数
     /// 構造体の変数を受け取る関係上、OnEnableの処理を任意のタイミングで行う必要性がある。

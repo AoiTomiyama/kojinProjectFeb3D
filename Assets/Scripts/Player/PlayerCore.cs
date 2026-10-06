@@ -17,10 +17,10 @@ public class PlayerCore : MonoBehaviour, IDamageableDomain
     [SerializeField, Header("死亡時のエフェクト")]
     private GameObject _deathEffect;
 
-    [SerializeField] private PlayerInitialStats _initialStats;
+    [SerializeField] private PlayerInitialStatsConfiguration _initialStats;
     private int _maxHealth;
     private int _health;
-    public PlayerInitialStats InitialStats => _initialStats;
+    public PlayerInitialStatsConfiguration InitialStats => _initialStats;
     public int Health
     {
         get => _health;
@@ -63,7 +63,7 @@ public class PlayerCore : MonoBehaviour, IDamageableDomain
         Health = MaxHealth;
     }
 
-    public void ApplyPowerUp(PowerUpParameter powerUp)
+    public void ApplyPowerUp(UpgradeParametersConfiguration powerUp)
     {
         // 能力値ごとの変更を担当コンポーネントへ振り分ける。
         MaxHealth = (int)((MaxHealth + powerUp.MaxHealthAdd) * powerUp.MaxHealthMultiply);

@@ -1,7 +1,7 @@
 using System;
 
 [Serializable]
-public struct PowerUpParameter
+public struct UpgradeParametersConfiguration
 {
     public int DamageAdd;
     public float DamageMultiply;

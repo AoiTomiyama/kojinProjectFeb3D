@@ -7,7 +7,7 @@ public class BulletPoolInfrastructure : MonoBehaviour
     [Header("オブジェクトプールの設定")]
     [SerializeField] private int _initCount = 50;
     [SerializeField] private int _maxCount = 200;
-    [SerializeField] private EnumToObjectDatabase _objectDatabase;
+    [SerializeField] private BulletPrefabCatalogConfiguration _objectDatabase;
     [SerializeField] private AudioSource _soundEffects;
 
     private readonly Dictionary<BulletTypeDomain, ObjectPool<PooledAttackBase>> _objectPoolDict = new();

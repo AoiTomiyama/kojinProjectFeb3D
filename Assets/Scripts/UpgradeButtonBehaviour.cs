@@ -3,7 +3,7 @@ using UnityEngine;
 public class UpgradeButtonBehaviour : MonoBehaviour
 {
     [SerializeField]
-    PowerUpParameter _powerUp;
+    UpgradeParametersConfiguration _powerUp;
 
     LevelUpSystemManager _lvUpManager;
     private void Start()

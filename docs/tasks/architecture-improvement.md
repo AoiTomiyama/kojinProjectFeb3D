@@ -55,11 +55,11 @@
 
 ### [x] A-06 設定値と実行時の能力値を分離
 
-- 現状: `BulletParameter` と `PowerUpParameter` はシリアライズ可能な構造体で、`PlayerAttack` が初期値を保持しながら強化で書き換える。
+- 現状: `BulletParametersConfiguration` と `UpgradeParametersConfiguration` はシリアライズ可能な構造体で、`PlayerAttack` が初期値を保持しながら強化で書き換える。
 - 作業: Inspectorで編集する初期設定と、プレイ中に変わる弾・武器・プレイヤーの状態の所有者を明確にする。`ScriptableObject` を採用する場合も、共有アセット自体を実行時の状態として変更しない。
 - 完了条件: 再開始時に初期設定へ戻り、複数の使用者が互いの実行時値を意図せず共有しない。現在の強化結果を維持する。
-- 参照: `Assets/Scripts/BulletParameter.cs`、`Assets/Scripts/PowerUpParameter.cs`、`Assets/Scripts/Player/PlayerCore.cs`。
-- 実施結果（2026-10-03）: プレイヤーの初期体力・移動速度と、プレイヤー・敵の武器初期値を ScriptableObject に移し、Prefab・派生Prefab・シーンの上書き値を対応する設定アセットへ移行した。強化で変わる体力・速度・武器値と残弾は各コンポーネントの実行時値と `WeaponAmmoStateDomain` に保持する。強化ボタンの `PowerUpParameter` は値型の読み取り用設定として維持した。Unity 2022.3.62f2 のバッチPlayで既存のシーン設定、強化、複数個体の独立性、Play停止・再開による初期値への復帰を確認した。詳細は [現行仕様](../specs/player-stats-and-upgrades.md) を参照する。
+- 参照: `Assets/Scripts/Combat/Configuration/BulletParametersConfiguration.cs`、`Assets/Scripts/Progression/Configuration/UpgradeParametersConfiguration.cs`、`Assets/Scripts/Player/PlayerCore.cs`。
+- 実施結果（2026-10-03）: プレイヤーの初期体力・移動速度と、プレイヤー・敵の武器初期値を ScriptableObject に移し、Prefab・派生Prefab・シーンの上書き値を対応する設定アセットへ移行した。強化で変わる体力・速度・武器値と残弾は各コンポーネントの実行時値と `WeaponAmmoStateDomain` に保持する。強化ボタンの `UpgradeParametersConfiguration` は値型の読み取り用設定として維持した。Unity 2022.3.62f2 のバッチPlayで既存のシーン設定、強化、複数個体の独立性、Play停止・再開による初期値への復帰を確認した。詳細は [現行仕様](../specs/player-stats-and-upgrades.md) を参照する。
 
 ### [x] A-07 シーン参照の依存関係を整理
 

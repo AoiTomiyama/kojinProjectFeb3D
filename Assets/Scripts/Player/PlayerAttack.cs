@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class PlayerAttack : PlayerComponentBase
 {
-    [SerializeField] private WeaponDefinition _definition;
+    [SerializeField] private WeaponDefinitionConfiguration _definition;
     [SerializeField, Header("発射口")] private Transform _muzzle;
 
     private int _maxBulletCount;
@@ -13,7 +13,7 @@ public class PlayerAttack : PlayerComponentBase
     private int _spreadAngle;
     private float _coolDown;
     private float _reloadTime;
-    private BulletParameter _bulletParameter;
+    private BulletParametersConfiguration _bulletParameter;
 
     private BulletPoolInfrastructure _poolManager;
     private LevelUpSystemManager _lvUpManager;
@@ -63,7 +63,7 @@ public class PlayerAttack : PlayerComponentBase
         _spreadAngle = _definition.SpreadAngle;
         _coolDown = _definition.CoolDown;
         _reloadTime = _definition.ReloadTime;
-        _bulletParameter = _definition.BulletParameter;
+        _bulletParameter = _definition.BulletParametersConfiguration;
         _ammo = new WeaponAmmoStateDomain(_maxBulletCount, _coolDown, _reloadTime);
     }
 
@@ -96,7 +96,7 @@ public class PlayerAttack : PlayerComponentBase
             WaitShootCooldownAsync(token);
         }
     }
-    public void ApplyPowerUp(PowerUpParameter powerUp)
+    public void ApplyPowerUp(UpgradeParametersConfiguration powerUp)
     {
         _bulletParameter.Damage += powerUp.DamageAdd;
         _bulletParameter.Damage = (int)(_bulletParameter.Damage * powerUp.DamageMultiply);

@@ -64,7 +64,7 @@ public class LevelUpSystemManager : MonoBehaviour
         _view.SetMenuVisible(_isMenuActivated);
     }
 
-    public void ApplyPowerUp(PowerUpParameter powerUp)
+    public void ApplyPowerUp(UpgradeParametersConfiguration powerUp)
     {
         _player.ApplyPowerUp(powerUp);
         Reroll();

@@ -18,9 +18,9 @@
 
 | 要求元 | 同じGameObjectから取得 | Inspector指定・外部から渡す参照 | 同じシーンで1件検索 |
 | --- | --- | --- | --- |
-| `PlayerCore` | `PlayerMove`、`PlayerAttack` | `PlayerInitialStats`、死亡エフェクト | なし |
+| `PlayerCore` | `PlayerMove`、`PlayerAttack` | `PlayerInitialStatsConfiguration`、死亡エフェクト | なし |
 | `PlayerMove` | `PlayerCore`、`Rigidbody`、`LineRenderer` | `_lookAt`（任意） | `Camera` |
-| `PlayerAttack` | 共通基底の `PlayerCore` | `WeaponDefinition`、発射口 | 弾プール、レベル管理 |
+| `PlayerAttack` | 共通基底の `PlayerCore` | `WeaponDefinitionConfiguration`、発射口 | 弾プール、レベル管理 |
 | `EnemyCore` | なし | 死亡エフェクト | `PlayerCore`、レベル管理 |
 | `EnemyAttack`、`EnemyMove` | 共通基底の `EnemyCore`、移動側の `NavMeshAgent` | 攻撃側の武器設定・発射口 | 攻撃側の弾プール |
 | `PlayerUIViewer`、`EnemyUIViewer` | 共通基底のCore。プレイヤーUIはCoreが取得した攻撃部品を使用 | バー、文字などの表示先 | なし |

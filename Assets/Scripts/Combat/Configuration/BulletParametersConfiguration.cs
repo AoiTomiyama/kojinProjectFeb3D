@@ -5,7 +5,7 @@ using UnityEngine;
 /// 弾のパラメーター。威力や速度の値を持つ。
 /// </summary>
 [Serializable]
-public struct BulletParameter
+public struct BulletParametersConfiguration
 {
     [Header("弾の威力")]
     public int Damage;

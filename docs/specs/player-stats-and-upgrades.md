@@ -7,13 +7,13 @@
 - `Assets/Scripts/Player/PlayerCore.cs` の `MaxHealth` を別の値に設定すると、現在体力も新しい最大体力に合わせ、`OnHealthChanged` を通知する。同じ値を設定した場合は更新しない。
 - `Assets/Scripts/Player/PlayerCore.cs` の `ApplyPowerUp()` は、最大体力の加算、乗算の順に適用し、移動速度と射撃能力の変更を担当コンポーネントへ振り分ける。最大体力が変わると現在体力が新しい最大値になる。
 - `Assets/Scripts/Player/PlayerUIViewer.cs` は初回の購読、再有効化、体力変更時に、体力バーと `現在体力/最大体力` の数値を更新する。`PlayerCore.Start()` と UI の `Start()` の順序に依存しない。
-- `PlayerInitialStats` の `PlayerBaseStats` は最大体力100・移動速度1000を定義し、`Player.prefab` が参照する。`InGame.unity` の配置個体は最大体力50・移動速度1000の `InGamePlayerStats` を参照する。`PlayerCore` と `PlayerMove` は開始時に個体ごとの値へコピーし、強化後も設定アセットを変更しない。
+- `PlayerInitialStatsConfiguration` の `PlayerBaseStats` は最大体力100・移動速度1000を定義し、`Player.prefab` が参照する。`InGame.unity` の配置個体は最大体力50・移動速度1000の `InGamePlayerStats` を参照する。`PlayerCore` と `PlayerMove` は開始時に個体ごとの値へコピーし、強化後も設定アセットを変更しない。
 
 ## InGame シーンの弾数と強化
 
-- `Player.prefab` は `PlayerWeapon`、`InGame.unity` の配置個体は最大装弾数5発・拡散角20度・弾の滞在時間15秒の `InGamePlayerWeapon` を参照する。`PlayerAttack` は `WeaponDefinition` の値を個体ごとの実行時値へコピーし、`PlayerUIViewer.Start()` は通知を購読した直後に現在の残弾数を描画する。開始順やシーンに保存された表示文字列に依存しない。
+- `Player.prefab` は `PlayerWeapon`、`InGame.unity` の配置個体は最大装弾数5発・拡散角20度・弾の滞在時間15秒の `InGamePlayerWeapon` を参照する。`PlayerAttack` は `WeaponDefinitionConfiguration` の値を個体ごとの実行時値へコピーし、`PlayerUIViewer.Start()` は通知を購読した直後に現在の残弾数を描画する。開始順やシーンに保存された表示文字列に依存しない。
 - `Enemy.prefab` は `EnemyWeapon`、派生Prefab `Enemy Type Beta.prefab` は `EnemyBetaWeapon` を参照する。`InGame.unity` の個別調整した派生敵は `InGameEnemyWeapon` を参照する。各 `EnemyAttack` は弾の値と残弾を個体ごとに保持する。いずれの設定アセットもプレイ中に書き換えない。
-- 強化ボタンの `PowerUpParameter` はPrefab・シーンに保存する値型の設定であり、選択時に値を渡す。強化による加算・乗算はプレイヤーの実行時値にだけ適用する。
+- 強化ボタンの `UpgradeParametersConfiguration` はPrefab・シーンに保存する値型の設定であり、選択時に値を渡す。強化による加算・乗算はプレイヤーの実行時値にだけ適用する。
 - 強化候補「最大体力 +100%／ダメージ -50%」のパラメータは `MaxHealthMultiply = 2`、`DamageMultiply = 0.5`。`PlayerCore.ApplyPowerUp()` が最大体力を2倍にし、`PlayerAttack.ApplyPowerUp()` が弾のダメージを半分にする。最大体力の変更時に現在体力も更新される。
 
 ## 強化候補と経験値
