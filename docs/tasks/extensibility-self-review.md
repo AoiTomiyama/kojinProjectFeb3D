@@ -3,6 +3,7 @@
 タグ: `設計レビュー` `拡張性` `追加実装` `再開情報` `純粋C#`
 
 - 記録日: 2026-10-06。
+- 準備の再照合日: 2026-10-07。依頼ID: `prepare-サバイバー-20261007`。基点は文書コミット `5607f99`、ゲームコードは `1ed6417` から差分なし。
 - 照合版: `1ed6417`。レビュー対象の `Assets/Scripts/` に未コミット差分はない。
 - 対象: 戦闘、経験値・強化、敵行動、UI通知、設定とシーン参照。
 - 方法: 現行コードと設計文書の静的照合。以下の条件の実行再現や、新しいテスト・ビルドは行っていない。既存の実行証拠は [機能検証記録](headless-verification.md) を参照する。
@@ -69,9 +70,63 @@ A-10〜A-13の採用状態は [既存の改善タスク](architecture-improvemen
 
 ## 再開チェックポイント
 
+2026-10-07に現行コード・Git状態・既存結果XML/ログを再照合した。R-01〜R-05の前提は維持され、改善候補は未採用。今回は準備文書のみ更新し、機能実装・Unity検証の再実行は行っていない。
+
 - 現在地: V-01は `1ed6417` で完了。V-02は修正とビルド確認まで済み、描画比較の再確認・コミットが残る。実行結果と再実行手順は [V-02の記録](headless-verification.md) を参照する。
 - V-02の差分: 対象シェーダーと既存.metaはステージ済み（本体はステージ後の改行調整あり）。`Assets/Editor/VfxShaderRenderingTests.cs` と.metaは未追跡。`docs/specs/gameplay-architecture.md` と `docs/tasks/headless-verification.md` に関連記録の差分がある。
 - 検証に伴う差分: `Assets/Settings/URP-Balanced.asset`、`URP-HighFidelity.asset`、`URP-Performant.asset` と `ProjectSettings/ProjectSettings.asset` にEditorの自動書換えが残る。再開時に差分を確認して扱い、利用者の追加変更があれば保護する。
 - 次の操作: `git status --short` と差分を確認し、V-02の描画比較を再実行できるEditor状態か確認する。前回は同じプロジェクトがEditorで開かれていてバッチ起動が失敗した。開いているEditorを勝手に停止しない。
 - V-02完了条件: 正常なGPU描画で代表マテリアル2件の変更前後を比較し、証拠を更新してV-02単独でコミットする。初回比較の全面ピンク画像は無効な証拠として記録済み。
 - 追加実装: このレビューの記録は完了。次のユーザー指示で追加機能または採用する改善案が決まったら、上記の対応と完了条件を参照して着手する。
+
+## 追加実装の準備結果（2026-10-07）
+
+### 準備済み範囲と変更箇所
+
+| 追加する機能 | 変更する入口・配置 | 設計上の制約と関連候補 | 再利用する検証 |
+| --- | --- | --- | --- |
+| 強化・成長 | ProgressionのDomain/Gameplay/Configuration、PlayerCore/PlayerAttack、強化ボタン・初期設定 | 候補IDは起動時のButton添字。既存能力値の調整はボタン設定で可能。条件・レア度・保存対応はR-03、計算規則はA-11を検討 | `DomainRulesTests`、`SceneGameplayTests`、UIを変える場合は `UiEventLifetimeTests` |
+| 武器・弾 | CombatのConfiguration/Gameplay/Infrastructure、両Attack、`Assets/GameData/Combat/`、弾Prefab | 固定弾種、音声注入の型依存、有効化が設定より先。R-02/R-04。新しい弾種のenum値は既存値を維持 | `DomainRulesTests`、`ProjectAssetReferenceTests`、`BulletLifetimeTests`、`SceneGameplayTests` |
+| 敵・行動 | EnemyのGameplay、敵Prefab/派生Prefab、武器設定 | Coreが対象を取得し、Move/Attackが個別に物理判定する。行動段階はR-05/A-12。新規出現位置はAgentがNavMeshへ接続できる条件を満たす必要がある | `SceneDependencyTests`、`SceneGameplayTests` の追跡・遮蔽・NavMesh読込み確認 |
+| 被弾・範囲攻撃・復活 | 両Coreの `Damage()`、`IDamageableDomain`、BulletShotの衝突処理 | 死亡済み参照への連続呼出しはR-01。復活・敵再利用は体力・死亡状態・報酬付与のリセット仕様を先に決める | `SceneGameplayTests`、新規条件は既存Editorテスト基盤へ追加 |
+| 終了・再挑戦・継続出現 | 両Coreの死亡通知、Progressionへの報酬接続、InGameシーンが既存接続点 | 該当する進行管理・終了/再挑戦コードは `Assets/Scripts/` 内で確認できない。担当機能・状態所有者を仕様に応じて決める。R-01や敵再利用の扱いは採用する方式次第 | シーン遷移・複数開始停止の既存テスト手順、Windowsビルド/起動確認を再利用 |
+
+新規コードは機能→レイヤーの配置・接尾辞規則に従う。純粋C#はUnityを参照せず、入力・衝突・Physics・NavMesh・Prefab操作はUnity側に残す。可変状態は個体が所有し、共有ScriptableObjectへ書き戻さない。UIは結果を表示する。アセット編集ではGUIDと既存参照を維持する。詳細は [配置規則](../specs/script-layout-and-naming.md) と [現行の拡張手順](../specs/gameplay-architecture.md) を参照する。
+
+### 阻害要因の区別
+
+- **新規実装の仕様が未指定**: 対象・動作・完了条件を確定できないため、新機能の実装着手は待機。準備自体は完了。
+- **V-02の完了を阻む確認不足**: 修正後の描画比較2件の有効な結果がない。前回のEditor競合は履歴であり、今回のプロセス確認時にはUnity Editorは0件だった。再実行直前に再確認する。V-02が全ての追加機能を技術的に阻害するとは判断しないが、同じ描画/設定を変更する場合は先に比較の基点を確定する。
+- **条件付きの設計課題**: 範囲攻撃等はR-01、新しい弾の有効化処理はR-02、条件付き強化はR-03、弾種選択はR-04、複数対象/行動段階はR-05を先に検討する。全候補の実装を一律の前提条件にしない。
+- **既存差分の整理**: ステージ済みシェーダー、未追跡テスト、URP/PlayerSettings、V-02関連文書の差分は内容確認済みで保持。この準備コミットへ含めない。自動書換えを取り消すか採用するかはV-02完了時に現在の差分を再確認して決める。
+
+### 照合した有効な証拠
+
+ローカル一時ディレクトリの既存証拠を確認した。以下は2026-10-06の実行結果であり、今回再実行した結果ではない。
+
+- `kojin-static-verification-final.xml`: 56件成功・失敗0。V-01着手前の一式。
+- `kojin-v02-tests.xml`: XMLは58件成功・失敗0だがGPU比較2件は全面ピンクで無効。既存56件のゲーム機能確認と区別する。現在の比較テストに追加されたURP指定・同期コンパイル・ピンク/非有限値の拒否は、その後の有効な実行結果が未取得。
+- `kojin-v02-build.log`: `Windows build: Succeeded; errors=0`。シェーダー4ガードの修正後ビルド。表示品質の保証にはしない。
+- `kojin-v02-render-final.log`: 同じプロジェクトのEditor競合でテスト開始前に中断。対応する結果XMLは存在しない。
+
+### 再利用する実行手順
+
+指定Editorは `ProjectSettings/ProjectVersion.txt` のUnity 2022.3.62f2。プロジェクトが別Editorで開かれていないことを確認し、既存のTest Runnerへ次の引数を渡す。
+
+```text
+-batchmode -projectPath "<project>" -runTests -testPlatform editmode -testFilter "<test class>" -testResults "<results.xml>" -logFile "<run.log>"
+```
+
+V-02再開は `-testFilter VfxShaderRenderingTests` を使用し、`-nographics` と `-quit` は付けない。Cosmos_02/Earth_01のPNGと非空描画、エラー拒否、RGBA最大差0.0001以下を確認する。影描画の比較は現行テストの対象外で、影側のガードはコード照合・ビルドで確認する。追加機能の関連テストをまとめ、必要な全体検証では `-testFilter` を省略する。終了コードとXMLの結果を確認し、成功後は新しい変更・未解決懸念がなければ再実行しない。
+
+ビルド入口は `ProjectAssetReferenceTests.BuildWindowsPlayer`。詳細な引数、出力先、画面なし起動の制約は [検証手順](headless-verification.md) を参照する。使い捨ての検証スクリプトは追加しない。
+
+### ユーザーから必要な仕様と次の操作
+
+次の依頼には、追加したい機能、発動条件・入力、結果・数値、対象（プレイヤー/敵/武器）、既存動作との関係、成功と判断する操作例を含める。機能に応じて次も決める。
+
+- 武器・弾: 既存弾の値変更か新しい挙動か、切替方法、命中/寿命/反射、音・演出。
+- 強化: 効果と加算乗算順、候補条件、重複/上限、保存の要否。
+- 敵・進行: 出現条件・位置・数量、対象と行動段階、終了条件、再挑戦時に戻す状態。
+
+ハブから対象仕様が届いたら、Git差分とV-02状態を再確認し、該当するレビュー候補を選んで変更・維持する動作と完了条件を示す。修正候補の採用が未確定なら提案のまま扱い、新機能を推測で実装しない。V-02を再開する場合は既存比較テストから続け、独立した目的でコミットする。
