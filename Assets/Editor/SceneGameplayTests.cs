@@ -90,11 +90,15 @@ public class SceneGameplayTests
         var oldBullet = Field<BulletParametersConfiguration>(player.Attack, "_bulletParameter");
         int oldCapacity = player.Attack.MaxBulletCount;
         var chosen = buttons.First(b => b.gameObject.activeSelf);
-        FieldInfo powerUpField = typeof(UpgradeButtonPresentation).GetField("_powerUp", Private);
-        powerUpField.SetValue(chosen.GetComponent<UpgradeButtonPresentation>(), powerUp);
+        var presentation = chosen.GetComponent<UpgradeButtonPresentation>();
+        var temporaryUpgrade = Object.Instantiate(presentation.Definition);
+        Set(temporaryUpgrade, "_effect", powerUp);
+        Field<System.Collections.Generic.Dictionary<int, UpgradeDefinitionConfiguration>>(manager, "_definitionsById")[temporaryUpgrade.Id] = temporaryUpgrade;
+        presentation.Bind(temporaryUpgrade, Field<Action<int>>(presentation, "_onSelected"));
         // 再抽選で初めて有効になったボタンのStartを待つ。
         yield return null;
         chosen.onClick.Invoke();
+        Object.Destroy(temporaryUpgrade);
         Assert.AreEqual(30, manager.PickCount);
         Assert.AreEqual(3, buttons.Count(b => b.gameObject.activeSelf));
         Assert.AreEqual(60, player.MaxHealth);
@@ -122,7 +126,7 @@ public class SceneGameplayTests
         manager.GainExperience(0);
         manager.GainExperience(0);
         int tokens = manager.RerollToken;
-        Set(manager, "_candidateIds", new[] { 0, 1 });
+        Set(manager, "_definitions", Field<UpgradeDefinitionConfiguration[]>(manager, "_definitions").Take(2).ToArray());
         LogAssert.Expect(LogType.Error, "強化候補のボタンが3件未満のため抽選できません。");
         manager.TryReroll();
         Assert.AreEqual(tokens, manager.RerollToken);

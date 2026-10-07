@@ -147,21 +147,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2655ee69e7c9c2645b047199c5170786, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _powerUp:
-    DamageAdd: 0
-    DamageMultiply: 1
-    SpeedAdd: 0
-    SpeedMultiply: 1
-    MoveSpeedMultiply: 1
-    RicochetAdd: 0
-    SyncBulletAdd: 0
-    MaxAmmoSizeAdd: 0
-    CoolTimeAdd: 0
-    CoolTimeMultiply: 1
-    ReloadTimeAdd: 0
-    ReloadTimeMultiply: 1
-    MaxHealthAdd: 0
-    MaxHealthMultiply: 1
+  _title: {fileID: 97294272988858141}
+  _primaryLabel: {fileID: 7965364876934462051}
+  _primaryValue: {fileID: 6718864314096121982}
+  _secondaryLabel: {fileID: 6631518009059562448}
+  _secondaryValue: {fileID: 5869815474753484466}
 --- !u!1 &4283882264384868488
 GameObject:
   m_ObjectHideFlags: 0

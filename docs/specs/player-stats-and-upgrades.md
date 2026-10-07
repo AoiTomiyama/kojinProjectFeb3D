@@ -13,12 +13,12 @@
 
 - `Player.prefab` は `PlayerWeapon`、`InGame.unity` の配置個体は最大装弾数5発・拡散角20度・弾の滞在時間15秒の `InGamePlayerWeapon` を参照する。`PlayerAttackGameplay` は `WeaponDefinitionConfiguration` の値を個体ごとの実行時値へコピーし、`PlayerStatusViewPresentation.Start()` は通知を購読した直後に現在の残弾数を描画する。開始順やシーンに保存された表示文字列に依存しない。
 - `Enemy.prefab` は `EnemyWeapon`、派生Prefab `Enemy Type Beta.prefab` は `EnemyBetaWeapon` を参照する。`InGame.unity` の個別調整した派生敵は `InGameEnemyWeapon` を参照する。各 `EnemyAttackGameplay` は弾の値と残弾を個体ごとに保持する。いずれの設定アセットもプレイ中に書き換えない。
-- 強化ボタンの `UpgradeParametersConfiguration` はPrefab・シーンに保存する値型の設定であり、選択時に値を渡す。強化による加算・乗算はプレイヤーの実行時値にだけ適用する。
+- 強化項目のID・表示・効果・候補条件は `InGameUpgrades.asset` と各 `UpgradeDefinitionConfiguration` に集約する。値型の `UpgradeParametersConfiguration` は定義に保存し、強化はプレイヤーの実行時値へ適用する。追加手順は [強化一覧と動的UI](upgrade-catalog-and-ui.md) を参照する。
 - 強化候補「最大体力 +100%／ダメージ -50%」のパラメータは `MaxHealthMultiply = 2`、`DamageMultiply = 0.5`。`PlayerCoreGameplay.ApplyPowerUp()` が最大体力を2倍にし、`PlayerAttackGameplay.ApplyPowerUp()` が弾のダメージを半分にする。最大体力の変更時に現在体力も更新される。
 
 ## 強化候補と経験値
 
-- `LevelUpViewPresentation` は非表示の強化パネル内にあるボタンも抽選対象として取得し、候補の表示と並び替えを担当する。`UpgradeCandidateSelectionDomain` はボタン配列の添字を候補IDとして受け取り、Unityに依存せず重複のない3件を抽選する。乱数は `LevelUpCoordinatorGameplay` から渡す。
+- 管理側は強化一覧の安定したIDと候補条件から抽選対象を決める。`UpgradeCandidateSelectionDomain` は重複のない3件を抽選し、乱数は管理側から渡す。Viewは既存Prefabから定義に対応するボタンを生成し、表示と並び替えを担当する。UIの階層や並びはIDに使用しない。
 - 候補が3件未満ならエラーを出して抽選を中止する。再抽選にはトークン3件が必要で、抽選が成功した後にだけ消費する。失敗時は表示中の候補とトークン残高を維持する。
 - 経験値、レベル、強化選択回数は敵撃破時に確定し、経験値バーの演出は確定後の値を表示する。
 - `ExperienceProgressionDomain` は `UnityEngine` に依存せず、必要経験値の設定値を起動時に複製して、現在経験値、レベル、未使用の強化選択回数を管理する。`LevelUpCoordinatorGameplay.GainExperience()` は獲得値を渡し、確定したレベル・進捗率・選択回数を `LevelUpViewPresentation` へ渡す。強化ボタンは `TrySpendUpgradeChoice()` が成功したときだけ強化を適用する。

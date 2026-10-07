@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76f894d1b7464671a9849536a36affef, type: 3}
+  m_Name: Upgrade-01
+  m_EditorClassIdentifier:
+  _id: 1
+  _title: "Bounce"
+  _primaryLabel: "壁反射"
+  _primaryValue: "+3"
+  _secondaryLabel: "弾丸速度"
+  _secondaryValue: "-30%"
+  _effect:
+    DamageAdd: 0
+    DamageMultiply: 1
+    SpeedAdd: 0
+    SpeedMultiply: 0.7
+    MoveSpeedMultiply: 1
+    RicochetAdd: 3
+    SyncBulletAdd: 0
+    MaxAmmoSizeAdd: 0
+    CoolTimeAdd: 0
+    CoolTimeMultiply: 1
+    ReloadTimeAdd: 0
+    ReloadTimeMultiply: 1
+    MaxHealthAdd: 0
+    MaxHealthMultiply: 1
+  _available: 1
+  _minimumLevel: 0

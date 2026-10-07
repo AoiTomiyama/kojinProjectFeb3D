@@ -16,6 +16,8 @@
 - 設計レビューの D-01〜D-11 は修正・自動検証済み。2026-10-06に指定Unity 2022.3.62f2のTest Runnerで56件成功、終了コード0。実装タスクは `docs/tasks/program-design-review.md`、範囲・証拠・再実行手順・人による確認事項は `docs/tasks/headless-verification.md` を参照する。
 - 拡張性向上の採用済みタスク A-01〜A-09 は完了し、結果は `docs/tasks/architecture-improvement.md` に記録している。現行の責務・依存方向と、強化・弾種・敵行動の追加時に変更・検証する箇所は `docs/specs/gameplay-architecture.md`、設計方針は `docs/knowledge/target-architecture.md` を参照する。純粋C#化の追加候補 A-10〜A-13 は採用未決定。
 
+- 強化項目はSOの一覧から既存Prefabを使って動的生成する。追加手順は docs/specs/upgrade-catalog-and-ui.md、2026-10-07の実装・検証結果は docs/tasks/upgrade-catalog-ui.md を参照する。R-03 の定義/UI分離は採用済み。V-02 は有効な描画比較と完了コミットが残る。
+
 ## 作業上の注意
 
 - Git 管理下のテキストは UTF-8 で保存する。C# も Shift_JIS / CP932 へ戻さず、既存の改行を維持する。新規ファイルは `.editorconfig` に従う。
