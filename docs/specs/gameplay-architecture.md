@@ -25,30 +25,7 @@
 
 矢印は呼び出し元から依存先へ向ける。UIへ結果を渡す向きと、UIが状態を読む向きの両方がある。純粋C#の4クラスはこの図のUnityコンポーネントへ依存しない。
 
-```mermaid
-flowchart TD
-    Button[UpgradeButtonPresentation] --> Manager[LevelUpCoordinatorGameplay]
-    Enemy[EnemyCoreGameplay] --> Manager
-    Manager --> Progress[ExperienceProgressionDomain]
-    Manager --> Selection[UpgradeCandidateSelectionDomain]
-    Manager --> View[LevelUpViewPresentation]
-    Manager --> Player[PlayerCoreGameplay]
-    Player --> Attack[PlayerAttackGameplay]
-    Attack --> Manager
-    EnemyAttackGameplay[EnemyAttackGameplay] --> Enemy
-    EnemyAttackGameplay --> Ammo
-    EnemyAttackGameplay --> Fire
-    EnemyMoveGameplay[EnemyMoveGameplay] --> Enemy
-    Attack --> Ammo[WeaponAmmoStateDomain]
-    Attack --> Fire[BulletFireSequenceGameplay]
-    Fire --> Spread[BulletSpreadCalculatorDomain]
-    Fire --> Pool[BulletPoolInfrastructure]
-    Pool --> Bullet[PooledAttackBaseGameplay / BulletShotGameplay]
-    PlayerUI[PlayerStatusViewPresentation] --> Player
-    PlayerUI --> Attack
-    EnemyUI[EnemyHealthViewPresentation] --> Enemy
-    Bullet --> Damage[IDamageableDomain]
-```
+[現行の全体構成・機能別相関図](architecture-diagrams.md) に呼出関係を統合した。クラスの継承・契約・所有関係、イベント購読、シーケンス、全スクリプトと実ファイルの対応も同索引から辿れる。
 
 プレイヤー攻撃はメニュー状態を読むため `LevelUpCoordinatorGameplay` にも依存し、敵の移動・攻撃は `EnemyCoreGameplay` を介して対象・射程・レイヤーを読む。設定アセット・Unity APIなど図に省略した参照と、具体的な取得先は [必須参照の一覧](component-dependencies.md) を参照する。
 
@@ -94,7 +71,7 @@ CoreとPlayerAttackの通知は現状 `Action` フィールド、弾の返却通
 ### 新しい弾種を追加する
 
 1. `BulletTypeDomain` に既存の数値を変えず種類を追加し、[対応アセット](../../Assets/GameData/Combat/BulletPrefabCatalog.asset) のMappingsに1種類につき1件のPrefabを設定する。プールはStartでこの対応表から生成される。
-2. PrefabにPooledAttackBaseを継承する部品を配置し、生成時の `OnInitialize()` と発射ごとの `OnGetFromPool()` を実装する。後者では再利用時に残る状態をリセットし、無効化時には時間待機を中断する。音の自動注入は現在BulletShotBehaviourへの型判定なので、別の派生型で音を使うなら注入経路も変更する。
+2. PrefabにPooledAttackBaseGameplayを継承する部品を配置し、生成時の `OnInitialize()` と発射ごとの `OnGetFromPool()` を実装する。後者では再利用時に残る状態をリセットし、無効化時には時間待機を中断する。音の自動注入は現在BulletShotGameplayへの型判定なので、別の派生型で音を使うなら注入経路も変更する。
 3. 発射元が `BulletFireSequenceGameplay.Fire()` へ新しい種類を渡すように変更する。現在はPlayerAttack・EnemyAttackがそれぞれPlayerBullet・EnemyBulletを直接指定しており、WeaponDefinitionに弾種の選択項目はない。Inspectorで選びたい場合は定義・コピー・発射引数まで追加する。
 4. 確認: 種類とPrefabの対応、単発・複数発・残弾不足時の角度と消費、配置後の初期速度、命中とダメージ、寿命・反射回数による返却、再取得時のリセット、音とエフェクト、Play停止・再開。弾プールと命中処理はUnityで確認する。
 
