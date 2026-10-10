@@ -23,6 +23,7 @@ public class EnemyCoreGameplay : MonoBehaviour, IDamageableDomain
     [Header("最大体力")]
     public int MaxHealth;
     private int _health;
+    private bool _isDead;
     public int Health
     {
         get => _health;
@@ -37,6 +38,11 @@ public class EnemyCoreGameplay : MonoBehaviour, IDamageableDomain
     public int PlayerLayerMask { get => _playerLayerMask; }
     public float ShootRange { get => _shootRange; }
 
+    private void Awake()
+    {
+        _isDead = false;
+    }
+
     void Start()
     {
         Health = MaxHealth;
@@ -50,8 +56,14 @@ public class EnemyCoreGameplay : MonoBehaviour, IDamageableDomain
     }
     public void Damage(int damageAmount)
     {
-        Health -= damageAmount;
-        if (Health <= 0)
+        if (_isDead) return;
+        int nextHealth = Health - damageAmount;
+        bool becameDead = nextHealth <= 0;
+        // 体力通知も同期的にDamageへ再入できるため、通知前に死亡を確定する。
+        if (becameDead) _isDead = true;
+        Health = nextHealth;
+        // 通知先でさらに被弾しても、この呼出し自身が確定した遷移だけを発行する。
+        if (becameDead)
         {
             if (_deathEffect == null)
                 throw new System.InvalidOperationException($"{name}: EnemyCoreGameplay._deathEffect が設定されていません。");

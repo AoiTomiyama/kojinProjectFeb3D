@@ -20,6 +20,7 @@ public class PlayerCoreGameplay : MonoBehaviour, IDamageableDomain
     [SerializeField] private PlayerInitialStatsConfiguration _initialStats;
     private int _maxHealth;
     private int _health;
+    private bool _isDead;
     public PlayerInitialStatsConfiguration InitialStats => _initialStats;
     public int Health
     {
@@ -47,6 +48,7 @@ public class PlayerCoreGameplay : MonoBehaviour, IDamageableDomain
 
     private void Awake()
     {
+        _isDead = false;
         if (_initialStats == null)
             throw new System.InvalidOperationException($"{name}: PlayerCoreGameplay._initialStats が設定されていません。");
         // ScriptableObject の値は変更せず、このプレイヤーだけの実行時値へ複製する。
@@ -73,8 +75,14 @@ public class PlayerCoreGameplay : MonoBehaviour, IDamageableDomain
 
     public void Damage(int damageAmount)
     {
-        Health -= damageAmount;
-        if (Health <= 0)
+        if (_isDead) return;
+        int nextHealth = Health - damageAmount;
+        bool becameDead = nextHealth <= 0;
+        // 体力通知も同期的にDamageへ再入できるため、通知前に死亡を確定する。
+        if (becameDead) _isDead = true;
+        Health = nextHealth;
+        // 通知先でさらに被弾しても、この呼出し自身が確定した遷移だけを発行する。
+        if (becameDead)
         {
             if (_deathEffect == null)
                 throw new System.InvalidOperationException($"{name}: PlayerCoreGameplay._deathEffect が設定されていません。");

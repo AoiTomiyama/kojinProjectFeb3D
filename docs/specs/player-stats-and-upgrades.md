@@ -9,6 +9,16 @@
 - `Assets/Scripts/Player/Presentation/PlayerStatusViewPresentation.cs` は初回の購読、再有効化、体力変更時に、体力バーと `現在体力/最大体力` の数値を更新する。`PlayerCoreGameplay.Start()` と UI の `Start()` の順序に依存しない。
 - `PlayerInitialStatsConfiguration` の `PlayerBaseStats` は最大体力100・移動速度1000を定義し、`Player.prefab` が参照する。`InGame.unity` の配置個体は最大体力50・移動速度1000の `InGamePlayerStats` を参照する。`PlayerCoreGameplay` と `PlayerMoveGameplay` は開始時に個体ごとの値へコピーし、強化後も設定アセットを変更しない。
 
+## 敵・プレイヤーの死亡遷移（R-01）
+
+タグ: `死亡` `再入` `R-01` `現行仕様`
+
+- [EnemyCoreGameplay](../../Assets/Scripts/Enemy/Gameplay/EnemyCoreGameplay.cs) と [PlayerCoreGameplay](../../Assets/Scripts/Player/Gameplay/PlayerCoreGameplay.cs) は個体の非シリアライズ `_isDead` をAwakeで初期化する。最初の致死Damageで体力通知より先に死亡を確定し、その呼出しの `becameDead` に対応する死亡副作用だけを発行する。非致死の体力通知中に別の致死Damageが入っても、外側は再発行しない。
+- 死亡後のDamageは現在体力・体力通知・報酬・死亡通知・演出を変えない。敵は体力通知→経験値・撃破数・トークン→OnDied→演出→無効化、プレイヤーは体力通知→演出→OnDied→無効化の順序を維持する。
+- 生存中の通常被弾、0/負ダメージの既存演算、致死体力を0へ丸めない挙動、最大体力強化時の全回復と共有SO不変を維持する。公開Health/MaxHealthの変更は引き続き可能だが死亡履歴を解除しない。OnEnable/Start再呼出しでも解除せず、単なる再有効化を復活とみなさない。
+- 復活・敵のプール再利用のreset API、体力全体の共通Domain化（A-10）は今回の範囲外。新しい個体はAwake/Startで初期化する。通知先が例外を投げたとき死亡状態は巻き戻さず、副作用の再試行も行わない。
+- 回帰・実行証拠・採用理由は [R-01検証記録](../tasks/death-once-verification.md) を参照する。
+
 ## InGame シーンの弾数と強化
 
 - `Player.prefab` は `PlayerWeapon`、`InGame.unity` の配置個体は最大装弾数5発・拡散角20度・弾の滞在時間15秒の `InGamePlayerWeapon` を参照する。`PlayerAttackGameplay` は `WeaponDefinitionConfiguration` の値を個体ごとの実行時値へコピーし、`PlayerStatusViewPresentation.Start()` は通知を購読した直後に現在の残弾数を描画する。開始順やシーンに保存された表示文字列に依存しない。

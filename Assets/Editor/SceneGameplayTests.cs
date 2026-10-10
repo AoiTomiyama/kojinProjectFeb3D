@@ -19,6 +19,148 @@ public class SceneGameplayTests
     private const BindingFlags Private = BindingFlags.Instance | BindingFlags.NonPublic;
 
     [UnityTest]
+    public IEnumerator DeathTransitionsRemainOnceAcrossNotificationReentryAndReenable()
+    {
+        PrepareScene();
+        yield return new EnterPlayMode();
+        yield return null;
+        var manager = Object.FindObjectOfType<LevelUpCoordinatorGameplay>();
+        var enemySource = Object.FindObjectOfType<EnemyCoreGameplay>();
+        var playerSource = Object.FindObjectOfType<PlayerCoreGameplay>();
+        playerSource.Move.enabled = false;
+        playerSource.Attack.enabled = false;
+        // 新しい個体のAwake/Startを通し、元個体の死亡履歴を引き継がないことも確認する。
+        foreach (var source in new MonoBehaviour[] { enemySource, playerSource })
+        {
+            for (int reentryPath = 0; reentryPath < 3; reentryPath++)
+            {
+                var instance = Object.Instantiate(source.gameObject);
+                var player = instance.GetComponent<PlayerCoreGameplay>();
+                if (player != null)
+                {
+                    player.Move.enabled = false;
+                    player.Attack.enabled = false;
+                    instance.GetComponent<Rigidbody>().isKinematic = true;
+                }
+                yield return null;
+                var core = (MonoBehaviour)(player != null ? (MonoBehaviour)player : instance.GetComponent<EnemyCoreGameplay>());
+                AssertDeathTransitionOnce(core, manager, reentryPath);
+                Object.Destroy(instance);
+                // 別の敵のStartへ複数Playerの検索条件を持ち込まない。
+                yield return null;
+            }
+        }
+        LogAssert.NoUnexpectedReceived();
+    }
+
+    private static void AssertDeathTransitionOnce(MonoBehaviour core, LevelUpCoordinatorGameplay manager, int reentryPath)
+    {
+        var player = core as PlayerCoreGameplay;
+        var enemy = core as EnemyCoreGameplay;
+        var target = (IDamageableDomain)core;
+        Func<int> health = () => player != null ? player.Health : enemy.Health;
+        int initialHealth = player != null ? player.MaxHealth : enemy.MaxHealth;
+        Assert.AreEqual(initialHealth, health(), "新個体の初期体力");
+        core.gameObject.SetActive(false);
+        core.gameObject.SetActive(true);
+        target.Damage(1);
+        Assert.AreEqual(initialHealth - 1, health(), "生存中の再有効化後も通常被弾できる");
+        target.Damage(0);
+        target.Damage(-1);
+        Assert.AreEqual(initialHealth, health(), "既存の0/負ダメージの演算を維持");
+
+        // 不活性なテスト用演出で、粒子寿命やフレーム更新に依存せず生成回数を数える。
+        var effect = new GameObject("DeathOnceProbe-" + core.GetInstanceID());
+        effect.SetActive(false);
+        Set(core, "_deathEffect", effect);
+        Func<int> effectCount = () => Resources.FindObjectsOfTypeAll<GameObject>()
+            .Count(item => item.name == effect.name + "(Clone)" && item.scene.IsValid());
+        int healthNotifications = 0, deathNotifications = 0, rewardNotifications = 0;
+        Action onHealth = () =>
+        {
+            healthNotifications++;
+            // 各経路は一度だけ再入し、旧実装でも無限再帰にしない。
+            if (healthNotifications == 1 && reentryPath != 2)
+                target.Damage(reentryPath == 1 ? health() + 1 : 1);
+        };
+        if (player != null) player.OnHealthChanged += onHealth;
+        else enemy.OnHealthChanged += onHealth;
+        var died = player != null ? player.OnDied : enemy.OnDied;
+        died.AddListener(() =>
+        {
+            deathNotifications++;
+            // 死亡通知の順序を変えず、通知中はまだ有効である。
+            Assert.IsTrue(core.gameObject.activeSelf);
+            Assert.AreEqual(player != null ? 1 : 0, effectCount(), "既存の死亡演出と通知の順序");
+            if (deathNotifications == 1 && reentryPath == 2) target.Damage(1);
+        });
+        int killsBefore = Field<int>(manager, "_killCount");
+        int tokensBefore = manager.RerollToken;
+        var progression = Field<ExperienceProgressionDomain>(manager, "_progression");
+        var oracle = new ExperienceProgressionDomain(Field<System.Collections.Generic.List<int>>(manager, "_requireExpList"));
+        if (enemy != null)
+        {
+            // 実管理側への既存購読を残し、報酬通知自身からの再入も追加する。
+            Action<int> reward = amount =>
+            {
+                rewardNotifications++;
+                if (rewardNotifications == 1 && reentryPath == 2) target.Damage(1);
+            };
+            Set(enemy, "OnDeath", Field<Action<int>>(enemy, "OnDeath") + reward);
+        }
+        int experienceBefore = progression.CurrentExperience;
+        int levelBefore = progression.Level;
+        int picksBefore = manager.PickCount;
+        target.Damage(reentryPath == 1 ? 1 : health() + 1);
+        Assert.IsFalse(core.gameObject.activeSelf);
+        Assert.AreEqual(-1, health(), "致死値を0へ丸めない");
+        Assert.AreEqual(reentryPath == 1 ? 2 : 1, healthNotifications, "各被弾の体力通知だけを発行");
+        Assert.AreEqual(1, deathNotifications);
+        Assert.AreEqual(enemy != null ? 1 : 0, rewardNotifications);
+        Assert.AreEqual(1, effectCount());
+        Assert.AreEqual(killsBefore + (enemy != null ? 1 : 0), Field<int>(manager, "_killCount"));
+        Assert.AreEqual(tokensBefore + (enemy != null ? 1 : 0), manager.RerollToken);
+        // 管理側の実際の累積経験値を独立したルール計算と比較する。
+        if (enemy != null)
+        {
+            int totalExperience = Field<System.Collections.Generic.List<int>>(manager, "_requireExpList")
+                .Take(levelBefore).Sum() + experienceBefore + Field<int>(enemy, "_expAmount");
+            oracle.Gain(totalExperience);
+            Assert.AreEqual(oracle.Level, progression.Level);
+            Assert.AreEqual(oracle.CurrentExperience, progression.CurrentExperience);
+            Assert.AreEqual(picksBefore + oracle.Level - levelBefore, manager.PickCount);
+        }
+        else
+        {
+            Assert.AreEqual(experienceBefore, progression.CurrentExperience);
+            Assert.AreEqual(levelBefore, progression.Level);
+        }
+        int notificationsAfterDeath = healthNotifications;
+        for (int i = 0; i < 3; i++) target.Damage(1);
+        Assert.AreEqual(-1, health());
+        Assert.AreEqual(notificationsAfterDeath, healthNotifications);
+        // 公開setterや単なる再有効化は、死亡履歴を取り消す復活APIではない。
+        if (player != null) player.MaxHealth += 1;
+        else enemy.Health = initialHealth;
+        int rewrittenHealth = health();
+        int notificationsAfterSetter = healthNotifications;
+        core.gameObject.SetActive(true);
+        target.Damage(rewrittenHealth + 1);
+        Assert.AreEqual(rewrittenHealth, health());
+        Assert.AreEqual(notificationsAfterSetter, healthNotifications);
+        Assert.AreEqual(1, deathNotifications);
+        Assert.AreEqual(1, effectCount());
+        Assert.AreEqual(killsBefore + (enemy != null ? 1 : 0), Field<int>(manager, "_killCount"));
+        Assert.AreEqual(tokensBefore + (enemy != null ? 1 : 0), manager.RerollToken);
+        if (player != null) player.OnHealthChanged -= onHealth;
+        else enemy.OnHealthChanged -= onHealth;
+        core.gameObject.SetActive(false);
+        foreach (var clone in Resources.FindObjectsOfTypeAll<GameObject>()
+            .Where(item => item.name == effect.name + "(Clone)" && item.scene.IsValid())) Object.Destroy(clone);
+        Object.Destroy(effect);
+    }
+
+    [UnityTest]
     public IEnumerator ProgressionButtonsHealthAndPrefabDefaultsStayConsistent()
     {
         PrepareScene();
