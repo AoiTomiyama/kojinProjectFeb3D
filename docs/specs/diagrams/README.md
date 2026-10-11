@@ -18,13 +18,13 @@
 | [sequence-death](sequence-death.svg) | [architecture-sequences.md](../architecture-sequences.md) |
 | [sequence-upgrade](sequence-upgrade.svg) | [architecture-sequences.md](../architecture-sequences.md) |
 
-## 構文・閲覧の確認
+## 過去のSVG生成時の確認（2026-10-11）
 
 - 既存Orca配布物に同梱された `mermaid.core-INM3DhGR.js` と依存chunkを一時ディレクトリで使用。既存ChromeのheadlessとNodeからMermaid `parse`/`render` を実行した。新規package導入、GUI操作、Unity起動は行っていない。
 - 11図のparse/renderが成功。生成SVGはXMLとして解析し、viewBoxと参照リンクを確認した。各図をheadlessでPNG化して日本語文字・凡例/矢印ラベル・枠/注記を閲覧確認した。初回後の変更箇所と閲覧ラベル調整は対応SVGへ再反映した。
 - flowchartは白いラベル背景、線形の矢印、既存環境の日本語フォント（Yu Gothic/Meiryo）を使用。外部フォントやネットワーク資源は使わない。MermaidのHTMLラベルはDOMのXMLSerializerで単独SVGとして正規化した。
 - game実行の新しい検証証拠ではない。ランタイム検証の正本は既存タスク記録。V-02の未追跡Editorテスト参照は現在の作業ツリー上の存在を表す。
 
-## 更新時
+## 現在の設計文書更新
 
-既存のMermaid対応ビューア/rendererで原本を編集・解析する。SVG生成環境がない場合も原本は通常のテキストとして読める。生成器やバージョンを替える場合は全図を再生成し、日本語ラベルと注記を閲覧確認する。SVGだけを手編集せず、コード・原本・対応表・SVGを同じ目的の変更単位で更新する。
+現在の原本更新は[共通CLI運用手順](../architecture-document-workflow.md)を正本とする。固定図ID付きMermaidとarchitecture-descriptions.jsonを同期し、全図validateで構文・説明・根拠を確認する。上記SVGは提出時点の閲覧用成果物として保持し、今回の説明追加や通常の文書更新で再生成・直接編集しない。

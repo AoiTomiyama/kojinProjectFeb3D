@@ -19,6 +19,7 @@
 
 矢印は実行時の呼出元/読取元から依存先。点線は外部API利用または検証対象。箱は責務の区分で、asmdefによる強制分離はない。概要では機能を集約し、具体的なクラス間経路は機能別の相関図に分ける。PresentationからGameplayへの状態読取と、GameplayからPresentationへの結果通知の両方向がある。
 
+<!-- diagram-id: architecture-diagrams-1 -->
 ```mermaid
 flowchart TB
     Input[Unity Input・Physicsによる入力/衝突]
@@ -55,6 +56,7 @@ flowchart TB
 
 矢印は参照を持つ側→参照先。ラベルはInspector設定、同一オブジェクト取得、シーン探索、生成を区別する。UnityがGameObject/Componentの寿命を管理し、SO参照の共有は個体状態の共有を意味しない。
 
+<!-- diagram-id: architecture-diagrams-2 -->
 ```mermaid
 flowchart LR
     Scene[InGame.unity]
@@ -120,4 +122,4 @@ flowchart LR
 
 今回の確認はコード、GUID/fileID配線、継承/契約、イベント登録・解除、文書リンク、および11図のMermaid解析・SVG生成と閲覧確認。生成環境と原本対応は[SVG索引](diagrams/README.md)。ゲーム動作/描画比較の再検証は実施しない。R-01の61テスト成功とWindows Developmentビルドの証拠は[死亡処理検証](../tasks/death-once-verification.md)。未コミットV-02の描画比較は[既存検証記録](../tasks/headless-verification.md)の未完了条件を維持する。
 
-再開時はこの文書の対象コードHEADと現在の`Assets/Scripts`差分を比較する。コードの継承/参照/通知やシーン配線が変わった機能の図、対応表、SVGを同じ変更単位で更新する。旧全体呼出図は重複を避け本書の相関図へ統合する。描画原本はMermaidブロックでありSVGを直接修正しない。
+再開時はこの文書の対象コードHEADと現在の`Assets/Scripts`差分を比較する。コードの継承/参照/通知やシーン配線が変わった機能の図、対応表、architecture-descriptions.jsonを同じ変更単位で更新する。旧全体呼出図は重複を避け本書の相関図へ統合する。原本は固定図ID付きMermaidブロックと説明JSONである。現在の更新は[共通CLI手順](architecture-document-workflow.md)のdoctor→sync→inventory→apply→validateを使い、過去のSVGを再生成する手順とは区別する。

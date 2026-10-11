@@ -6,6 +6,7 @@
 
 ## 起動：状態生成と配線
 
+<!-- diagram-id: architecture-sequences-1 -->
 ```mermaid
 sequenceDiagram
     participant U as Unity
@@ -43,6 +44,7 @@ sequenceDiagram
 
 ## 射撃・命中・返却
 
+<!-- diagram-id: architecture-sequences-2 -->
 ```mermaid
 sequenceDiagram
     participant A as PlayerAttack / EnemyAttack
@@ -92,6 +94,7 @@ sequenceDiagram
 
 ## 死亡：通知中の再入を含む一度きり保証
 
+<!-- diagram-id: architecture-sequences-3 -->
 ```mermaid
 sequenceDiagram
     participant Caller as 弾/被弾呼出元
@@ -142,6 +145,7 @@ sequenceDiagram
 
 ## 強化選択：定義IDから個体値へ
 
+<!-- diagram-id: architecture-sequences-4 -->
 ```mermaid
 sequenceDiagram
     actor User as ユーザー

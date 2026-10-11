@@ -6,6 +6,7 @@
 
 ## 操作・射撃・移動・表示
 
+<!-- diagram-id: architecture-correlations-1 -->
 ```mermaid
 flowchart TB
     Input[Unity Input：axis・mouse・Fire]
@@ -59,6 +60,7 @@ flowchart TB
 
 ## 報酬・強化定義・候補・動的UI
 
+<!-- diagram-id: architecture-correlations-2 -->
 ```mermaid
 flowchart LR
     Enemy[EnemyCoreGameplay]

@@ -6,6 +6,7 @@
 
 ## Player/Enemy：体力・移動・攻撃・表示
 
+<!-- diagram-id: architecture-classes-1 -->
 ```mermaid
 classDiagram
     class MonoBehaviour
@@ -81,6 +82,7 @@ classDiagram
 
 ## Combat：射撃・弾の生成と返却
 
+<!-- diagram-id: architecture-classes-2 -->
 ```mermaid
 classDiagram
     class MonoBehaviour
@@ -166,6 +168,7 @@ classDiagram
 
 ## Progression：状態・定義・表示・選択
 
+<!-- diagram-id: architecture-classes-3 -->
 ```mermaid
 classDiagram
     class MonoBehaviour

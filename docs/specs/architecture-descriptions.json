@@ -1,0 +1,1382 @@
+{
+  "schema_version": 1,
+  "diagrams": {
+    "architecture-diagrams-1": {
+      "source": "architecture-diagrams.md",
+      "summary": "自作ランタイムの主要機能をGameplay・Domain・設定・Infrastructure・表示の境界で示す。入力や被弾からルール計算と表示へ進む依存と、Unity・UniTask・DOTween・描画資産・Editor検証の境界を読む概要図である。",
+      "nodes": {
+        "Input": {
+          "description": "Unityの入力と物理衝突を集約した入口である。入力軸・マウス位置・Fire操作を移動や照準・攻撃へ渡し、弾のCollisionはCoreの被弾につながる。図は外部APIとゲーム処理の境界を示し、独立した自作入力管理クラスを表すものではない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerMoveGameplay.cs",
+              "symbol": "PlayerMoveGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerAimPointerGameplay.cs",
+              "symbol": "PlayerAimPointerGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerAttackGameplay.cs",
+              "symbol": "PlayerAttackGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Combat/Gameplay/BulletShotGameplay.cs",
+              "symbol": "BulletShotGameplay"
+            }
+          ]
+        },
+        "Game": {
+          "description": "プレイヤーの体力・移動・照準・攻撃、敵の体力・追跡・攻撃、発射と命中、経験値と強化をまとめた機能領域である。個体状態の確定とUnity操作を担い、Domain計算や共有設定を利用する。表示へ確定値を渡し、表示側から操作IDを受け取る。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerCoreGameplay.cs",
+              "symbol": "PlayerCoreGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Enemy/Gameplay/EnemyCoreGameplay.cs",
+              "symbol": "EnemyCoreGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Combat/Gameplay/BulletFireSequenceGameplay.cs",
+              "symbol": "BulletFireSequenceGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Progression/Gameplay/LevelUpCoordinatorGameplay.cs",
+              "symbol": "LevelUpCoordinatorGameplay"
+            }
+          ]
+        },
+        "Rules": {
+          "description": "Unity非依存の四つのルールをまとめた領域である。経験値と選択回数、再抽選token、個体Ammoの待機状態を保持し、拡散計算は状態を持たない。Gameplayが値と乱数関数を渡して利用し、物理操作やUI描画はこの領域の外にある。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Progression/Domain/ExperienceProgressionDomain.cs",
+              "symbol": "ExperienceProgressionDomain"
+            },
+            {
+              "path": "Assets/Scripts/Progression/Domain/UpgradeCandidateSelectionDomain.cs",
+              "symbol": "UpgradeCandidateSelectionDomain"
+            },
+            {
+              "path": "Assets/Scripts/Combat/Domain/WeaponAmmoStateDomain.cs",
+              "symbol": "WeaponAmmoStateDomain"
+            },
+            {
+              "path": "Assets/Scripts/Combat/Domain/BulletSpreadCalculatorDomain.cs",
+              "symbol": "BulletSpreadCalculatorDomain"
+            }
+          ]
+        },
+        "Config": {
+          "description": "共有SOとSerializable設定値をまとめた領域である。初期能力値・武器設定・弾種とPrefab対応・強化定義一覧を提供する。個体は必要な初期値をコピーし、実行時体力や残弾、選択状態は共有アセットへ書き戻さない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Configuration/PlayerInitialStatsConfiguration.cs",
+              "symbol": "PlayerInitialStatsConfiguration"
+            },
+            {
+              "path": "Assets/Scripts/Combat/Configuration/WeaponDefinitionConfiguration.cs",
+              "symbol": "WeaponDefinitionConfiguration"
+            },
+            {
+              "path": "Assets/Scripts/Combat/Configuration/BulletPrefabCatalogConfiguration.cs",
+              "symbol": "BulletPrefabCatalogConfiguration"
+            },
+            {
+              "path": "Assets/Scripts/Progression/Configuration/UpgradeCatalogConfiguration.cs",
+              "symbol": "UpgradeCatalogConfiguration"
+            }
+          ]
+        },
+        "Infra": {
+          "description": "弾種ごとの再利用Poolと同一シーン一意参照の取得処理をまとめた領域である。Poolは弾個体を生成して初期化と返却を接続し、Resolverは活動中の必要参照を診断する。両者は別コンポーネント・ヘルパーで、共通の永続サービス状態は持たない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Combat/Infrastructure/BulletPoolInfrastructure.cs",
+              "symbol": "BulletPoolInfrastructure"
+            },
+            {
+              "path": "Assets/Scripts/Scene/Infrastructure/SceneReferenceResolverInfrastructure.cs",
+              "symbol": "SceneReferenceResolverInfrastructure"
+            }
+          ]
+        },
+        "View": {
+          "description": "体力・残弾・進行値の表示、動的強化ボタン、カメラ追従と演出終了をまとめた表示領域である。CoreやAttackの通知を購読する表示と、Coordinatorから直接結果を渡される表示がある。UIは選択IDを返し、経験値や残弾の状態確定は行わない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Presentation/PlayerStatusViewPresentation.cs",
+              "symbol": "PlayerStatusViewPresentation"
+            },
+            {
+              "path": "Assets/Scripts/Progression/Presentation/LevelUpViewPresentation.cs",
+              "symbol": "LevelUpViewPresentation"
+            },
+            {
+              "path": "Assets/Scripts/Camera/Presentation/CameraFollowPresentation.cs",
+              "symbol": "CameraFollowPresentation"
+            },
+            {
+              "path": "Assets/Scripts/Effects/Presentation/EffectSelfDestructionPresentation.cs",
+              "symbol": "EffectSelfDestructionPresentation"
+            }
+          ]
+        },
+        "Unity": {
+          "description": "Unityのコンポーネント寿命、Rigidbody・NavMesh、ObjectPoolとUI/TMPをまとめた外部依存である。自作Gameplay・Infrastructure・PresentationがこれらのAPIを利用する。図の論理レイヤーはasmdefで分離されておらず、Unity処理の接続先を示す。",
+          "references": [
+            {
+              "path": "docs/specs/architecture-script-catalog.md"
+            }
+          ]
+        },
+        "Async": {
+          "description": "UniTaskの取消可能なDelayを用いる外部依存である。両Attackはcooldownとreloadの待機、BulletShotは発射ごとの弾寿命に使用する。取消トークンは各コンポーネントが所有し、無効化で取消・破棄するため、ライブラリにゲーム状態を預けない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerAttackGameplay.cs",
+              "symbol": "PlayerAttackGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Enemy/Gameplay/EnemyAttackGameplay.cs",
+              "symbol": "EnemyAttackGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Combat/Gameplay/BulletShotGameplay.cs",
+              "symbol": "BulletShotGameplay"
+            }
+          ]
+        },
+        "Tween": {
+          "description": "DOTweenによる表示補間の外部依存である。LevelUpViewは経験値バー、PlayerStatusViewは攻撃待機バーの描画に利用する。確定した進行状態や待機値を描画するだけで、Tween完了に経験値や残弾の確定を委ねず、無効化時に表示Tweenを終了する。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Progression/Presentation/LevelUpViewPresentation.cs",
+              "symbol": "LevelUpViewPresentation"
+            },
+            {
+              "path": "Assets/Scripts/Player/Presentation/PlayerStatusViewPresentation.cs",
+              "symbol": "PlayerStatusViewPresentation"
+            }
+          ]
+        },
+        "Render": {
+          "description": "URP・lilToonとVFX資産による描画境界である。パッケージ設定やマテリアル・シェーダー参照を通じてUnity描画に関係するが、自作ゲームC#が直接呼ぶルールクラスではない。未完了V-02の描画差分とゲーム設計の状態所有を区別する。",
+          "references": [
+            {
+              "path": "Packages/manifest.json"
+            },
+            {
+              "path": "docs/specs/gameplay-architecture.md"
+            }
+          ]
+        },
+        "Editor": {
+          "description": "強化一覧のInspector編集、既存七テストクラスとWindowsビルド入口をまとめた開発時境界である。ランタイムC#からEditorやテストへの参照はない。未追跡VFX検証は七クラスの範囲に含めず、今回の文書照合をゲーム再検証とは扱わない。",
+          "references": [
+            {
+              "path": "Assets/Editor/UpgradeCatalogEditorInfrastructure.cs"
+            },
+            {
+              "path": "Assets/Editor/ProjectAssetReferenceTests.cs"
+            },
+            {
+              "path": "docs/tasks/death-once-verification.md"
+            }
+          ]
+        }
+      }
+    },
+    "architecture-diagrams-2": {
+      "source": "architecture-diagrams.md",
+      "summary": "InGameシーン、プレイヤーと敵のPrefab、弾と強化の設定SOの参照配線を示す。Inspector参照・同じGameObjectの取得・シーン一意探索・動的生成を区別し、共有アセットと個体の実行時状態が別であることを読む。",
+      "nodes": {
+        "Scene": {
+          "description": "InGameは有効なビルド対象シーンで、PlayerとEnemyのPrefab個体、強化管理と表示、弾Pool、カメラを配置する。InspectorのSO・UI・音源参照とPrefabのコンポーネント配線を組み合わせ、ゲーム起動時の参照取得元になる。",
+          "references": [
+            {
+              "path": "Assets/Scenes/InGame.unity"
+            }
+          ]
+        },
+        "Coordinator": {
+          "description": "ProgressionとSelectionをAwakeで生成し、撃破数・メニュー状態・候補IDと定義辞書を保持する。死亡報酬を進行状態へ反映し確定値をViewへ渡す。選択IDと条件・残回数を検証して候補を解除した後、PlayerCoreへ効果を適用する。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Progression/Gameplay/LevelUpCoordinatorGameplay.cs",
+              "symbol": "LevelUpCoordinatorGameplay"
+            }
+          ]
+        },
+        "View": {
+          "description": "確定済みのレベル・経験値比率・撃破数・token・残選択回数と候補IDをUIへ描画する。定義一覧からボタンPrefabを生成し、選択ActionをBindする。再生成時には古い接続を解除して破棄し、抽選や進行の確定はCoordinatorへ委ねる。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Progression/Presentation/LevelUpViewPresentation.cs",
+              "symbol": "LevelUpViewPresentation"
+            }
+          ]
+        },
+        "Catalog": {
+          "description": "シーンのCoordinatorが参照する強化一覧SOで、十一件の強化定義アセット参照を保持する。起動時に一覧の検証と配列コピーが行われ、管理側の定義辞書と候補判定に利用される。動的ボタンはこの一覧に対応して生成される。",
+          "references": [
+            {
+              "path": "Assets/GameData/Progression/InGameUpgrades.asset"
+            }
+          ]
+        },
+        "Defs": {
+          "description": "強化一覧に登録されたUpgrade01から11の定義SOをまとめたノードである。各定義はID・表示列・候補条件・効果値を持ち、管理側とボタン側がそれぞれ必要な値を読む。選択済み候補や残回数は共有定義ではなく管理側にある。",
+          "references": [
+            {
+              "path": "Assets/GameData/Progression/InGameUpgrades.asset"
+            }
+          ]
+        },
+        "Button": {
+          "description": "LevelUpViewの生成元となる既存強化ボタンPrefabである。UpgradeButtonコンポーネントと文字・列UIを持ち、生成後に定義と選択callbackをBindする。PrefabのonClickはUpgrade入口へ接続され、動的に生成されたボタンから管理側へIDを返す。",
+          "references": [
+            {
+              "path": "Assets/Prefab/UpgradeButton.prefab"
+            }
+          ]
+        },
+        "Pool": {
+          "description": "弾種をキーにUnity ObjectPoolを保持し、カタログのPrefabから個体を生成する。生成時に共通フックを初期化し音源と返却Actionを接続する。Getは弾を有効化、Releaseは無効化するため、Fireの値と配置設定より有効化が先に起こる。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Combat/Infrastructure/BulletPoolInfrastructure.cs",
+              "symbol": "BulletPoolInfrastructure"
+            }
+          ]
+        },
+        "BulletCatalog": {
+          "description": "シーンのPoolが参照する弾種とPrefabの対応SOである。Type0はPlayerBullet、Type1はEnemyBulletのPrefab参照を持つ。Poolはこの一覧から種類別の再利用プールを作成し、取得する種類は各Attackが発射時に指定する。",
+          "references": [
+            {
+              "path": "Assets/GameData/Combat/BulletPrefabCatalog.asset"
+            }
+          ]
+        },
+        "PB": {
+          "description": "PlayerBullet型のPoolが生成する弾Prefabで、BulletShotとRigidbody等の参照配線を持つ。生成時にPoolの音源を注入され、発射ごとに攻撃側のパラメーターと位置・向きを受け取る。弾は衝突対象の被弾契約を使い、寿命や反射上限で返却される。",
+          "references": [
+            {
+              "path": "Assets/Prefab/PlayerBullet.prefab"
+            }
+          ]
+        },
+        "EB": {
+          "description": "EnemyBullet型のPoolが生成する弾Prefabで、BulletShotとRigidbody等の参照配線を持つ。敵Attackが弾種と個体武器値を指定して取得する。Poolが音源と返却接続を設定し、発射値・衝突・寿命の処理は弾コンポーネントが担当する。",
+          "references": [
+            {
+              "path": "Assets/Prefab/EnemyBullet.prefab"
+            }
+          ]
+        },
+        "Player": {
+          "description": "同じGameObjectのPlayerCore・Move・Attackをまとめたノードである。Coreは体力と死亡状態、Moveは速度、Attackは個体武器値とAmmoを保持する。Coreが移動・攻撃へ強化を振り分け、シーンの管理側は一意探索でCoreを参照する。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerCoreGameplay.cs",
+              "symbol": "PlayerCoreGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerMoveGameplay.cs",
+              "symbol": "PlayerMoveGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerAttackGameplay.cs",
+              "symbol": "PlayerAttackGameplay"
+            },
+            {
+              "path": "Assets/Prefab/Player.prefab"
+            }
+          ]
+        },
+        "Enemy": {
+          "description": "敵Core・Move・Attackと関連表示を構成する基底Prefabと派生Prefabの集約である。Coreは同一シーンのPlayerを追跡対象に、Coordinatorを死亡報酬の通知先に取得する。Attackの武器SOとMoveのNavMeshAgentは敵個体の処理を支える。",
+          "references": [
+            {
+              "path": "Assets/Prefab/Enemy.prefab"
+            }
+          ]
+        },
+        "Stats": {
+          "description": "プレイヤーの最大体力と移動速度の初期値を提供する共有ScriptableObjectである。CoreとMoveがAwakeでそれぞれ個体の実行時値へ複製する。強化後の体力や速度、死亡状態を共有アセット内に保持するものではない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Configuration/PlayerInitialStatsConfiguration.cs",
+              "symbol": "PlayerInitialStatsConfiguration"
+            }
+          ]
+        },
+        "Weapon": {
+          "description": "装弾数・同時発射数・拡散角・cooldown・reload・弾パラメーターを提供する共有SOである。各AttackがAwakeで個体値へ複製する。実行時の残弾と強化値はAttack側にあり、弾種の選択項目はこのSOには含まれていない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Combat/Configuration/WeaponDefinitionConfiguration.cs",
+              "symbol": "WeaponDefinitionConfiguration"
+            }
+          ]
+        },
+        "Camera": {
+          "description": "Inspectorで設定された対象Transformとoffsetを保持し、Startで参照を確認する。Updateで対象位置にoffsetを足して自分の位置を更新する。シーンではプレイヤーを追従対象に持ち、体力・移動入力・射撃状態の確定は担当しない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Camera/Presentation/CameraFollowPresentation.cs",
+              "symbol": "CameraFollowPresentation"
+            }
+          ]
+        }
+      }
+    },
+    "architecture-classes-1": {
+      "source": "architecture-classes.md",
+      "summary": "プレイヤーと敵の体力・操作・表示の主要クラスを示す。MonoBehaviour継承、共通Core参照基底、被弾interface実装と個体Ammo所有を区別し、死亡ラッチや通知がどの個体に属するかを読む。",
+      "nodes": {
+        "MonoBehaviour": {
+          "description": "UnityがGameObjectに配置された自作コンポーネントのAwake・Start・Update・有効化と無効化を呼ぶ共通基底である。図ではCoreや操作・表示・Poolの継承先を示す。体力や残弾は各派生型が所有し、共通基底に共有ゲーム状態を置くものではない。",
+          "references": [
+            {
+              "path": "docs/specs/architecture-script-catalog.md"
+            }
+          ]
+        },
+        "IDamageableDomain": {
+          "description": "Damage(int)を公開する被弾契約であり、EnemyCoreとPlayerCoreが実装する。弾は衝突対象からこの契約を取得してダメージ値を渡す。体力や死亡の状態は契約自体ではなく実装Coreが保持し、具体的な陣営型を弾に要求しない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Combat/Contracts/IDamageableDomain.cs",
+              "symbol": "IDamageableDomain"
+            }
+          ]
+        },
+        "PlayerCoreGameplay": {
+          "description": "プレイヤーの体力・最大体力と死亡状態を保持する。致死Damageでは体力通知前に死亡を確定し、死亡後の再被弾を無視する。強化値を体力・Moveの速度・Attackの武器値へ振り分け、共有設定SOへは書き戻さない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerCoreGameplay.cs",
+              "symbol": "PlayerCoreGameplay"
+            }
+          ]
+        },
+        "EnemyCoreGameplay": {
+          "description": "敵の体力・死亡状態、追跡対象、射程とプレイヤーのレイヤーを保持する。Startで同一シーンのプレイヤーと強化管理を取得し死亡報酬を接続する。致死通知前の死亡確定により、報酬や死亡通知からの再入でも副作用を重複させない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Enemy/Gameplay/EnemyCoreGameplay.cs",
+              "symbol": "EnemyCoreGameplay"
+            }
+          ]
+        },
+        "PlayerComponentBaseGameplay": {
+          "description": "プレイヤー関連コンポーネントが同じGameObjectのCoreを取得する共通基底である。Core参照を遅延取得してキャッシュし、取得済みフラグにより破棄後の再探索を避ける。移動・攻撃・状態表示がこの参照を利用する。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerComponentBaseGameplay.cs",
+              "symbol": "PlayerComponentBaseGameplay"
+            }
+          ]
+        },
+        "EnemyComponentBaseGameplay": {
+          "description": "敵関連コンポーネントが同じGameObjectのEnemyCoreを参照する共通基底である。参照を遅延取得してキャッシュし、取得済みフラグを保持する。移動・攻撃・体力表示がCoreの対象や現在値を利用する。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Enemy/Gameplay/EnemyComponentBaseGameplay.cs",
+              "symbol": "EnemyComponentBaseGameplay"
+            }
+          ]
+        },
+        "PlayerMoveGameplay": {
+          "description": "個体の移動速度を初期能力値SOから複製して保持する。入力軸とカメラ方向からRigidbodyへ力を加え、指定された照準Transformへ旋回する。Coreの強化で速度が更新され、照準先と位置をLineRendererへ渡す。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerMoveGameplay.cs",
+              "symbol": "PlayerMoveGameplay"
+            }
+          ]
+        },
+        "PlayerAttackGameplay": {
+          "description": "武器設定を個体値へ複製し、残弾状態と取消トークンを所有する。Fire入力・射撃可否・強化メニュー状態を確認して共通発射手順を呼ぶ。残弾と待機時間をUIへ通知し、無効化で待機を中断、再有効化で未完了待機をやり直す。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerAttackGameplay.cs",
+              "symbol": "PlayerAttackGameplay"
+            }
+          ]
+        },
+        "PlayerStatusViewPresentation": {
+          "description": "Coreの体力とAttackの残弾・待機状態をImageや文字へ描画する。Startで初期化した後、OnEnableで四つの通知を購読し現在値を復元する。OnDisableで購読と表示Tweenを解除し、ゲーム側の状態確定は担当しない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Presentation/PlayerStatusViewPresentation.cs",
+              "symbol": "PlayerStatusViewPresentation"
+            }
+          ]
+        },
+        "EnemyMoveGameplay": {
+          "description": "Coreの追跡対象・射程・レイヤーと自分の感知範囲から追跡や停止を判断する。Startで同じGameObjectのNavMeshAgentを有効化する。UpdateでPhysicsの感知と射線判定を行い、Agentの目的地や停止・旋回を操作する。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Enemy/Gameplay/EnemyMoveGameplay.cs",
+              "symbol": "EnemyMoveGameplay"
+            }
+          ]
+        },
+        "EnemyAttackGameplay": {
+          "description": "武器設定を個体値へ複製して残弾状態を所有する。Coreの対象・射程・レイヤーによる距離と射線判定後、EnemyBulletを共通発射手順へ渡す。UniTaskの待機を取消トークンで中断し、再有効化で未完了待機を再開始する。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Enemy/Gameplay/EnemyAttackGameplay.cs",
+              "symbol": "EnemyAttackGameplay"
+            }
+          ]
+        },
+        "EnemyHealthViewPresentation": {
+          "description": "EnemyCoreの現在体力と最大体力の比率をImageへ描画する。Startで参照を確認し、初期化後のOnEnableで体力通知を購読して現在値を表示する。OnDisableで通知を解除し、死亡判定や追跡状態は変更しない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Enemy/Presentation/EnemyHealthViewPresentation.cs",
+              "symbol": "EnemyHealthViewPresentation"
+            }
+          ]
+        },
+        "WeaponAmmoStateDomain": {
+          "description": "攻撃者ごとの容量・残弾・射撃可否・待機種類と秒数を保持するUnity非依存クラスである。発射で残弾を消費し、残弾に応じてcooldownかreloadを確定する。時間待機は攻撃側が実行し、このクラスのCompleteWaitで残弾と射撃可否を更新する。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Combat/Domain/WeaponAmmoStateDomain.cs",
+              "symbol": "WeaponAmmoStateDomain"
+            }
+          ]
+        },
+        "PlayerInitialStatsConfiguration": {
+          "description": "プレイヤーの最大体力と移動速度の初期値を提供する共有ScriptableObjectである。CoreとMoveがAwakeでそれぞれ個体の実行時値へ複製する。強化後の体力や速度、死亡状態を共有アセット内に保持するものではない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Configuration/PlayerInitialStatsConfiguration.cs",
+              "symbol": "PlayerInitialStatsConfiguration"
+            }
+          ]
+        },
+        "SceneReferenceResolverInfrastructure": {
+          "description": "活動中のコンポーネントから呼出元と同じシーンの対象型を探索し、一意な参照を返す静的ヘルパーである。欠落や重複は例外で診断する。Core・攻撃・照準・カメラ等が参照取得に使い、永続的なサービス状態やglobal cacheは持たない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Scene/Infrastructure/SceneReferenceResolverInfrastructure.cs",
+              "symbol": "SceneReferenceResolverInfrastructure"
+            }
+          ]
+        }
+      }
+    },
+    "architecture-classes-2": {
+      "source": "architecture-classes.md",
+      "summary": "共通発射手順、弾パラメーター、弾種カタログと再利用Poolのクラス関係を示す。値型の所有、SO参照、Unity ObjectPoolと抽象弾フック、被弾interface利用の関係を区別し、配置と有効化の境界を読む。",
+      "nodes": {
+        "MonoBehaviour": {
+          "description": "UnityがGameObjectに配置された自作コンポーネントのAwake・Start・Update・有効化と無効化を呼ぶ共通基底である。図ではCoreや操作・表示・Poolの継承先を示す。体力や残弾は各派生型が所有し、共通基底に共有ゲーム状態を置くものではない。",
+          "references": [
+            {
+              "path": "docs/specs/architecture-script-catalog.md"
+            }
+          ]
+        },
+        "ScriptableObject": {
+          "description": "Unityの設定アセット用の外部基底である。武器・初期能力・弾カタログ・強化一覧と定義はこれを継承し、複数の個体から共有参照される。図の所有関係は設定値の保持を示し、体力・残弾・候補選択の実行時状態をアセットに共有しない。",
+          "references": [
+            {
+              "path": "docs/specs/architecture-script-catalog.md"
+            }
+          ]
+        },
+        "PooledAttackBaseGameplay": {
+          "description": "再利用される攻撃Objectの共通基底で、弾パラメーター値と返却用Actionを保持する。生成時OnInitializeと発射時OnGetFromPoolを抽象フックとして公開する。Poolが初期化と返却接続を設定し、Fireが配置後に発射初期化を呼ぶ。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Combat/Gameplay/PooledAttackBaseGameplay.cs",
+              "symbol": "PooledAttackBaseGameplay"
+            }
+          ]
+        },
+        "BulletShotGameplay": {
+          "description": "Rigidbody・命中回数・寿命待機の取消トークンを持つ弾コンポーネントである。生成時に音源を注入され、発射ごとに速度・音・寿命を設定する。衝突で演出と被弾を発行し、反射上限や寿命終了でPoolへ返却、無効化で待機を取消す。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Combat/Gameplay/BulletShotGameplay.cs",
+              "symbol": "BulletShotGameplay"
+            }
+          ]
+        },
+        "BulletPoolInfrastructure": {
+          "description": "弾種をキーにUnity ObjectPoolを保持し、カタログのPrefabから個体を生成する。生成時に共通フックを初期化し音源と返却Actionを接続する。Getは弾を有効化、Releaseは無効化するため、Fireの値と配置設定より有効化が先に起こる。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Combat/Infrastructure/BulletPoolInfrastructure.cs",
+              "symbol": "BulletPoolInfrastructure"
+            }
+          ]
+        },
+        "BulletPrefabCatalogConfiguration": {
+          "description": "弾種とGameObject Prefabの対応をMappings一覧に保持するScriptableObjectである。GetGameObjectは一致する弾種を検索してPrefab参照を返す。Poolはこの対応から種類別プールを作成し、カタログ自体に発射中の弾や残弾状態を保存しない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Combat/Configuration/BulletPrefabCatalogConfiguration.cs",
+              "symbol": "BulletPrefabCatalogConfiguration"
+            }
+          ]
+        },
+        "BulletPrefabMappingConfiguration": {
+          "description": "弾カタログ内に宣言されたSerializable値型で、BulletTypeDomainのTypeとGameObjectのPrefab参照を組にする。Mappingsリストの要素として保持される。Poolはこの対応を読んで生成先を選び、独立したランタイムコンポーネントとしては配置しない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Combat/Configuration/BulletPrefabCatalogConfiguration.cs",
+              "symbol": "BulletPrefabMappingConfiguration"
+            }
+          ]
+        },
+        "WeaponDefinitionConfiguration": {
+          "description": "装弾数・同時発射数・拡散角・cooldown・reload・弾パラメーターを提供する共有SOである。各AttackがAwakeで個体値へ複製する。実行時の残弾と強化値はAttack側にあり、弾種の選択項目はこのSOには含まれていない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Combat/Configuration/WeaponDefinitionConfiguration.cs",
+              "symbol": "WeaponDefinitionConfiguration"
+            }
+          ]
+        },
+        "BulletParametersConfiguration": {
+          "description": "ダメージ・速度・寿命・反射回数をまとめるSerializable値型である。武器定義から攻撃側、発射時に弾へコピーして渡す。Durationは最小値を制約し、Unity属性とMathfを用いるため、Unity非依存のDomainルールとは区別する。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Combat/Configuration/BulletParametersConfiguration.cs",
+              "symbol": "BulletParametersConfiguration"
+            }
+          ]
+        },
+        "WeaponAmmoStateDomain": {
+          "description": "攻撃者ごとの容量・残弾・射撃可否・待機種類と秒数を保持するUnity非依存クラスである。発射で残弾を消費し、残弾に応じてcooldownかreloadを確定する。時間待機は攻撃側が実行し、このクラスのCompleteWaitで残弾と射撃可否を更新する。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Combat/Domain/WeaponAmmoStateDomain.cs",
+              "symbol": "WeaponAmmoStateDomain"
+            }
+          ]
+        },
+        "BulletFireSequenceGameplay": {
+          "description": "両陣営の共通発射手順を担う静的クラスである。拡散計算で発数と角度を求め、Pool.Get後に弾パラメーター・位置・向きを設定し発射初期化を呼ぶ。各弾の発射後に個体Ammoを消費し、任意の残弾通知を発行する。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Combat/Gameplay/BulletFireSequenceGameplay.cs",
+              "symbol": "BulletFireSequenceGameplay"
+            }
+          ]
+        },
+        "BulletSpreadCalculatorDomain": {
+          "description": "要求発数・残弾数・拡散角から発射可能数と各弾の角度を求めるUnity非依存の静的計算である。個体状態やPrefab参照は持たない。FireSequenceが計算結果をQuaternionとTransform操作に変換して弾の発射方向へ適用する。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Combat/Domain/BulletSpreadCalculatorDomain.cs",
+              "symbol": "BulletSpreadCalculatorDomain"
+            }
+          ]
+        },
+        "ObjectPool": {
+          "description": "Unityの再利用ライブラリで、Poolコンポーネントが弾種ごとに生成し保持する。作成・取得・返却・破棄のcallbackにより弾個体を管理する。自作の弾は返却Actionを呼び、Pool側のcallbackが有効化と無効化を行う。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Combat/Infrastructure/BulletPoolInfrastructure.cs",
+              "symbol": "BulletPoolInfrastructure"
+            }
+          ]
+        },
+        "IDamageableDomain": {
+          "description": "Damage(int)を公開する被弾契約であり、EnemyCoreとPlayerCoreが実装する。弾は衝突対象からこの契約を取得してダメージ値を渡す。体力や死亡の状態は契約自体ではなく実装Coreが保持し、具体的な陣営型を弾に要求しない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Combat/Contracts/IDamageableDomain.cs",
+              "symbol": "IDamageableDomain"
+            }
+          ]
+        }
+      }
+    },
+    "architecture-classes-3": {
+      "source": "architecture-classes.md",
+      "summary": "経験値進行・候補抽選・共有強化定義と動的UIの主要クラスを示す。Coordinatorが二つのDomain状態を所有し、定義SOを参照してViewへ描画と生成を依頼する関係を読む。選択IDはcallbackから管理側へ戻る。",
+      "nodes": {
+        "MonoBehaviour": {
+          "description": "UnityがGameObjectに配置された自作コンポーネントのAwake・Start・Update・有効化と無効化を呼ぶ共通基底である。図ではCoreや操作・表示・Poolの継承先を示す。体力や残弾は各派生型が所有し、共通基底に共有ゲーム状態を置くものではない。",
+          "references": [
+            {
+              "path": "docs/specs/architecture-script-catalog.md"
+            }
+          ]
+        },
+        "ScriptableObject": {
+          "description": "Unityの設定アセット用の外部基底である。武器・初期能力・弾カタログ・強化一覧と定義はこれを継承し、複数の個体から共有参照される。図の所有関係は設定値の保持を示し、体力・残弾・候補選択の実行時状態をアセットに共有しない。",
+          "references": [
+            {
+              "path": "docs/specs/architecture-script-catalog.md"
+            }
+          ]
+        },
+        "LevelUpCoordinatorGameplay": {
+          "description": "ProgressionとSelectionをAwakeで生成し、撃破数・メニュー状態・候補IDと定義辞書を保持する。死亡報酬を進行状態へ反映し確定値をViewへ渡す。選択IDと条件・残回数を検証して候補を解除した後、PlayerCoreへ効果を適用する。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Progression/Gameplay/LevelUpCoordinatorGameplay.cs",
+              "symbol": "LevelUpCoordinatorGameplay"
+            }
+          ]
+        },
+        "ExperienceProgressionDomain": {
+          "description": "必要経験値の配列を複製し、経験値・レベル・強化選択可能回数を保持するUnity非依存クラスである。Gainでレベル到達を確定し、選択時に回数を消費する。Coordinatorが結果を読み取り、撃破数や表示演出はこのクラスの外で扱う。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Progression/Domain/ExperienceProgressionDomain.cs",
+              "symbol": "ExperienceProgressionDomain"
+            }
+          ]
+        },
+        "UpgradeCandidateSelectionDomain": {
+          "description": "再抽選トークンと候補抽選を扱うUnity非依存クラスである。候補IDと渡された乱数関数から重複しない三件を選ぶ。通常抽選ではtokenを使わず、TryRerollは残高と抽選成功を確認して三tokenを消費し、表示や能力適用は行わない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Progression/Domain/UpgradeCandidateSelectionDomain.cs",
+              "symbol": "UpgradeCandidateSelectionDomain"
+            }
+          ]
+        },
+        "LevelUpViewPresentation": {
+          "description": "確定済みのレベル・経験値比率・撃破数・token・残選択回数と候補IDをUIへ描画する。定義一覧からボタンPrefabを生成し、選択ActionをBindする。再生成時には古い接続を解除して破棄し、抽選や進行の確定はCoordinatorへ委ねる。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Progression/Presentation/LevelUpViewPresentation.cs",
+              "symbol": "LevelUpViewPresentation"
+            }
+          ]
+        },
+        "UpgradeButtonPresentation": {
+          "description": "強化定義のタイトルと表示列をUIへ設定し、選択IDを送るActionをBindで保持する。PrefabのButton.onClickからUpgradeが呼ばれると活動状態と定義を確認してIDを通知する。Unbindで接続を解除し、能力効果や残選択回数は変更しない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Progression/Presentation/UpgradeButtonPresentation.cs",
+              "symbol": "UpgradeButtonPresentation"
+            }
+          ]
+        },
+        "UpgradeCatalogConfiguration": {
+          "description": "強化定義SOの一覧を保持し、CreateSnapshotで欠落参照・正のID・重複IDを検証する。返す配列はコピーだが定義SO参照は共有する。CoordinatorがこれをID辞書と候補条件に使い、取得済み状態をカタログへ書き込まない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Progression/Configuration/UpgradeCatalogConfiguration.cs",
+              "symbol": "UpgradeCatalogConfiguration"
+            }
+          ]
+        },
+        "UpgradeDefinitionConfiguration": {
+          "description": "強化項目のID・タイトル・表示列・利用条件と効果値を保持する共有SOである。IsEligibleは有効設定と最低レベルで候補可否を返す。Coordinatorは条件と効果を読み、ボタンは表示とIDを読むため、選択状態は定義の外に保持される。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Progression/Configuration/UpgradeDefinitionConfiguration.cs",
+              "symbol": "UpgradeDefinitionConfiguration"
+            }
+          ]
+        },
+        "UpgradeParametersConfiguration": {
+          "description": "能力強化の加算値と乗算値をまとめるSerializable値型である。定義SOのEffectからPlayerCoreへ渡り、最大体力・移動速度・Attackの武器値に適用される。選択回数や候補ID、取得済み状態を保持するクラスではない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Progression/Configuration/UpgradeParametersConfiguration.cs",
+              "symbol": "UpgradeParametersConfiguration"
+            }
+          ]
+        },
+        "DisplayColumnConfiguration": {
+          "description": "強化定義内に宣言されたSerializable値型で、表示用LabelとValueを保持する。定義の追加列配列に格納され、UpgradeButtonが列UIを生成して文字を設定する。能力計算や候補条件の値とは独立した表示データとして扱われる。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Progression/Configuration/UpgradeDefinitionConfiguration.cs",
+              "symbol": "DisplayColumnConfiguration"
+            }
+          ]
+        },
+        "PlayerCoreGameplay": {
+          "description": "プレイヤーの体力・最大体力と死亡状態を保持する。致死Damageでは体力通知前に死亡を確定し、死亡後の再被弾を無視する。強化値を体力・Moveの速度・Attackの武器値へ振り分け、共有設定SOへは書き戻さない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerCoreGameplay.cs",
+              "symbol": "PlayerCoreGameplay"
+            }
+          ]
+        }
+      }
+    },
+    "architecture-correlations-1": {
+      "source": "architecture-correlations.md",
+      "summary": "入力・敵の物理判定から射撃、弾生成と被弾、UI通知へ至るスクリプト相関を示す。実線の呼出・読取依存と点線の通知データを区別し、個体残弾、Core体力、Pool返却と表示購読の境界を読む。",
+      "nodes": {
+        "Input": {
+          "description": "Unityの入力と物理衝突を集約した入口である。入力軸・マウス位置・Fire操作を移動や照準・攻撃へ渡し、弾のCollisionはCoreの被弾につながる。図は外部APIとゲーム処理の境界を示し、独立した自作入力管理クラスを表すものではない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerMoveGameplay.cs",
+              "symbol": "PlayerMoveGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerAimPointerGameplay.cs",
+              "symbol": "PlayerAimPointerGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerAttackGameplay.cs",
+              "symbol": "PlayerAttackGameplay"
+            }
+          ]
+        },
+        "Move": {
+          "description": "個体の移動速度を初期能力値SOから複製して保持する。入力軸とカメラ方向からRigidbodyへ力を加え、指定された照準Transformへ旋回する。Coreの強化で速度が更新され、照準先と位置をLineRendererへ渡す。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerMoveGameplay.cs",
+              "symbol": "PlayerMoveGameplay"
+            }
+          ]
+        },
+        "Aim": {
+          "description": "マウス位置からカメラのRayを作り、Physicsのヒット位置へ照準Transformを移動する。StartでカメラとCoordinatorを一意取得し、強化メニュー表示中は更新を停止する。移動側は設定されたlookAt参照から旋回先を読む。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerAimPointerGameplay.cs",
+              "symbol": "PlayerAimPointerGameplay"
+            }
+          ]
+        },
+        "PA": {
+          "description": "武器設定を個体値へ複製し、残弾状態と取消トークンを所有する。Fire入力・射撃可否・強化メニュー状態を確認して共通発射手順を呼ぶ。残弾と待機時間をUIへ通知し、無効化で待機を中断、再有効化で未完了待機をやり直す。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerAttackGameplay.cs",
+              "symbol": "PlayerAttackGameplay"
+            }
+          ]
+        },
+        "EA": {
+          "description": "武器設定を個体値へ複製して残弾状態を所有する。Coreの対象・射程・レイヤーによる距離と射線判定後、EnemyBulletを共通発射手順へ渡す。UniTaskの待機を取消トークンで中断し、再有効化で未完了待機を再開始する。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Enemy/Gameplay/EnemyAttackGameplay.cs",
+              "symbol": "EnemyAttackGameplay"
+            }
+          ]
+        },
+        "EM": {
+          "description": "Coreの追跡対象・射程・レイヤーと自分の感知範囲から追跡や停止を判断する。Startで同じGameObjectのNavMeshAgentを有効化する。UpdateでPhysicsの感知と射線判定を行い、Agentの目的地や停止・旋回を操作する。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Enemy/Gameplay/EnemyMoveGameplay.cs",
+              "symbol": "EnemyMoveGameplay"
+            }
+          ]
+        },
+        "EC": {
+          "description": "敵の体力・死亡状態、追跡対象、射程とプレイヤーのレイヤーを保持する。Startで同一シーンのプレイヤーと強化管理を取得し死亡報酬を接続する。致死通知前の死亡確定により、報酬や死亡通知からの再入でも副作用を重複させない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Enemy/Gameplay/EnemyCoreGameplay.cs",
+              "symbol": "EnemyCoreGameplay"
+            }
+          ]
+        },
+        "PC": {
+          "description": "プレイヤーの体力・最大体力と死亡状態を保持する。致死Damageでは体力通知前に死亡を確定し、死亡後の再被弾を無視する。強化値を体力・Moveの速度・Attackの武器値へ振り分け、共有設定SOへは書き戻さない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerCoreGameplay.cs",
+              "symbol": "PlayerCoreGameplay"
+            }
+          ]
+        },
+        "Physics": {
+          "description": "Unityの物理・移動APIをまとめたノードである。PlayerMoveはRigidbodyへ力を加え、AimはRaycastのヒット位置を取得する。敵MoveとAttackは感知や射線をPhysicsで確認し、追跡の目的地や停止状態はNavMeshAgentへ渡す。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerMoveGameplay.cs",
+              "symbol": "PlayerMoveGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerAimPointerGameplay.cs",
+              "symbol": "PlayerAimPointerGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Enemy/Gameplay/EnemyMoveGameplay.cs",
+              "symbol": "EnemyMoveGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Enemy/Gameplay/EnemyAttackGameplay.cs",
+              "symbol": "EnemyAttackGameplay"
+            }
+          ]
+        },
+        "Ammo": {
+          "description": "攻撃者ごとの容量・残弾・射撃可否・待機種類と秒数を保持するUnity非依存クラスである。発射で残弾を消費し、残弾に応じてcooldownかreloadを確定する。時間待機は攻撃側が実行し、このクラスのCompleteWaitで残弾と射撃可否を更新する。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Combat/Domain/WeaponAmmoStateDomain.cs",
+              "symbol": "WeaponAmmoStateDomain"
+            }
+          ]
+        },
+        "Fire": {
+          "description": "両陣営の共通発射手順を担う静的クラスである。拡散計算で発数と角度を求め、Pool.Get後に弾パラメーター・位置・向きを設定し発射初期化を呼ぶ。各弾の発射後に個体Ammoを消費し、任意の残弾通知を発行する。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Combat/Gameplay/BulletFireSequenceGameplay.cs",
+              "symbol": "BulletFireSequenceGameplay"
+            }
+          ]
+        },
+        "Spread": {
+          "description": "要求発数・残弾数・拡散角から発射可能数と各弾の角度を求めるUnity非依存の静的計算である。個体状態やPrefab参照は持たない。FireSequenceが計算結果をQuaternionとTransform操作に変換して弾の発射方向へ適用する。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Combat/Domain/BulletSpreadCalculatorDomain.cs",
+              "symbol": "BulletSpreadCalculatorDomain"
+            }
+          ]
+        },
+        "Pool": {
+          "description": "弾種をキーにUnity ObjectPoolを保持し、カタログのPrefabから個体を生成する。生成時に共通フックを初期化し音源と返却Actionを接続する。Getは弾を有効化、Releaseは無効化するため、Fireの値と配置設定より有効化が先に起こる。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Combat/Infrastructure/BulletPoolInfrastructure.cs",
+              "symbol": "BulletPoolInfrastructure"
+            }
+          ]
+        },
+        "Bullet": {
+          "description": "Rigidbody・命中回数・寿命待機の取消トークンを持つ弾コンポーネントである。生成時に音源を注入され、発射ごとに速度・音・寿命を設定する。衝突で演出と被弾を発行し、反射上限や寿命終了でPoolへ返却、無効化で待機を取消す。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Combat/Gameplay/BulletShotGameplay.cs",
+              "symbol": "BulletShotGameplay"
+            }
+          ]
+        },
+        "PUI": {
+          "description": "Coreの体力とAttackの残弾・待機状態をImageや文字へ描画する。Startで初期化した後、OnEnableで四つの通知を購読し現在値を復元する。OnDisableで購読と表示Tweenを解除し、ゲーム側の状態確定は担当しない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Presentation/PlayerStatusViewPresentation.cs",
+              "symbol": "PlayerStatusViewPresentation"
+            }
+          ]
+        },
+        "EUI": {
+          "description": "EnemyCoreの現在体力と最大体力の比率をImageへ描画する。Startで参照を確認し、初期化後のOnEnableで体力通知を購読して現在値を表示する。OnDisableで通知を解除し、死亡判定や追跡状態は変更しない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Enemy/Presentation/EnemyHealthViewPresentation.cs",
+              "symbol": "EnemyHealthViewPresentation"
+            }
+          ]
+        },
+        "Manager": {
+          "description": "ProgressionとSelectionをAwakeで生成し、撃破数・メニュー状態・候補IDと定義辞書を保持する。死亡報酬を進行状態へ反映し確定値をViewへ渡す。選択IDと条件・残回数を検証して候補を解除した後、PlayerCoreへ効果を適用する。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Progression/Gameplay/LevelUpCoordinatorGameplay.cs",
+              "symbol": "LevelUpCoordinatorGameplay"
+            }
+          ]
+        }
+      }
+    },
+    "architecture-correlations-2": {
+      "source": "architecture-correlations.md",
+      "summary": "敵の死亡報酬から経験値・候補抽選、共有定義と動的ボタン、プレイヤー強化へ進む相関を示す。進行状態の確定と表示、選択IDのcallback、乱数関数の受渡しを区別し、通常選択とシーンの再抽選操作を読む。",
+      "nodes": {
+        "Enemy": {
+          "description": "敵の体力・死亡状態、追跡対象、射程とプレイヤーのレイヤーを保持する。Startで同一シーンのプレイヤーと強化管理を取得し死亡報酬を接続する。致死通知前の死亡確定により、報酬や死亡通知からの再入でも副作用を重複させない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Enemy/Gameplay/EnemyCoreGameplay.cs",
+              "symbol": "EnemyCoreGameplay"
+            }
+          ]
+        },
+        "Manager": {
+          "description": "ProgressionとSelectionをAwakeで生成し、撃破数・メニュー状態・候補IDと定義辞書を保持する。死亡報酬を進行状態へ反映し確定値をViewへ渡す。選択IDと条件・残回数を検証して候補を解除した後、PlayerCoreへ効果を適用する。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Progression/Gameplay/LevelUpCoordinatorGameplay.cs",
+              "symbol": "LevelUpCoordinatorGameplay"
+            }
+          ]
+        },
+        "Exp": {
+          "description": "必要経験値の配列を複製し、経験値・レベル・強化選択可能回数を保持するUnity非依存クラスである。Gainでレベル到達を確定し、選択時に回数を消費する。Coordinatorが結果を読み取り、撃破数や表示演出はこのクラスの外で扱う。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Progression/Domain/ExperienceProgressionDomain.cs",
+              "symbol": "ExperienceProgressionDomain"
+            }
+          ]
+        },
+        "Select": {
+          "description": "再抽選トークンと候補抽選を扱うUnity非依存クラスである。候補IDと渡された乱数関数から重複しない三件を選ぶ。通常抽選ではtokenを使わず、TryRerollは残高と抽選成功を確認して三tokenを消費し、表示や能力適用は行わない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Progression/Domain/UpgradeCandidateSelectionDomain.cs",
+              "symbol": "UpgradeCandidateSelectionDomain"
+            }
+          ]
+        },
+        "Catalog": {
+          "description": "強化定義SOの一覧を保持し、CreateSnapshotで欠落参照・正のID・重複IDを検証する。返す配列はコピーだが定義SO参照は共有する。CoordinatorがこれをID辞書と候補条件に使い、取得済み状態をカタログへ書き込まない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Progression/Configuration/UpgradeCatalogConfiguration.cs",
+              "symbol": "UpgradeCatalogConfiguration"
+            }
+          ]
+        },
+        "Def": {
+          "description": "強化項目のID・タイトル・表示列・利用条件と効果値を保持する共有SOである。IsEligibleは有効設定と最低レベルで候補可否を返す。Coordinatorは条件と効果を読み、ボタンは表示とIDを読むため、選択状態は定義の外に保持される。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Progression/Configuration/UpgradeDefinitionConfiguration.cs",
+              "symbol": "UpgradeDefinitionConfiguration"
+            }
+          ]
+        },
+        "View": {
+          "description": "確定済みのレベル・経験値比率・撃破数・token・残選択回数と候補IDをUIへ描画する。定義一覧からボタンPrefabを生成し、選択ActionをBindする。再生成時には古い接続を解除して破棄し、抽選や進行の確定はCoordinatorへ委ねる。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Progression/Presentation/LevelUpViewPresentation.cs",
+              "symbol": "LevelUpViewPresentation"
+            }
+          ]
+        },
+        "Button": {
+          "description": "強化定義のタイトルと表示列をUIへ設定し、選択IDを送るActionをBindで保持する。PrefabのButton.onClickからUpgradeが呼ばれると活動状態と定義を確認してIDを通知する。Unbindで接続を解除し、能力効果や残選択回数は変更しない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Progression/Presentation/UpgradeButtonPresentation.cs",
+              "symbol": "UpgradeButtonPresentation"
+            }
+          ]
+        },
+        "Core": {
+          "description": "プレイヤーの体力・最大体力と死亡状態を保持する。致死Damageでは体力通知前に死亡を確定し、死亡後の再被弾を無視する。強化値を体力・Moveの速度・Attackの武器値へ振り分け、共有設定SOへは書き戻さない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerCoreGameplay.cs",
+              "symbol": "PlayerCoreGameplay"
+            }
+          ]
+        },
+        "Move": {
+          "description": "個体の移動速度を初期能力値SOから複製して保持する。入力軸とカメラ方向からRigidbodyへ力を加え、指定された照準Transformへ旋回する。Coreの強化で速度が更新され、照準先と位置をLineRendererへ渡す。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerMoveGameplay.cs",
+              "symbol": "PlayerMoveGameplay"
+            }
+          ]
+        },
+        "Attack": {
+          "description": "武器設定を個体値へ複製し、残弾状態と取消トークンを所有する。Fire入力・射撃可否・強化メニュー状態を確認して共通発射手順を呼ぶ。残弾と待機時間をUIへ通知し、無効化で待機を中断、再有効化で未完了待機をやり直す。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerAttackGameplay.cs",
+              "symbol": "PlayerAttackGameplay"
+            }
+          ]
+        },
+        "Random": {
+          "description": "UnityEngine.Random.Rangeを候補抽選へ渡す乱数関数として示す。Coordinatorがこの関数をTryDrawやTryRerollへ渡し、Selectionは指定範囲の添字を取得して候補配列を部分的にシャッフルする。乱数側がtokenや選択回数の状態を保持するわけではない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Progression/Gameplay/LevelUpCoordinatorGameplay.cs",
+              "symbol": "LevelUpCoordinatorGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Progression/Domain/UpgradeCandidateSelectionDomain.cs",
+              "symbol": "UpgradeCandidateSelectionDomain"
+            }
+          ]
+        },
+        "SceneUI": {
+          "description": "シーンに配置されたButton.onClickの操作入口である。再抽選はCoordinator.TryReroll、メニュー開閉はOpenCloseUpgradeMenuへ接続される。動的強化ボタンの定義ID選択とは別経路で、管理側がtoken残高やメニュー状態を確定して表示へ渡す。",
+          "references": [
+            {
+              "path": "Assets/Scenes/InGame.unity"
+            },
+            {
+              "path": "Assets/Scripts/Progression/Gameplay/LevelUpCoordinatorGameplay.cs",
+              "symbol": "LevelUpCoordinatorGameplay"
+            }
+          ]
+        }
+      }
+    },
+    "architecture-sequences-1": {
+      "source": "architecture-sequences.md",
+      "summary": "シーン起動時の個体値コピー、Domain状態生成、参照取得とPool準備を示す。Awake・OnEnable・Startの段階を区別し、異なるコンポーネント間のStart順を保証しない条件と、UI購読・NavMesh有効化の境界を読む。",
+      "nodes": {
+        "U": {
+          "description": "Unityの起動ライフサイクルを呼出す参加者である。AwakeとOnEnableで個体値や取消準備を行い、Startで参照取得・Pool準備・UI初期化を行う。図に並ぶ異なるコンポーネントのStartは相対順を保証せず、各コンポーネント内部の処理順を表す。",
+          "references": [
+            {
+              "path": "docs/specs/architecture-sequences.md"
+            },
+            {
+              "path": "docs/specs/component-dependencies.md"
+            }
+          ]
+        },
+        "C": {
+          "description": "PlayerCoreとPlayerAttackの起動処理をまとめた参加者である。AwakeでCoreの死亡状態と最大体力、Attackの個体武器値とAmmoを初期化する。各Startで体力を設定しPoolやCoordinatorを取得するが、二つのコンポーネントのStart順自体は図で保証しない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerCoreGameplay.cs",
+              "symbol": "PlayerCoreGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerAttackGameplay.cs",
+              "symbol": "PlayerAttackGameplay"
+            }
+          ]
+        },
+        "M": {
+          "description": "ProgressionとSelectionをAwakeで生成し、撃破数・メニュー状態・候補IDと定義辞書を保持する。死亡報酬を進行状態へ反映し確定値をViewへ渡す。選択IDと条件・残回数を検証して候補を解除した後、PlayerCoreへ効果を適用する。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Progression/Gameplay/LevelUpCoordinatorGameplay.cs",
+              "symbol": "LevelUpCoordinatorGameplay"
+            }
+          ]
+        },
+        "S": {
+          "description": "共有SOとSerializable設定値をまとめた領域である。初期能力値・武器設定・弾種とPrefab対応・強化定義一覧を提供する。個体は必要な初期値をコピーし、実行時体力や残弾、選択状態は共有アセットへ書き戻さない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Configuration/PlayerInitialStatsConfiguration.cs",
+              "symbol": "PlayerInitialStatsConfiguration"
+            },
+            {
+              "path": "Assets/Scripts/Combat/Configuration/WeaponDefinitionConfiguration.cs",
+              "symbol": "WeaponDefinitionConfiguration"
+            },
+            {
+              "path": "Assets/Scripts/Progression/Configuration/UpgradeCatalogConfiguration.cs",
+              "symbol": "UpgradeCatalogConfiguration"
+            },
+            {
+              "path": "Assets/Scripts/Combat/Configuration/BulletPrefabCatalogConfiguration.cs",
+              "symbol": "BulletPrefabCatalogConfiguration"
+            }
+          ]
+        },
+        "V": {
+          "description": "確定済みのレベル・経験値比率・撃破数・token・残選択回数と候補IDをUIへ描画する。定義一覧からボタンPrefabを生成し、選択ActionをBindする。再生成時には古い接続を解除して破棄し、抽選や進行の確定はCoordinatorへ委ねる。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Progression/Presentation/LevelUpViewPresentation.cs",
+              "symbol": "LevelUpViewPresentation"
+            }
+          ]
+        },
+        "P": {
+          "description": "弾種をキーにUnity ObjectPoolを保持し、カタログのPrefabから個体を生成する。生成時に共通フックを初期化し音源と返却Actionを接続する。Getは弾を有効化、Releaseは無効化するため、Fireの値と配置設定より有効化が先に起こる。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Combat/Infrastructure/BulletPoolInfrastructure.cs",
+              "symbol": "BulletPoolInfrastructure"
+            }
+          ]
+        },
+        "E": {
+          "description": "EnemyCoreとEnemyMoveのStart処理をまとめた参加者である。Coreは体力・対象・レイヤーを設定し死亡報酬をCoordinatorへ接続する。Moveは同じGameObjectのNavMeshAgentを有効化し、先にOnEnableで登録されたNavMeshデータを利用する。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Enemy/Gameplay/EnemyCoreGameplay.cs",
+              "symbol": "EnemyCoreGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Enemy/Gameplay/EnemyMoveGameplay.cs",
+              "symbol": "EnemyMoveGameplay"
+            }
+          ]
+        },
+        "R": {
+          "description": "活動中のコンポーネントから呼出元と同じシーンの対象型を探索し、一意な参照を返す静的ヘルパーである。欠落や重複は例外で診断する。Core・攻撃・照準・カメラ等が参照取得に使い、永続的なサービス状態やglobal cacheは持たない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Scene/Infrastructure/SceneReferenceResolverInfrastructure.cs",
+              "symbol": "SceneReferenceResolverInfrastructure"
+            }
+          ]
+        }
+      }
+    },
+    "architecture-sequences-2": {
+      "source": "architecture-sequences.md",
+      "summary": "射撃条件確認から弾取得・配置・残弾消費、取消可能な待機と衝突返却までを示す。攻撃待機と弾衝突は並行する。Pool取得時の有効化、配置後の発射初期化、返却判定後のDamageという現行順序を読む。",
+      "nodes": {
+        "A": {
+          "description": "PlayerAttackとEnemyAttackの発射元をまとめた参加者である。入力または距離・射線条件と個体Ammoを確認して共通Fireへ発射値を渡す。発射後はcooldownかreloadを開始し、取消可能な待機を実行する。待機と弾の衝突は独立に進む。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerAttackGameplay.cs",
+              "symbol": "PlayerAttackGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Enemy/Gameplay/EnemyAttackGameplay.cs",
+              "symbol": "EnemyAttackGameplay"
+            }
+          ]
+        },
+        "W": {
+          "description": "攻撃者ごとの容量・残弾・射撃可否・待機種類と秒数を保持するUnity非依存クラスである。発射で残弾を消費し、残弾に応じてcooldownかreloadを確定する。時間待機は攻撃側が実行し、このクラスのCompleteWaitで残弾と射撃可否を更新する。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Combat/Domain/WeaponAmmoStateDomain.cs",
+              "symbol": "WeaponAmmoStateDomain"
+            }
+          ]
+        },
+        "F": {
+          "description": "両陣営の共通発射手順を担う静的クラスである。拡散計算で発数と角度を求め、Pool.Get後に弾パラメーター・位置・向きを設定し発射初期化を呼ぶ。各弾の発射後に個体Ammoを消費し、任意の残弾通知を発行する。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Combat/Gameplay/BulletFireSequenceGameplay.cs",
+              "symbol": "BulletFireSequenceGameplay"
+            }
+          ]
+        },
+        "P": {
+          "description": "弾種をキーにUnity ObjectPoolを保持し、カタログのPrefabから個体を生成する。生成時に共通フックを初期化し音源と返却Actionを接続する。Getは弾を有効化、Releaseは無効化するため、Fireの値と配置設定より有効化が先に起こる。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Combat/Infrastructure/BulletPoolInfrastructure.cs",
+              "symbol": "BulletPoolInfrastructure"
+            }
+          ]
+        },
+        "B": {
+          "description": "Rigidbody・命中回数・寿命待機の取消トークンを持つ弾コンポーネントである。生成時に音源を注入され、発射ごとに速度・音・寿命を設定する。衝突で演出と被弾を発行し、反射上限や寿命終了でPoolへ返却、無効化で待機を取消す。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Combat/Gameplay/BulletShotGameplay.cs",
+              "symbol": "BulletShotGameplay"
+            }
+          ]
+        },
+        "D": {
+          "description": "衝突先にあるIDamageableDomain実装Coreを表す参加者である。BulletShotはTryGetComponent成功時に弾パラメーターのダメージ値を渡す。体力更新と死亡通知は敵またはプレイヤーのCoreが担当し、弾の返却判定後にこの呼出しが行われる。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Combat/Contracts/IDamageableDomain.cs",
+              "symbol": "IDamageableDomain"
+            },
+            {
+              "path": "Assets/Scripts/Enemy/Gameplay/EnemyCoreGameplay.cs",
+              "symbol": "EnemyCoreGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerCoreGameplay.cs",
+              "symbol": "PlayerCoreGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Combat/Gameplay/BulletShotGameplay.cs",
+              "symbol": "BulletShotGameplay"
+            }
+          ]
+        },
+        "UI": {
+          "description": "Coreの体力とAttackの残弾・待機状態をImageや文字へ描画する。Startで初期化した後、OnEnableで四つの通知を購読し現在値を復元する。OnDisableで購読と表示Tweenを解除し、ゲーム側の状態確定は担当しない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Presentation/PlayerStatusViewPresentation.cs",
+              "symbol": "PlayerStatusViewPresentation"
+            }
+          ]
+        }
+      }
+    },
+    "architecture-sequences-3": {
+      "source": "architecture-sequences.md",
+      "summary": "敵とプレイヤーの致死Damageと同期通知中の再入を示す。通知前の死亡確定と呼出しローカルの遷移判定により報酬・通知・演出を一度だけ発行する。敵とプレイヤーで異なる副作用順序と、死亡後被弾の無視を読む。",
+      "nodes": {
+        "Caller": {
+          "description": "CoreへDamageを呼ぶ弾や被弾呼出元を表す参加者である。実際の弾ではCollision先から被弾interfaceを取得して数値を渡す。死亡済みのCoreは以後のDamageを無視し、呼出元はCoreの体力や死亡副作用を直接確定しない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Combat/Gameplay/BulletShotGameplay.cs",
+              "symbol": "BulletShotGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Enemy/Gameplay/EnemyCoreGameplay.cs",
+              "symbol": "EnemyCoreGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerCoreGameplay.cs",
+              "symbol": "PlayerCoreGameplay"
+            }
+          ]
+        },
+        "Core": {
+          "description": "EnemyCoreとPlayerCoreの被弾処理をまとめた参加者である。致死ならHealth通知より先に死亡フラグを立て、ローカルbecameDeadでこの呼出しの副作用だけを発行する。敵は報酬・死亡通知・演出、プレイヤーは演出・死亡通知の順で最後に無効化する。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Enemy/Gameplay/EnemyCoreGameplay.cs",
+              "symbol": "EnemyCoreGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerCoreGameplay.cs",
+              "symbol": "PlayerCoreGameplay"
+            }
+          ]
+        },
+        "H": {
+          "description": "体力変更通知を同期的に受ける購読者を表す参加者である。通常UIは現在体力を読み描画するが、回帰検証では通知からDamageへ再入する経路も扱う。非致死通知から致死に至る場合は内側の呼出しだけが死亡副作用を発行する。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Presentation/PlayerStatusViewPresentation.cs",
+              "symbol": "PlayerStatusViewPresentation"
+            },
+            {
+              "path": "Assets/Scripts/Enemy/Presentation/EnemyHealthViewPresentation.cs",
+              "symbol": "EnemyHealthViewPresentation"
+            },
+            {
+              "path": "Assets/Editor/SceneGameplayTests.cs"
+            }
+          ]
+        },
+        "M": {
+          "description": "ProgressionとSelectionをAwakeで生成し、撃破数・メニュー状態・候補IDと定義辞書を保持する。死亡報酬を進行状態へ反映し確定値をViewへ渡す。選択IDと条件・残回数を検証して候補を解除した後、PlayerCoreへ効果を適用する。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Progression/Gameplay/LevelUpCoordinatorGameplay.cs",
+              "symbol": "LevelUpCoordinatorGameplay"
+            }
+          ]
+        },
+        "D": {
+          "description": "CoreのUnityEvent.OnDiedを同期的に受ける購読者を表す。実際の接続先はInspectorや外部登録で決まり、図は特定の終了画面を仮定しない。通知中にDamageへ再入しても死亡フラグは確定済みなので報酬や演出を重複発行しない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Enemy/Gameplay/EnemyCoreGameplay.cs",
+              "symbol": "EnemyCoreGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerCoreGameplay.cs",
+              "symbol": "PlayerCoreGameplay"
+            },
+            {
+              "path": "Assets/Editor/SceneGameplayTests.cs"
+            }
+          ]
+        }
+      }
+    },
+    "architecture-sequences-4": {
+      "source": "architecture-sequences.md",
+      "summary": "強化ボタンの選択IDを受け、条件と残選択回数を検証して個体能力へ効果を適用する流れを示す。効果前の候補解除、CoreからMoveとAttackへの振分、適用後の候補抽選と表示を区別し、不正選択時の終了境界を読む。",
+      "nodes": {
+        "User": {
+          "description": "画面の強化ボタンをクリックする操作主体を表す。クリックはPrefabのonClickからUpgradeへ進み、BindされたActionで選択IDがCoordinatorへ送られる。ユーザー操作が能力値を直接変更するのではなく、管理側の条件・残回数検証を通過してから適用される。",
+          "references": [
+            {
+              "path": "Assets/Prefab/UpgradeButton.prefab"
+            },
+            {
+              "path": "Assets/Scripts/Progression/Presentation/UpgradeButtonPresentation.cs",
+              "symbol": "UpgradeButtonPresentation"
+            },
+            {
+              "path": "Assets/Scripts/Progression/Gameplay/LevelUpCoordinatorGameplay.cs",
+              "symbol": "LevelUpCoordinatorGameplay"
+            }
+          ]
+        },
+        "B": {
+          "description": "強化定義のタイトルと表示列をUIへ設定し、選択IDを送るActionをBindで保持する。PrefabのButton.onClickからUpgradeが呼ばれると活動状態と定義を確認してIDを通知する。Unbindで接続を解除し、能力効果や残選択回数は変更しない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Progression/Presentation/UpgradeButtonPresentation.cs",
+              "symbol": "UpgradeButtonPresentation"
+            }
+          ]
+        },
+        "M": {
+          "description": "ProgressionとSelectionをAwakeで生成し、撃破数・メニュー状態・候補IDと定義辞書を保持する。死亡報酬を進行状態へ反映し確定値をViewへ渡す。選択IDと条件・残回数を検証して候補を解除した後、PlayerCoreへ効果を適用する。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Progression/Gameplay/LevelUpCoordinatorGameplay.cs",
+              "symbol": "LevelUpCoordinatorGameplay"
+            }
+          ]
+        },
+        "E": {
+          "description": "必要経験値の配列を複製し、経験値・レベル・強化選択可能回数を保持するUnity非依存クラスである。Gainでレベル到達を確定し、選択時に回数を消費する。Coordinatorが結果を読み取り、撃破数や表示演出はこのクラスの外で扱う。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Progression/Domain/ExperienceProgressionDomain.cs",
+              "symbol": "ExperienceProgressionDomain"
+            }
+          ]
+        },
+        "V": {
+          "description": "確定済みのレベル・経験値比率・撃破数・token・残選択回数と候補IDをUIへ描画する。定義一覧からボタンPrefabを生成し、選択ActionをBindする。再生成時には古い接続を解除して破棄し、抽選や進行の確定はCoordinatorへ委ねる。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Progression/Presentation/LevelUpViewPresentation.cs",
+              "symbol": "LevelUpViewPresentation"
+            }
+          ]
+        },
+        "P": {
+          "description": "プレイヤーの体力・最大体力と死亡状態を保持する。致死Damageでは体力通知前に死亡を確定し、死亡後の再被弾を無視する。強化値を体力・Moveの速度・Attackの武器値へ振り分け、共有設定SOへは書き戻さない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerCoreGameplay.cs",
+              "symbol": "PlayerCoreGameplay"
+            }
+          ]
+        },
+        "A": {
+          "description": "MoveとAttackの能力変更先をまとめた参加者である。PlayerCoreは強化値からMoveの速度倍率を更新し、Attackへ武器値の強化を委譲する。Attackは弾パラメーター・容量・発数・待機時間を個体側で更新し、残弾表示へ通知する。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerMoveGameplay.cs",
+              "symbol": "PlayerMoveGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerAttackGameplay.cs",
+              "symbol": "PlayerAttackGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerCoreGameplay.cs",
+              "symbol": "PlayerCoreGameplay"
+            }
+          ]
+        },
+        "S": {
+          "description": "再抽選トークンと候補抽選を扱うUnity非依存クラスである。候補IDと渡された乱数関数から重複しない三件を選ぶ。通常抽選ではtokenを使わず、TryRerollは残高と抽選成功を確認して三tokenを消費し、表示や能力適用は行わない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Progression/Domain/UpgradeCandidateSelectionDomain.cs",
+              "symbol": "UpgradeCandidateSelectionDomain"
+            }
+          ]
+        }
+      }
+    }
+  }
+}
