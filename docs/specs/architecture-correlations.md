@@ -9,23 +9,29 @@
 <!-- diagram-id: architecture-correlations-1 -->
 ```mermaid
 flowchart TB
-    Input[Unity Input：axis・mouse・Fire]
-    Move[PlayerMoveGameplay]
-    Aim[PlayerAimPointerGameplay]
-    PA[PlayerAttackGameplay]
-    EA[EnemyAttackGameplay]
-    EM[EnemyMoveGameplay]
-    EC[EnemyCoreGameplay]
-    PC[PlayerCoreGameplay]
-    Physics[Physics・Rigidbody・NavMeshAgent]
-    Ammo[各攻撃が所有するWeaponAmmoStateDomain]
-    Fire[BulletFireSequenceGameplay]
-    Spread[BulletSpreadCalculatorDomain]
-    Pool[BulletPoolInfrastructure]
-    Bullet[BulletShotGameplay]
-    PUI[PlayerStatusViewPresentation]
-    EUI[EnemyHealthViewPresentation]
-    Manager[LevelUpCoordinatorGameplay]
+    subgraph GroupFoundation["規則と共通基底"]
+        Ammo[各攻撃が所有するWeaponAmmoStateDomain]
+        Spread[BulletSpreadCalculatorDomain]
+    end
+    subgraph GroupImplementation["制御と具体実装"]
+        Move[PlayerMoveGameplay]
+        Aim[PlayerAimPointerGameplay]
+        PA[PlayerAttackGameplay]
+        EA[EnemyAttackGameplay]
+        EM[EnemyMoveGameplay]
+        EC[EnemyCoreGameplay]
+        PC[PlayerCoreGameplay]
+        Fire[BulletFireSequenceGameplay]
+        Pool[BulletPoolInfrastructure]
+        Bullet[BulletShotGameplay]
+        PUI[PlayerStatusViewPresentation]
+        EUI[EnemyHealthViewPresentation]
+        Manager[LevelUpCoordinatorGameplay]
+    end
+    subgraph GroupExternal["外部APIと検証境界"]
+        Input[Unity Input：axis・mouse・Fire]
+        Physics[Physics・Rigidbody・NavMeshAgent]
+    end
     Input -.->|移動・方向| Move
     Input -.->|Ray用mouse座標| Aim
     Input -.->|Fireフラグ| PA
@@ -63,19 +69,27 @@ flowchart TB
 <!-- diagram-id: architecture-correlations-2 -->
 ```mermaid
 flowchart LR
-    Enemy[EnemyCoreGameplay]
-    Manager[LevelUpCoordinatorGameplay]
-    Exp[ExperienceProgressionDomain]
-    Select[UpgradeCandidateSelectionDomain]
-    Catalog[UpgradeCatalogConfiguration]
-    Def[UpgradeDefinitionConfiguration]
-    View[LevelUpViewPresentation]
-    Button[UpgradeButtonPresentation]
-    Core[PlayerCoreGameplay]
-    Move[PlayerMoveGameplay]
-    Attack[PlayerAttackGameplay]
-    Random[UnityEngine.Random.Range]
-    SceneUI[シーンButton.onClick]
+    subgraph GroupFoundation["規則と共通基底"]
+        Exp[ExperienceProgressionDomain]
+        Select[UpgradeCandidateSelectionDomain]
+    end
+    subgraph GroupImplementation["制御と具体実装"]
+        Enemy[EnemyCoreGameplay]
+        Manager[LevelUpCoordinatorGameplay]
+        View[LevelUpViewPresentation]
+        Core[PlayerCoreGameplay]
+        Move[PlayerMoveGameplay]
+        Attack[PlayerAttackGameplay]
+    end
+    subgraph GroupConnection["設定と接続契約"]
+        Catalog[UpgradeCatalogConfiguration]
+        Def[UpgradeDefinitionConfiguration]
+        Button[UpgradeButtonPresentation]
+        SceneUI[シーンButton.onClick]
+    end
+    subgraph GroupExternal["外部APIと検証境界"]
+        Random[UnityEngine.Random.Range]
+    end
     Enemy -.->|Startで接続したOnDeath：経験値int| Manager
     Manager -->|Gain・選択回数消費| Exp
     Manager -->|token付与・TryDraw/TryReroll| Select

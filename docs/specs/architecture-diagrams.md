@@ -5,7 +5,20 @@
 - 確認日: 2026-10-11。対象コードHEAD: `e87e95adc3de00abba3ce10599032ec9e722c277`（R-01死亡処理完了版）。この文書を追加するコミットでもランタイムコードは同版。
 - 対象: 自作ランタイムC# 36ファイル、InGameシーン、関連Prefab・ScriptableObject（SO）。Editorの7既存テストクラスと強化一覧Inspectorは境界として扱う。
 - 作業ツリー差分: stagedのVFXシェーダーとmeta、3 URP設定、ProjectSettings、既存仕様・検証文書2件、untrackedのVfxShaderRenderingTestsとmetaを確認。ランタイムC#の未コミット変更はない。未完了V-02は描画設定/Editor検証の境界注記にのみ反映し、設計や検証済み範囲へ混入させない。
-- 原本: この文書と下記3文書のMermaidコードブロック。閲覧用SVGは同じブロックから生成する。既存の[機能責務・拡張箇所](gameplay-architecture.md)は状態所有者と拡張手順の正本、ここは図の正本。
+- 原本: この文書と下記3文書のMermaidコードブロック。役割配色は説明JSONのpresentation.rolesをビューアが適用する。既存SVGは2026-10-11時点の閲覧資料として保持し、今回の囲み・配色更新は反映しない。既存の[機能責務・拡張箇所](gameplay-architecture.md)は状態所有者と拡張手順の正本、ここは図の正本。
+
+## 責務分類と配色の凡例
+
+2026-10-12、共通CLI 1.1.0で全11図の125 leafノードへ役割を設定した。対象文書HEADは`c90020c55d42df9c3d4cae71abee223d75e6b2cd`、ランタイムコードは上記R-01版と同じ。既存V-02差分は保持した。
+
+| roles値 | 責務と囲み | 分類の例 |
+| --- | --- | --- |
+| foundation | 規則と共通基底（Foundation、暗い紫） | 純粋C#の進行・残弾・拡散ルール、自作のCore参照基底、弾の抽象基底 |
+| middle | 制御と具体実装（Implementation、中間の紫） | Core、移動・攻撃、Pool、進行管理、状態表示 |
+| surface | 設定と接続契約（Connection、明るい紫） | 被弾interface、共有設定と値型、選択IDの通知、同一シーンの参照取得 |
+| external | 外部APIと検証境界（External、中立色） | Unity基底/API、シーン配置、外部ライブラリ、Editor検証、操作主体 |
+
+囲みは責務を読み分ける説明用の分類で、asmdefや実装の名前空間、状態・寿命の共有単位を新設するものではない。シーケンス図では参加者の役割だけを設定し、既存の処理順・分岐・並行区分を保持する。色コードはハブのビューア管理とし、原本へ直接埋め込まない。[更新手順](architecture-document-workflow.md)と[検証証拠](../tasks/architecture-presentation-verification.md)を参照。
 
 | 読む順 | 提出物 | 内容 |
 | --- | --- | --- |
@@ -22,17 +35,25 @@
 <!-- diagram-id: architecture-diagrams-1 -->
 ```mermaid
 flowchart TB
-    Input[Unity Input・Physicsによる入力/衝突]
-    Game[Gameplay：Player移動/照準/体力/射撃<br/>Enemy追跡/体力/射撃<br/>Combat発射/命中・Progression報酬/強化]
-    Rules[Domain：Unity非依存の4ルール<br/>ExperienceProgression・UpgradeCandidateSelection<br/>WeaponAmmoState・BulletSpreadCalculator]
-    Config[Configuration：共有SO/値設定<br/>初期能力値・武器・弾カタログ・強化一覧/定義]
-    Infra[Infrastructure<br/>弾種別BulletPool・同一シーンSceneResolver]
-    View[Presentation<br/>体力/残弾/経験値/強化UI・カメラ・演出終了]
-    Unity[Unity lifecycle・Rigidbody・NavMesh<br/>ObjectPool・UI/TMP]
-    Async[UniTask：攻撃待機と弾寿命]
-    Tween[DOTween：表示Tween]
-    Render[URP・lilToon・VFX：描画資産境界]
-    Editor[Editor：Inspector・7既存テスト<br/>Windowsビルド入口]
+    subgraph GroupFoundation["規則と共通基底"]
+        Rules[Domain：Unity非依存の4ルール<br/>ExperienceProgression・UpgradeCandidateSelection<br/>WeaponAmmoState・BulletSpreadCalculator]
+    end
+    subgraph GroupImplementation["制御と具体実装"]
+        Game[Gameplay：Player移動/照準/体力/射撃<br/>Enemy追跡/体力/射撃<br/>Combat発射/命中・Progression報酬/強化]
+        Infra[Infrastructure<br/>弾種別BulletPool・同一シーンSceneResolver]
+        View[Presentation<br/>体力/残弾/経験値/強化UI・カメラ・演出終了]
+    end
+    subgraph GroupConnection["設定と接続契約"]
+        Config[Configuration：共有SO/値設定<br/>初期能力値・武器・弾カタログ・強化一覧/定義]
+    end
+    subgraph GroupExternal["外部APIと検証境界"]
+        Input[Unity Input・Physicsによる入力/衝突]
+        Unity[Unity lifecycle・Rigidbody・NavMesh<br/>ObjectPool・UI/TMP]
+        Async[UniTask：攻撃待機と弾寿命]
+        Tween[DOTween：表示Tween]
+        Render[URP・lilToon・VFX：描画資産境界]
+        Editor[Editor：Inspector・7既存テスト<br/>Windowsビルド入口]
+    end
     Input -->|操作/被弾| Game
     Game -->|ルール計算・個体状態| Rules
     Game -->|初期値/定義読取| Config
@@ -59,21 +80,27 @@ flowchart TB
 <!-- diagram-id: architecture-diagrams-2 -->
 ```mermaid
 flowchart LR
-    Scene[InGame.unity]
-    Coordinator[LevelUpCoordinatorGameplay]
-    View[LevelUpViewPresentation]
-    Catalog[InGameUpgrades.asset]
-    Defs[Upgrade01〜11：定義SO]
-    Button[UpgradeButton.prefab]
-    Pool[BulletPoolInfrastructure]
-    BulletCatalog[BulletPrefabCatalog.asset]
-    PB[PlayerBullet.prefab]
-    EB[EnemyBullet.prefab]
-    Player[PlayerCoreGameplayとMove/Attack]
-    Enemy[Enemy.prefabと派生Prefab]
-    Stats[PlayerInitialStatsConfiguration SO]
-    Weapon[WeaponDefinitionConfiguration SO]
-    Camera[CameraFollowPresentation]
+    subgraph GroupImplementation["制御と具体実装"]
+        Coordinator[LevelUpCoordinatorGameplay]
+        View[LevelUpViewPresentation]
+        Pool[BulletPoolInfrastructure]
+        PB[PlayerBullet.prefab]
+        EB[EnemyBullet.prefab]
+        Player[PlayerCoreGameplayとMove/Attack]
+        Enemy[Enemy.prefabと派生Prefab]
+        Camera[CameraFollowPresentation]
+    end
+    subgraph GroupConnection["設定と接続契約"]
+        Catalog[InGameUpgrades.asset]
+        Defs[Upgrade01〜11：定義SO]
+        Button[UpgradeButton.prefab]
+        BulletCatalog[BulletPrefabCatalog.asset]
+        Stats[PlayerInitialStatsConfiguration SO]
+        Weapon[WeaponDefinitionConfiguration SO]
+    end
+    subgraph GroupExternal["外部APIと検証境界"]
+        Scene[InGame.unity]
+    end
     Scene -->|Player Prefab instance配置| Player
     Scene -->|Enemy Prefab instance配置| Enemy
     Scene -->|配置| Coordinator

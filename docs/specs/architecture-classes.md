@@ -6,54 +6,64 @@
 
 ## Player/Enemy：体力・移動・攻撃・表示
 
+各図のnamespace囲みは責務の説明用で、実装のC#名前空間ではない。Foundationは規則と自作共通基底、Implementationは制御と具体実装、Connectionは設定と接続契約、ExternalはUnity基底や外部ライブラリを表す。詳細は[配色の凡例](architecture-diagrams.md#責務分類と配色の凡例)を参照。
+
 <!-- diagram-id: architecture-classes-1 -->
 ```mermaid
 classDiagram
-    class MonoBehaviour
-    class IDamageableDomain {
-      <<interface>>
-      +Damage(int)
+    namespace Foundation {
+        class PlayerComponentBaseGameplay {
+          #PlayerCoreGameplay Core
+        }
+        class EnemyComponentBaseGameplay {
+          #EnemyCoreGameplay Core
+        }
+        class WeaponAmmoStateDomain
     }
-    class PlayerCoreGameplay {
-      -bool _isDead
-      +int Health
-      +int MaxHealth
-      +Damage(int)
-      +ApplyPowerUp(UpgradeParametersConfiguration)
-      +OnHealthChanged
-      +OnDied
+    namespace Implementation {
+        class PlayerCoreGameplay {
+          -bool _isDead
+          +int Health
+          +int MaxHealth
+          +Damage(int)
+          +ApplyPowerUp(UpgradeParametersConfiguration)
+          +OnHealthChanged
+          +OnDied
+        }
+        class EnemyCoreGameplay {
+          -bool _isDead
+          +int Health
+          +Transform Target
+          +Damage(int)
+          -OnDeath
+          +OnHealthChanged
+          +OnDied
+        }
+        class PlayerMoveGameplay {
+          +float Speed
+        }
+        class PlayerAttackGameplay {
+          +ApplyPowerUp(UpgradeParametersConfiguration)
+          +OnAmmoCountChanged
+          +OnCoolDownBegin
+          +OnReloadBegin
+        }
+        class PlayerStatusViewPresentation
+        class EnemyMoveGameplay
+        class EnemyAttackGameplay
+        class EnemyHealthViewPresentation
     }
-    class EnemyCoreGameplay {
-      -bool _isDead
-      +int Health
-      +Transform Target
-      +Damage(int)
-      -OnDeath
-      +OnHealthChanged
-      +OnDied
+    namespace Connection {
+        class IDamageableDomain {
+          <<interface>>
+          +Damage(int)
+        }
+        class PlayerInitialStatsConfiguration
+        class SceneReferenceResolverInfrastructure
     }
-    class PlayerComponentBaseGameplay {
-      #PlayerCoreGameplay Core
+    namespace External {
+        class MonoBehaviour
     }
-    class EnemyComponentBaseGameplay {
-      #EnemyCoreGameplay Core
-    }
-    class PlayerMoveGameplay {
-      +float Speed
-    }
-    class PlayerAttackGameplay {
-      +ApplyPowerUp(UpgradeParametersConfiguration)
-      +OnAmmoCountChanged
-      +OnCoolDownBegin
-      +OnReloadBegin
-    }
-    class PlayerStatusViewPresentation
-    class EnemyMoveGameplay
-    class EnemyAttackGameplay
-    class EnemyHealthViewPresentation
-    class WeaponAmmoStateDomain
-    class PlayerInitialStatsConfiguration
-    class SceneReferenceResolverInfrastructure
     MonoBehaviour <|-- PlayerCoreGameplay
     MonoBehaviour <|-- EnemyCoreGameplay
     MonoBehaviour <|-- PlayerComponentBaseGameplay
@@ -85,66 +95,74 @@ classDiagram
 <!-- diagram-id: architecture-classes-2 -->
 ```mermaid
 classDiagram
-    class MonoBehaviour
-    class ScriptableObject
-    class PooledAttackBaseGameplay {
-      <<abstract>>
-      +BulletParametersConfiguration Parameter
-      +Action OnReturnToPool
-      +OnInitialize()*
-      +OnGetFromPool()*
+    namespace Foundation {
+        class PooledAttackBaseGameplay {
+          <<abstract>>
+          +BulletParametersConfiguration Parameter
+          +Action OnReturnToPool
+          +OnInitialize()*
+          +OnGetFromPool()*
+        }
+        class WeaponAmmoStateDomain {
+          +int Capacity
+          +int RemainingAmmo
+          +bool IsReady
+          +WeaponWaitKindDomain PendingWait
+          +TryConsumeShot() bool
+          +StartWait() WeaponWaitKindDomain
+          +CompleteWait() bool
+        }
+        class BulletSpreadCalculatorDomain {
+          <<static>>
+          +GetShotCount()
+          +GetAngle()
+        }
     }
-    class BulletShotGameplay {
-      -int _hitCount
-      -CancellationTokenSource _cts
-      +SetAudioSource(AudioSource)
-      +OnInitialize()
-      +OnGetFromPool()
+    namespace Implementation {
+        class BulletShotGameplay {
+          -int _hitCount
+          -CancellationTokenSource _cts
+          +SetAudioSource(AudioSource)
+          +OnInitialize()
+          +OnGetFromPool()
+        }
+        class BulletPoolInfrastructure {
+          +Get(BulletTypeDomain)
+        }
+        class BulletFireSequenceGameplay {
+          <<static>>
+          +Fire()
+        }
     }
-    class BulletPoolInfrastructure {
-      +Get(BulletTypeDomain)
+    namespace Connection {
+        class BulletPrefabCatalogConfiguration {
+          +Mappings
+          +GetGameObject(BulletTypeDomain)
+        }
+        class BulletPrefabMappingConfiguration {
+          <<struct>>
+          +BulletTypeDomain Type
+          +GameObject Prefab
+        }
+        class WeaponDefinitionConfiguration
+        class BulletParametersConfiguration {
+          <<struct>>
+          +int Damage
+          +float Speed
+          +float Duration
+          +int RicochetCount
+        }
+        class IDamageableDomain {
+          <<interface>>
+          +Damage(int)
+        }
     }
-    class BulletPrefabCatalogConfiguration {
-      +Mappings
-      +GetGameObject(BulletTypeDomain)
-    }
-    class BulletPrefabMappingConfiguration {
-      <<struct>>
-      +BulletTypeDomain Type
-      +GameObject Prefab
-    }
-    class WeaponDefinitionConfiguration
-    class BulletParametersConfiguration {
-      <<struct>>
-      +int Damage
-      +float Speed
-      +float Duration
-      +int RicochetCount
-    }
-    class WeaponAmmoStateDomain {
-      +int Capacity
-      +int RemainingAmmo
-      +bool IsReady
-      +WeaponWaitKindDomain PendingWait
-      +TryConsumeShot() bool
-      +StartWait() WeaponWaitKindDomain
-      +CompleteWait() bool
-    }
-    class BulletFireSequenceGameplay {
-      <<static>>
-      +Fire()
-    }
-    class BulletSpreadCalculatorDomain {
-      <<static>>
-      +GetShotCount()
-      +GetAngle()
-    }
-    class ObjectPool {
-      <<UnityLibrary>>
-    }
-    class IDamageableDomain {
-      <<interface>>
-      +Damage(int)
+    namespace External {
+        class MonoBehaviour
+        class ScriptableObject
+        class ObjectPool {
+          <<UnityLibrary>>
+        }
     }
     MonoBehaviour <|-- PooledAttackBaseGameplay
     PooledAttackBaseGameplay <|-- BulletShotGameplay
@@ -171,55 +189,63 @@ classDiagram
 <!-- diagram-id: architecture-classes-3 -->
 ```mermaid
 classDiagram
-    class MonoBehaviour
-    class ScriptableObject
-    class LevelUpCoordinatorGameplay {
-      -int _killCount
-      -bool _isMenuActivated
-      -int[] _selectedIds
-      +GainExperience(int)
-      +TryReroll()
-      -SelectUpgrade(int)
+    namespace Foundation {
+        class ExperienceProgressionDomain {
+          +int Level
+          +int AvailableUpgradeCount
+          +Gain(int) int
+          +TrySpendUpgradeChoice() bool
+        }
+        class UpgradeCandidateSelectionDomain {
+          +int RerollTokens
+          +TryDraw() bool
+          +TryReroll() bool
+        }
     }
-    class ExperienceProgressionDomain {
-      +int Level
-      +int AvailableUpgradeCount
-      +Gain(int) int
-      +TrySpendUpgradeChoice() bool
+    namespace Implementation {
+        class LevelUpCoordinatorGameplay {
+          -int _killCount
+          -bool _isMenuActivated
+          -int[] _selectedIds
+          +GainExperience(int)
+          +TryReroll()
+          -SelectUpgrade(int)
+        }
+        class LevelUpViewPresentation {
+          +CreateButtons()
+          +ShowCandidates()
+          +ShowProgress()
+        }
+        class PlayerCoreGameplay
     }
-    class UpgradeCandidateSelectionDomain {
-      +int RerollTokens
-      +TryDraw() bool
-      +TryReroll() bool
+    namespace Connection {
+        class UpgradeButtonPresentation {
+          +Bind()
+          +Unbind()
+          +Upgrade()
+        }
+        class UpgradeCatalogConfiguration {
+          +CreateSnapshot()
+        }
+        class UpgradeDefinitionConfiguration {
+          +int Id
+          +string Title
+          +UpgradeParametersConfiguration Effect
+          +IsEligible(int) bool
+        }
+        class UpgradeParametersConfiguration {
+          <<struct>>
+        }
+        class DisplayColumnConfiguration {
+          <<struct>>
+          +string Label
+          +string Value
+        }
     }
-    class LevelUpViewPresentation {
-      +CreateButtons()
-      +ShowCandidates()
-      +ShowProgress()
+    namespace External {
+        class MonoBehaviour
+        class ScriptableObject
     }
-    class UpgradeButtonPresentation {
-      +Bind()
-      +Unbind()
-      +Upgrade()
-    }
-    class UpgradeCatalogConfiguration {
-      +CreateSnapshot()
-    }
-    class UpgradeDefinitionConfiguration {
-      +int Id
-      +string Title
-      +UpgradeParametersConfiguration Effect
-      +IsEligible(int) bool
-    }
-    class UpgradeParametersConfiguration {
-      <<struct>>
-    }
-    class DisplayColumnConfiguration {
-      <<struct>>
-      +string Label
-      +string Value
-    }
-    class PlayerCoreGameplay
     MonoBehaviour <|-- LevelUpCoordinatorGameplay
     MonoBehaviour <|-- LevelUpViewPresentation
     MonoBehaviour <|-- UpgradeButtonPresentation

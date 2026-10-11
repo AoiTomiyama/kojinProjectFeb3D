@@ -185,6 +185,159 @@
               "path": "docs/tasks/death-once-verification.md"
             }
           ]
+        },
+        "GroupFoundation": {
+          "description": "経験値進行・候補抽選・残弾待機・拡散計算の四つのDomainルールをまとめる囲みである。Gameplayから値や乱数関数を受け取り、個体状態の更新や計算結果を返す。物理操作やUI描画はこの囲みの外にある。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Progression/Domain/ExperienceProgressionDomain.cs",
+              "symbol": "ExperienceProgressionDomain"
+            },
+            {
+              "path": "Assets/Scripts/Progression/Domain/UpgradeCandidateSelectionDomain.cs",
+              "symbol": "UpgradeCandidateSelectionDomain"
+            },
+            {
+              "path": "Assets/Scripts/Combat/Domain/WeaponAmmoStateDomain.cs",
+              "symbol": "WeaponAmmoStateDomain"
+            },
+            {
+              "path": "Assets/Scripts/Combat/Domain/BulletSpreadCalculatorDomain.cs",
+              "symbol": "BulletSpreadCalculatorDomain"
+            }
+          ]
+        },
+        "GroupImplementation": {
+          "description": "個体の制御、弾Poolと参照探索、通知や確定値に基づく表示をまとめる囲みである。Gameplay・Infrastructure・Presentationの既存ノードを分類しており、処理や状態を一つの管理クラスへ統合したことを表すものではない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerCoreGameplay.cs",
+              "symbol": "PlayerCoreGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Enemy/Gameplay/EnemyCoreGameplay.cs",
+              "symbol": "EnemyCoreGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Combat/Gameplay/BulletFireSequenceGameplay.cs",
+              "symbol": "BulletFireSequenceGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Progression/Gameplay/LevelUpCoordinatorGameplay.cs",
+              "symbol": "LevelUpCoordinatorGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Combat/Infrastructure/BulletPoolInfrastructure.cs",
+              "symbol": "BulletPoolInfrastructure"
+            },
+            {
+              "path": "Assets/Scripts/Scene/Infrastructure/SceneReferenceResolverInfrastructure.cs",
+              "symbol": "SceneReferenceResolverInfrastructure"
+            },
+            {
+              "path": "Assets/Scripts/Player/Presentation/PlayerStatusViewPresentation.cs",
+              "symbol": "PlayerStatusViewPresentation"
+            },
+            {
+              "path": "Assets/Scripts/Progression/Presentation/LevelUpViewPresentation.cs",
+              "symbol": "LevelUpViewPresentation"
+            },
+            {
+              "path": "Assets/Scripts/Camera/Presentation/CameraFollowPresentation.cs",
+              "symbol": "CameraFollowPresentation"
+            },
+            {
+              "path": "Assets/Scripts/Effects/Presentation/EffectSelfDestructionPresentation.cs",
+              "symbol": "EffectSelfDestructionPresentation"
+            }
+          ]
+        },
+        "GroupConnection": {
+          "description": "初期能力値・武器・弾カタログ・強化一覧と定義の共有設定をまとめる囲みである。個体は必要な初期値をコピーし、設定を参照して動作する。体力や残弾などの実行時状態を共有アセットへ書き戻さない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Configuration/PlayerInitialStatsConfiguration.cs",
+              "symbol": "PlayerInitialStatsConfiguration"
+            },
+            {
+              "path": "Assets/Scripts/Combat/Configuration/WeaponDefinitionConfiguration.cs",
+              "symbol": "WeaponDefinitionConfiguration"
+            },
+            {
+              "path": "Assets/Scripts/Combat/Configuration/BulletPrefabCatalogConfiguration.cs",
+              "symbol": "BulletPrefabCatalogConfiguration"
+            },
+            {
+              "path": "Assets/Scripts/Progression/Configuration/UpgradeCatalogConfiguration.cs",
+              "symbol": "UpgradeCatalogConfiguration"
+            }
+          ]
+        },
+        "GroupExternal": {
+          "description": "Unityの入力・物理・寿命管理・UI、非同期待機と表示補間、描画資産とEditor検証の境界をまとめる囲みである。ランタイムが利用する外部APIと開発時の検証を区別し、個体のゲーム状態を所有する自作クラスとは分けて示す。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerMoveGameplay.cs",
+              "symbol": "PlayerMoveGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerAimPointerGameplay.cs",
+              "symbol": "PlayerAimPointerGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerAttackGameplay.cs",
+              "symbol": "PlayerAttackGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Combat/Gameplay/BulletShotGameplay.cs",
+              "symbol": "BulletShotGameplay"
+            },
+            {
+              "path": "docs/specs/architecture-script-catalog.md"
+            },
+            {
+              "path": "Assets/Scripts/Enemy/Gameplay/EnemyAttackGameplay.cs",
+              "symbol": "EnemyAttackGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Progression/Presentation/LevelUpViewPresentation.cs",
+              "symbol": "LevelUpViewPresentation"
+            },
+            {
+              "path": "Assets/Scripts/Player/Presentation/PlayerStatusViewPresentation.cs",
+              "symbol": "PlayerStatusViewPresentation"
+            },
+            {
+              "path": "Packages/manifest.json"
+            },
+            {
+              "path": "docs/specs/gameplay-architecture.md"
+            },
+            {
+              "path": "Assets/Editor/UpgradeCatalogEditorInfrastructure.cs"
+            },
+            {
+              "path": "Assets/Editor/ProjectAssetReferenceTests.cs"
+            },
+            {
+              "path": "docs/tasks/death-once-verification.md"
+            }
+          ]
+        }
+      },
+      "presentation": {
+        "roles": {
+          "Rules": "foundation",
+          "Game": "middle",
+          "Infra": "middle",
+          "View": "middle",
+          "Config": "surface",
+          "Input": "external",
+          "Unity": "external",
+          "Async": "external",
+          "Tween": "external",
+          "Render": "external",
+          "Editor": "external"
         }
       }
     },
@@ -329,6 +482,100 @@
               "symbol": "CameraFollowPresentation"
             }
           ]
+        },
+        "GroupImplementation": {
+          "description": "シーンに配置される進行管理・表示・Pool・プレイヤー・敵・カメラと、Poolが生成する弾Prefabをまとめる囲みである。各個体の参照配線と実行時処理を示しており、囲み自体が生成や寿命を管理するわけではない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Progression/Gameplay/LevelUpCoordinatorGameplay.cs",
+              "symbol": "LevelUpCoordinatorGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Progression/Presentation/LevelUpViewPresentation.cs",
+              "symbol": "LevelUpViewPresentation"
+            },
+            {
+              "path": "Assets/Scripts/Combat/Infrastructure/BulletPoolInfrastructure.cs",
+              "symbol": "BulletPoolInfrastructure"
+            },
+            {
+              "path": "Assets/Prefab/PlayerBullet.prefab"
+            },
+            {
+              "path": "Assets/Prefab/EnemyBullet.prefab"
+            },
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerCoreGameplay.cs",
+              "symbol": "PlayerCoreGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerMoveGameplay.cs",
+              "symbol": "PlayerMoveGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerAttackGameplay.cs",
+              "symbol": "PlayerAttackGameplay"
+            },
+            {
+              "path": "Assets/Prefab/Player.prefab"
+            },
+            {
+              "path": "Assets/Prefab/Enemy.prefab"
+            },
+            {
+              "path": "Assets/Scripts/Camera/Presentation/CameraFollowPresentation.cs",
+              "symbol": "CameraFollowPresentation"
+            }
+          ]
+        },
+        "GroupConnection": {
+          "description": "強化一覧と定義、弾種カタログ、初期能力値と武器設定、選択を通知するボタンPrefabをまとめる囲みである。設定参照や選択IDの受渡しを担い、ゲーム側の個体状態の確定や能力適用とは区別する。",
+          "references": [
+            {
+              "path": "Assets/GameData/Progression/InGameUpgrades.asset"
+            },
+            {
+              "path": "Assets/Prefab/UpgradeButton.prefab"
+            },
+            {
+              "path": "Assets/GameData/Combat/BulletPrefabCatalog.asset"
+            },
+            {
+              "path": "Assets/Scripts/Player/Configuration/PlayerInitialStatsConfiguration.cs",
+              "symbol": "PlayerInitialStatsConfiguration"
+            },
+            {
+              "path": "Assets/Scripts/Combat/Configuration/WeaponDefinitionConfiguration.cs",
+              "symbol": "WeaponDefinitionConfiguration"
+            }
+          ]
+        },
+        "GroupExternal": {
+          "description": "UnityのInGameシーンを参照配線の起点として示す囲みである。シーンはPrefab個体や管理・表示・Pool・カメラを配置する。ゲーム側が参照を取得する元であり、新しいランタイム管理クラスを表すものではない。",
+          "references": [
+            {
+              "path": "Assets/Scenes/InGame.unity"
+            }
+          ]
+        }
+      },
+      "presentation": {
+        "roles": {
+          "Coordinator": "middle",
+          "View": "middle",
+          "Pool": "middle",
+          "PB": "middle",
+          "EB": "middle",
+          "Player": "middle",
+          "Enemy": "middle",
+          "Camera": "middle",
+          "Catalog": "surface",
+          "Defs": "surface",
+          "Button": "surface",
+          "BulletCatalog": "surface",
+          "Stats": "surface",
+          "Weapon": "surface",
+          "Scene": "external"
         }
       }
     },
@@ -470,6 +717,25 @@
             }
           ]
         }
+      },
+      "presentation": {
+        "roles": {
+          "PlayerComponentBaseGameplay": "foundation",
+          "EnemyComponentBaseGameplay": "foundation",
+          "WeaponAmmoStateDomain": "foundation",
+          "PlayerCoreGameplay": "middle",
+          "EnemyCoreGameplay": "middle",
+          "PlayerMoveGameplay": "middle",
+          "PlayerAttackGameplay": "middle",
+          "PlayerStatusViewPresentation": "middle",
+          "EnemyMoveGameplay": "middle",
+          "EnemyAttackGameplay": "middle",
+          "EnemyHealthViewPresentation": "middle",
+          "IDamageableDomain": "surface",
+          "PlayerInitialStatsConfiguration": "surface",
+          "SceneReferenceResolverInfrastructure": "surface",
+          "MonoBehaviour": "external"
+        }
       }
     },
     "architecture-classes-2": {
@@ -600,6 +866,24 @@
             }
           ]
         }
+      },
+      "presentation": {
+        "roles": {
+          "PooledAttackBaseGameplay": "foundation",
+          "WeaponAmmoStateDomain": "foundation",
+          "BulletSpreadCalculatorDomain": "foundation",
+          "BulletShotGameplay": "middle",
+          "BulletPoolInfrastructure": "middle",
+          "BulletFireSequenceGameplay": "middle",
+          "BulletPrefabCatalogConfiguration": "surface",
+          "BulletPrefabMappingConfiguration": "surface",
+          "WeaponDefinitionConfiguration": "surface",
+          "BulletParametersConfiguration": "surface",
+          "IDamageableDomain": "surface",
+          "MonoBehaviour": "external",
+          "ScriptableObject": "external",
+          "ObjectPool": "external"
+        }
       }
     },
     "architecture-classes-3": {
@@ -711,6 +995,22 @@
               "symbol": "PlayerCoreGameplay"
             }
           ]
+        }
+      },
+      "presentation": {
+        "roles": {
+          "ExperienceProgressionDomain": "foundation",
+          "UpgradeCandidateSelectionDomain": "foundation",
+          "LevelUpCoordinatorGameplay": "middle",
+          "LevelUpViewPresentation": "middle",
+          "PlayerCoreGameplay": "middle",
+          "UpgradeButtonPresentation": "surface",
+          "UpgradeCatalogConfiguration": "surface",
+          "UpgradeDefinitionConfiguration": "surface",
+          "UpgradeParametersConfiguration": "surface",
+          "DisplayColumnConfiguration": "surface",
+          "MonoBehaviour": "external",
+          "ScriptableObject": "external"
         }
       }
     },
@@ -890,6 +1190,122 @@
               "symbol": "LevelUpCoordinatorGameplay"
             }
           ]
+        },
+        "GroupFoundation": {
+          "description": "各攻撃が所有する残弾と待機状態、および状態を持たない拡散計算をまとめる囲みである。攻撃側や共通発射手順がこれらを利用し、実際の時間待機・Transform操作・表示はそれぞれの具体実装が行う。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Combat/Domain/WeaponAmmoStateDomain.cs",
+              "symbol": "WeaponAmmoStateDomain"
+            },
+            {
+              "path": "Assets/Scripts/Combat/Domain/BulletSpreadCalculatorDomain.cs",
+              "symbol": "BulletSpreadCalculatorDomain"
+            }
+          ]
+        },
+        "GroupImplementation": {
+          "description": "移動・照準・攻撃・体力・発射・Pool・弾・表示・進行管理の具体実装をまとめる囲みである。既存の呼出しと通知による関係を示し、各個体の状態や購読をこの囲みが一括で所有するわけではない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerMoveGameplay.cs",
+              "symbol": "PlayerMoveGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerAimPointerGameplay.cs",
+              "symbol": "PlayerAimPointerGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerAttackGameplay.cs",
+              "symbol": "PlayerAttackGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Enemy/Gameplay/EnemyAttackGameplay.cs",
+              "symbol": "EnemyAttackGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Enemy/Gameplay/EnemyMoveGameplay.cs",
+              "symbol": "EnemyMoveGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Enemy/Gameplay/EnemyCoreGameplay.cs",
+              "symbol": "EnemyCoreGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerCoreGameplay.cs",
+              "symbol": "PlayerCoreGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Combat/Gameplay/BulletFireSequenceGameplay.cs",
+              "symbol": "BulletFireSequenceGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Combat/Infrastructure/BulletPoolInfrastructure.cs",
+              "symbol": "BulletPoolInfrastructure"
+            },
+            {
+              "path": "Assets/Scripts/Combat/Gameplay/BulletShotGameplay.cs",
+              "symbol": "BulletShotGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Player/Presentation/PlayerStatusViewPresentation.cs",
+              "symbol": "PlayerStatusViewPresentation"
+            },
+            {
+              "path": "Assets/Scripts/Enemy/Presentation/EnemyHealthViewPresentation.cs",
+              "symbol": "EnemyHealthViewPresentation"
+            },
+            {
+              "path": "Assets/Scripts/Progression/Gameplay/LevelUpCoordinatorGameplay.cs",
+              "symbol": "LevelUpCoordinatorGameplay"
+            }
+          ]
+        },
+        "GroupExternal": {
+          "description": "Unityの入力と物理・移動APIをまとめる囲みである。操作値は移動・照準・射撃へ渡り、PhysicsやRigidbody、NavMeshAgentは感知や移動の処理に使われる。独立した自作入力管理クラスを追加したことは表さない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerMoveGameplay.cs",
+              "symbol": "PlayerMoveGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerAimPointerGameplay.cs",
+              "symbol": "PlayerAimPointerGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerAttackGameplay.cs",
+              "symbol": "PlayerAttackGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Enemy/Gameplay/EnemyMoveGameplay.cs",
+              "symbol": "EnemyMoveGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Enemy/Gameplay/EnemyAttackGameplay.cs",
+              "symbol": "EnemyAttackGameplay"
+            }
+          ]
+        }
+      },
+      "presentation": {
+        "roles": {
+          "Ammo": "foundation",
+          "Spread": "foundation",
+          "Move": "middle",
+          "Aim": "middle",
+          "PA": "middle",
+          "EA": "middle",
+          "EM": "middle",
+          "EC": "middle",
+          "PC": "middle",
+          "Fire": "middle",
+          "Pool": "middle",
+          "Bullet": "middle",
+          "PUI": "middle",
+          "EUI": "middle",
+          "Manager": "middle",
+          "Input": "external",
+          "Physics": "external"
         }
       }
     },
@@ -1020,6 +1436,102 @@
               "symbol": "LevelUpCoordinatorGameplay"
             }
           ]
+        },
+        "GroupFoundation": {
+          "description": "経験値・レベル・選択可能回数を扱う進行ルールと、再抽選トークン・候補抽選を扱うルールをまとめる囲みである。Coordinatorが状態を所有して結果を読み取り、表示やプレイヤーへの効果適用は囲みの外で行う。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Progression/Domain/ExperienceProgressionDomain.cs",
+              "symbol": "ExperienceProgressionDomain"
+            },
+            {
+              "path": "Assets/Scripts/Progression/Domain/UpgradeCandidateSelectionDomain.cs",
+              "symbol": "UpgradeCandidateSelectionDomain"
+            }
+          ]
+        },
+        "GroupImplementation": {
+          "description": "死亡報酬を渡す敵、進行と選択を管理するCoordinator、確定値を描画するView、強化先のCore・Move・Attackをまとめる囲みである。各実装は既存の通知と呼出しでつながり、状態を新しい共通管理へ移したことは表さない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Enemy/Gameplay/EnemyCoreGameplay.cs",
+              "symbol": "EnemyCoreGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Progression/Gameplay/LevelUpCoordinatorGameplay.cs",
+              "symbol": "LevelUpCoordinatorGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Progression/Presentation/LevelUpViewPresentation.cs",
+              "symbol": "LevelUpViewPresentation"
+            },
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerCoreGameplay.cs",
+              "symbol": "PlayerCoreGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerMoveGameplay.cs",
+              "symbol": "PlayerMoveGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Player/Gameplay/PlayerAttackGameplay.cs",
+              "symbol": "PlayerAttackGameplay"
+            }
+          ]
+        },
+        "GroupConnection": {
+          "description": "共有強化カタログと定義、選択IDを返す動的ボタン、再抽選やメニュー操作のシーンUIをまとめる囲みである。設定の読取と操作の接続を示し、残回数やトークンの消費、能力適用の判断はCoordinator側にある。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Progression/Configuration/UpgradeCatalogConfiguration.cs",
+              "symbol": "UpgradeCatalogConfiguration"
+            },
+            {
+              "path": "Assets/Scripts/Progression/Configuration/UpgradeDefinitionConfiguration.cs",
+              "symbol": "UpgradeDefinitionConfiguration"
+            },
+            {
+              "path": "Assets/Scripts/Progression/Presentation/UpgradeButtonPresentation.cs",
+              "symbol": "UpgradeButtonPresentation"
+            },
+            {
+              "path": "Assets/Scenes/InGame.unity"
+            },
+            {
+              "path": "Assets/Scripts/Progression/Gameplay/LevelUpCoordinatorGameplay.cs",
+              "symbol": "LevelUpCoordinatorGameplay"
+            }
+          ]
+        },
+        "GroupExternal": {
+          "description": "候補抽選に渡すUnityEngine.Random.Rangeを示す囲みである。Coordinatorが乱数関数をSelectionへ渡し、Selectionは指定範囲の添字を使って候補を抽選する。乱数API自体がトークンや選択回数を所有するわけではない。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Progression/Gameplay/LevelUpCoordinatorGameplay.cs",
+              "symbol": "LevelUpCoordinatorGameplay"
+            },
+            {
+              "path": "Assets/Scripts/Progression/Domain/UpgradeCandidateSelectionDomain.cs",
+              "symbol": "UpgradeCandidateSelectionDomain"
+            }
+          ]
+        }
+      },
+      "presentation": {
+        "roles": {
+          "Exp": "foundation",
+          "Select": "foundation",
+          "Enemy": "middle",
+          "Manager": "middle",
+          "View": "middle",
+          "Core": "middle",
+          "Move": "middle",
+          "Attack": "middle",
+          "Catalog": "surface",
+          "Def": "surface",
+          "Button": "surface",
+          "SceneUI": "surface",
+          "Random": "external"
         }
       }
     },
@@ -1121,6 +1633,18 @@
             }
           ]
         }
+      },
+      "presentation": {
+        "roles": {
+          "C": "middle",
+          "M": "middle",
+          "V": "middle",
+          "P": "middle",
+          "E": "middle",
+          "S": "surface",
+          "R": "surface",
+          "U": "external"
+        }
       }
     },
     "architecture-sequences-2": {
@@ -1206,6 +1730,17 @@
             }
           ]
         }
+      },
+      "presentation": {
+        "roles": {
+          "W": "foundation",
+          "A": "middle",
+          "F": "middle",
+          "P": "middle",
+          "B": "middle",
+          "D": "middle",
+          "UI": "middle"
+        }
       }
     },
     "architecture-sequences-3": {
@@ -1282,6 +1817,15 @@
               "path": "Assets/Editor/SceneGameplayTests.cs"
             }
           ]
+        }
+      },
+      "presentation": {
+        "roles": {
+          "Caller": "middle",
+          "Core": "middle",
+          "M": "middle",
+          "H": "surface",
+          "D": "surface"
         }
       }
     },
@@ -1375,6 +1919,18 @@
               "symbol": "UpgradeCandidateSelectionDomain"
             }
           ]
+        }
+      },
+      "presentation": {
+        "roles": {
+          "E": "foundation",
+          "S": "foundation",
+          "M": "middle",
+          "V": "middle",
+          "P": "middle",
+          "A": "middle",
+          "B": "surface",
+          "User": "external"
         }
       }
     }
