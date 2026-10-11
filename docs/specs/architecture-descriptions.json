@@ -3,7 +3,7 @@
   "diagrams": {
     "architecture-diagrams-1": {
       "source": "architecture-diagrams.md",
-      "summary": "自作ランタイムの主要機能をGameplay・Domain・設定・Infrastructure・表示の境界で示す。入力や被弾からルール計算と表示へ進む依存と、Unity・UniTask・DOTween・描画資産・Editor検証の境界を読む概要図である。",
+      "summary": "自作ランタイムの主要機能をGameplay・Domain・設定・Infrastructure・表示に分けて示す概要図である。入力や被弾からルール計算と表示へ進む依存関係と、Unity・UniTask・DOTween・描画資産・Editor検証との境界を示す。",
       "nodes": {
         "Input": {
           "description": "Unityの入力と物理衝突を集約した入口である。入力軸・マウス位置・Fire操作を移動や照準・攻撃へ渡し、弾のCollisionはCoreの被弾につながる。図は外部APIとゲーム処理の境界を示し、独立した自作入力管理クラスを表すものではない。",
@@ -90,7 +90,7 @@
           ]
         },
         "Infra": {
-          "description": "弾種ごとの再利用Poolと同一シーン一意参照の取得処理をまとめた領域である。Poolは弾個体を生成して初期化と返却を接続し、Resolverは活動中の必要参照を診断する。両者は別コンポーネント・ヘルパーで、共通の永続サービス状態は持たない。",
+          "description": "弾種ごとの再利用Poolと同一シーンの参照を一意に取得する処理をまとめた領域である。Poolは弾個体を生成して初期化と返却を接続し、Resolverは活動中の必要参照を診断する。両者はそれぞれ別のコンポーネントとヘルパーで、共通の永続サービス状態は持たない。",
           "references": [
             {
               "path": "Assets/Scripts/Combat/Infrastructure/BulletPoolInfrastructure.cs",
@@ -103,7 +103,7 @@
           ]
         },
         "View": {
-          "description": "体力・残弾・進行値の表示、動的強化ボタン、カメラ追従と演出終了をまとめた表示領域である。CoreやAttackの通知を購読する表示と、Coordinatorから直接結果を渡される表示がある。UIは選択IDを返し、経験値や残弾の状態確定は行わない。",
+          "description": "体力・残弾・進行値の表示、動的強化ボタン、カメラ追従と演出の終了処理をまとめた表示領域である。CoreやAttackの通知を購読する表示と、Coordinatorから直接結果を渡される表示がある。UIは選択IDを返し、経験値や残弾の状態確定は行わない。",
           "references": [
             {
               "path": "Assets/Scripts/Player/Presentation/PlayerStatusViewPresentation.cs",
@@ -190,7 +190,7 @@
     },
     "architecture-diagrams-2": {
       "source": "architecture-diagrams.md",
-      "summary": "InGameシーン、プレイヤーと敵のPrefab、弾と強化の設定SOの参照配線を示す。Inspector参照・同じGameObjectの取得・シーン一意探索・動的生成を区別し、共有アセットと個体の実行時状態が別であることを読む。",
+      "summary": "InGameシーン、プレイヤーと敵のPrefab、弾と強化の設定SOの参照配線を示す。Inspector参照・同じGameObjectの取得・シーン一意探索・動的生成を区別し、共有アセットと個体の実行時状態が別であることを示す。",
       "nodes": {
         "Scene": {
           "description": "InGameは有効なビルド対象シーンで、PlayerとEnemyのPrefab個体、強化管理と表示、弾Pool、カメラを配置する。InspectorのSO・UI・音源参照とPrefabのコンポーネント配線を組み合わせ、ゲーム起動時の参照取得元になる。",
@@ -252,7 +252,7 @@
           ]
         },
         "BulletCatalog": {
-          "description": "シーンのPoolが参照する弾種とPrefabの対応SOである。Type0はPlayerBullet、Type1はEnemyBulletのPrefab参照を持つ。Poolはこの一覧から種類別の再利用プールを作成し、取得する種類は各Attackが発射時に指定する。",
+          "description": "シーンのPoolが参照する弾種とPrefabの対応SOである。Type0はPlayerBullet、Type1はEnemyBulletのPrefab参照を持つ。Poolはこの一覧から種類別の再利用プールを作成し、取得する弾種は各Attackが発射時に指定する。",
           "references": [
             {
               "path": "Assets/GameData/Combat/BulletPrefabCatalog.asset"
@@ -276,7 +276,7 @@
           ]
         },
         "Player": {
-          "description": "同じGameObjectのPlayerCore・Move・Attackをまとめたノードである。Coreは体力と死亡状態、Moveは速度、Attackは個体武器値とAmmoを保持する。Coreが移動・攻撃へ強化を振り分け、シーンの管理側は一意探索でCoreを参照する。",
+          "description": "同じGameObjectにあるPlayerCore・Move・Attackをまとめたノードである。Coreは体力と死亡状態、Moveは速度、Attackは個体武器値とAmmoを保持する。Coreが移動・攻撃へ強化を振り分け、シーンの管理側は一意探索でCoreを参照する。",
           "references": [
             {
               "path": "Assets/Scripts/Player/Gameplay/PlayerCoreGameplay.cs",
@@ -296,7 +296,7 @@
           ]
         },
         "Enemy": {
-          "description": "敵Core・Move・Attackと関連表示を構成する基底Prefabと派生Prefabの集約である。Coreは同一シーンのPlayerを追跡対象に、Coordinatorを死亡報酬の通知先に取得する。Attackの武器SOとMoveのNavMeshAgentは敵個体の処理を支える。",
+          "description": "敵Core・Move・Attackと関連表示を構成する基底Prefabと派生Prefabの集約である。Coreは同一シーンのPlayerを追跡対象として、Coordinatorを死亡報酬の通知先として取得する。Attackの武器SOとMoveのNavMeshAgentは敵個体の処理を支える。",
           "references": [
             {
               "path": "Assets/Prefab/Enemy.prefab"
@@ -334,7 +334,7 @@
     },
     "architecture-classes-1": {
       "source": "architecture-classes.md",
-      "summary": "プレイヤーと敵の体力・操作・表示の主要クラスを示す。MonoBehaviour継承、共通Core参照基底、被弾interface実装と個体Ammo所有を区別し、死亡ラッチや通知がどの個体に属するかを読む。",
+      "summary": "プレイヤーと敵の体力・操作・表示の主要クラスを示す。MonoBehaviour継承、Core参照を共通化する基底、被弾interfaceの実装、個体ごとのAmmo所有関係を区別し、死亡ラッチや通知がどの個体に属するかを示す。",
       "nodes": {
         "MonoBehaviour": {
           "description": "UnityがGameObjectに配置された自作コンポーネントのAwake・Start・Update・有効化と無効化を呼ぶ共通基底である。図ではCoreや操作・表示・Poolの継承先を示す。体力や残弾は各派生型が所有し、共通基底に共有ゲーム状態を置くものではない。",
@@ -363,7 +363,7 @@
           ]
         },
         "EnemyCoreGameplay": {
-          "description": "敵の体力・死亡状態、追跡対象、射程とプレイヤーのレイヤーを保持する。Startで同一シーンのプレイヤーと強化管理を取得し死亡報酬を接続する。致死通知前の死亡確定により、報酬や死亡通知からの再入でも副作用を重複させない。",
+          "description": "敵の体力・死亡状態、追跡対象、射程とプレイヤーのレイヤーを保持する。Startで同一シーンのプレイヤーと強化管理を取得し死亡報酬を接続する。致死Damageでは通知前に死亡を確定するため、報酬や死亡通知からの再入でも副作用を重複させない。",
           "references": [
             {
               "path": "Assets/Scripts/Enemy/Gameplay/EnemyCoreGameplay.cs",
@@ -474,7 +474,7 @@
     },
     "architecture-classes-2": {
       "source": "architecture-classes.md",
-      "summary": "共通発射手順、弾パラメーター、弾種カタログと再利用Poolのクラス関係を示す。値型の所有、SO参照、Unity ObjectPoolと抽象弾フック、被弾interface利用の関係を区別し、配置と有効化の境界を読む。",
+      "summary": "共通発射手順、弾パラメーター、弾種カタログと再利用Poolのクラス関係を示す。値型の所有、SO参照、Unity ObjectPoolと抽象弾フック、被弾interfaceの利用関係を区別し、配置と有効化の境界を示す。",
       "nodes": {
         "MonoBehaviour": {
           "description": "UnityがGameObjectに配置された自作コンポーネントのAwake・Start・Update・有効化と無効化を呼ぶ共通基底である。図ではCoreや操作・表示・Poolの継承先を示す。体力や残弾は各派生型が所有し、共通基底に共有ゲーム状態を置くものではない。",
@@ -502,7 +502,7 @@
           ]
         },
         "BulletShotGameplay": {
-          "description": "Rigidbody・命中回数・寿命待機の取消トークンを持つ弾コンポーネントである。生成時に音源を注入され、発射ごとに速度・音・寿命を設定する。衝突で演出と被弾を発行し、反射上限や寿命終了でPoolへ返却、無効化で待機を取消す。",
+          "description": "Rigidbody・命中回数・寿命待機の取消トークンを持つ弾コンポーネントである。生成時に音源を注入され、発射ごとに速度・音・寿命を設定する。衝突で演出と被弾を発行し、反射上限や寿命終了でPoolへ返却し、無効化で待機を取消す。",
           "references": [
             {
               "path": "Assets/Scripts/Combat/Gameplay/BulletShotGameplay.cs",
@@ -520,7 +520,7 @@
           ]
         },
         "BulletPrefabCatalogConfiguration": {
-          "description": "弾種とGameObject Prefabの対応をMappings一覧に保持するScriptableObjectである。GetGameObjectは一致する弾種を検索してPrefab参照を返す。Poolはこの対応から種類別プールを作成し、カタログ自体に発射中の弾や残弾状態を保存しない。",
+          "description": "弾種とGameObject Prefabの対応をMappingsの一覧に保持するScriptableObjectである。GetGameObjectは一致する弾種を検索してPrefab参照を返す。Poolはこの対応から種類別プールを作成し、カタログ自体に発射中の弾や残弾状態を保存しない。",
           "references": [
             {
               "path": "Assets/Scripts/Combat/Configuration/BulletPrefabCatalogConfiguration.cs",
@@ -604,7 +604,7 @@
     },
     "architecture-classes-3": {
       "source": "architecture-classes.md",
-      "summary": "経験値進行・候補抽選・共有強化定義と動的UIの主要クラスを示す。Coordinatorが二つのDomain状態を所有し、定義SOを参照してViewへ描画と生成を依頼する関係を読む。選択IDはcallbackから管理側へ戻る。",
+      "summary": "経験値進行・候補抽選・共有強化定義と動的UIの主要クラスを示す。Coordinatorは二つのDomain状態を所有し、定義SOを参照してViewへ描画と生成を依頼する。選択IDはcallbackから管理側へ戻る。",
       "nodes": {
         "MonoBehaviour": {
           "description": "UnityがGameObjectに配置された自作コンポーネントのAwake・Start・Update・有効化と無効化を呼ぶ共通基底である。図ではCoreや操作・表示・Poolの継承先を示す。体力や残弾は各派生型が所有し、共通基底に共有ゲーム状態を置くものではない。",
@@ -641,7 +641,7 @@
           ]
         },
         "UpgradeCandidateSelectionDomain": {
-          "description": "再抽選トークンと候補抽選を扱うUnity非依存クラスである。候補IDと渡された乱数関数から重複しない三件を選ぶ。通常抽選ではtokenを使わず、TryRerollは残高と抽選成功を確認して三tokenを消費し、表示や能力適用は行わない。",
+          "description": "再抽選トークンと候補抽選を扱うUnity非依存クラスである。候補IDと渡された乱数関数から重複しない三件を選ぶ。通常抽選ではtokenを使わず、TryRerollは残高を確認し、抽選に成功した場合に三tokenを消費し、表示や能力適用は行わない。",
           "references": [
             {
               "path": "Assets/Scripts/Progression/Domain/UpgradeCandidateSelectionDomain.cs",
@@ -716,7 +716,7 @@
     },
     "architecture-correlations-1": {
       "source": "architecture-correlations.md",
-      "summary": "入力・敵の物理判定から射撃、弾生成と被弾、UI通知へ至るスクリプト相関を示す。実線の呼出・読取依存と点線の通知データを区別し、個体残弾、Core体力、Pool返却と表示購読の境界を読む。",
+      "summary": "入力・敵の物理判定から射撃、弾生成と被弾、UI通知へ至るスクリプト相関を示す。実線は呼出・読取依存、点線は通知データを表す。個体残弾、Core体力、Pool返却と表示購読の境界も示す。",
       "nodes": {
         "Input": {
           "description": "Unityの入力と物理衝突を集約した入口である。入力軸・マウス位置・Fire操作を移動や照準・攻撃へ渡し、弾のCollisionはCoreの被弾につながる。図は外部APIとゲーム処理の境界を示し、独立した自作入力管理クラスを表すものではない。",
@@ -781,7 +781,7 @@
           ]
         },
         "EC": {
-          "description": "敵の体力・死亡状態、追跡対象、射程とプレイヤーのレイヤーを保持する。Startで同一シーンのプレイヤーと強化管理を取得し死亡報酬を接続する。致死通知前の死亡確定により、報酬や死亡通知からの再入でも副作用を重複させない。",
+          "description": "敵の体力・死亡状態、追跡対象、射程とプレイヤーのレイヤーを保持する。Startで同一シーンのプレイヤーと強化管理を取得し死亡報酬を接続する。致死Damageでは通知前に死亡を確定するため、報酬や死亡通知からの再入でも副作用を重複させない。",
           "references": [
             {
               "path": "Assets/Scripts/Enemy/Gameplay/EnemyCoreGameplay.cs",
@@ -856,7 +856,7 @@
           ]
         },
         "Bullet": {
-          "description": "Rigidbody・命中回数・寿命待機の取消トークンを持つ弾コンポーネントである。生成時に音源を注入され、発射ごとに速度・音・寿命を設定する。衝突で演出と被弾を発行し、反射上限や寿命終了でPoolへ返却、無効化で待機を取消す。",
+          "description": "Rigidbody・命中回数・寿命待機の取消トークンを持つ弾コンポーネントである。生成時に音源を注入され、発射ごとに速度・音・寿命を設定する。衝突で演出と被弾を発行し、反射上限や寿命終了でPoolへ返却し、無効化で待機を取消す。",
           "references": [
             {
               "path": "Assets/Scripts/Combat/Gameplay/BulletShotGameplay.cs",
@@ -895,10 +895,10 @@
     },
     "architecture-correlations-2": {
       "source": "architecture-correlations.md",
-      "summary": "敵の死亡報酬から経験値・候補抽選、共有定義と動的ボタン、プレイヤー強化へ進む相関を示す。進行状態の確定と表示、選択IDのcallback、乱数関数の受渡しを区別し、通常選択とシーンの再抽選操作を読む。",
+      "summary": "敵の死亡報酬から経験値・候補抽選、共有定義と動的ボタン、プレイヤー強化へ進む相関を示す。進行状態の確定と表示、選択IDのcallback、乱数関数の受渡しを区別し、通常選択とシーンの再抽選操作を示す。",
       "nodes": {
         "Enemy": {
-          "description": "敵の体力・死亡状態、追跡対象、射程とプレイヤーのレイヤーを保持する。Startで同一シーンのプレイヤーと強化管理を取得し死亡報酬を接続する。致死通知前の死亡確定により、報酬や死亡通知からの再入でも副作用を重複させない。",
+          "description": "敵の体力・死亡状態、追跡対象、射程とプレイヤーのレイヤーを保持する。Startで同一シーンのプレイヤーと強化管理を取得し死亡報酬を接続する。致死Damageでは通知前に死亡を確定するため、報酬や死亡通知からの再入でも副作用を重複させない。",
           "references": [
             {
               "path": "Assets/Scripts/Enemy/Gameplay/EnemyCoreGameplay.cs",
@@ -925,7 +925,7 @@
           ]
         },
         "Select": {
-          "description": "再抽選トークンと候補抽選を扱うUnity非依存クラスである。候補IDと渡された乱数関数から重複しない三件を選ぶ。通常抽選ではtokenを使わず、TryRerollは残高と抽選成功を確認して三tokenを消費し、表示や能力適用は行わない。",
+          "description": "再抽選トークンと候補抽選を扱うUnity非依存クラスである。候補IDと渡された乱数関数から重複しない三件を選ぶ。通常抽選ではtokenを使わず、TryRerollは残高を確認し、抽選に成功した場合に三tokenを消費し、表示や能力適用は行わない。",
           "references": [
             {
               "path": "Assets/Scripts/Progression/Domain/UpgradeCandidateSelectionDomain.cs",
@@ -1025,7 +1025,7 @@
     },
     "architecture-sequences-1": {
       "source": "architecture-sequences.md",
-      "summary": "シーン起動時の個体値コピー、Domain状態生成、参照取得とPool準備を示す。Awake・OnEnable・Startの段階を区別し、異なるコンポーネント間のStart順を保証しない条件と、UI購読・NavMesh有効化の境界を読む。",
+      "summary": "シーン起動時の個体値コピー、Domain状態生成、参照取得とPool準備を示す。Awake・OnEnable・Startの段階を区別する。異なるコンポーネント間のStart順を保証しない条件と、UI購読・NavMesh有効化の境界を示す。",
       "nodes": {
         "U": {
           "description": "Unityの起動ライフサイクルを呼出す参加者である。AwakeとOnEnableで個体値や取消準備を行い、Startで参照取得・Pool準備・UI初期化を行う。図に並ぶ異なるコンポーネントのStartは相対順を保証せず、各コンポーネント内部の処理順を表す。",
@@ -1125,7 +1125,7 @@
     },
     "architecture-sequences-2": {
       "source": "architecture-sequences.md",
-      "summary": "射撃条件確認から弾取得・配置・残弾消費、取消可能な待機と衝突返却までを示す。攻撃待機と弾衝突は並行する。Pool取得時の有効化、配置後の発射初期化、返却判定後のDamageという現行順序を読む。",
+      "summary": "射撃条件確認から弾取得・配置・残弾消費、取消可能な待機と衝突返却までを示す。攻撃待機と弾衝突は並行する。Pool取得時の有効化、配置後の発射初期化、返却判定後のDamageという現行順序を示す。",
       "nodes": {
         "A": {
           "description": "PlayerAttackとEnemyAttackの発射元をまとめた参加者である。入力または距離・射線条件と個体Ammoを確認して共通Fireへ発射値を渡す。発射後はcooldownかreloadを開始し、取消可能な待機を実行する。待機と弾の衝突は独立に進む。",
@@ -1168,7 +1168,7 @@
           ]
         },
         "B": {
-          "description": "Rigidbody・命中回数・寿命待機の取消トークンを持つ弾コンポーネントである。生成時に音源を注入され、発射ごとに速度・音・寿命を設定する。衝突で演出と被弾を発行し、反射上限や寿命終了でPoolへ返却、無効化で待機を取消す。",
+          "description": "Rigidbody・命中回数・寿命待機の取消トークンを持つ弾コンポーネントである。生成時に音源を注入され、発射ごとに速度・音・寿命を設定する。衝突で演出と被弾を発行し、反射上限や寿命終了でPoolへ返却し、無効化で待機を取消す。",
           "references": [
             {
               "path": "Assets/Scripts/Combat/Gameplay/BulletShotGameplay.cs",
@@ -1210,7 +1210,7 @@
     },
     "architecture-sequences-3": {
       "source": "architecture-sequences.md",
-      "summary": "敵とプレイヤーの致死Damageと同期通知中の再入を示す。通知前の死亡確定と呼出しローカルの遷移判定により報酬・通知・演出を一度だけ発行する。敵とプレイヤーで異なる副作用順序と、死亡後被弾の無視を読む。",
+      "summary": "敵とプレイヤーの致死Damageと同期通知中の再入を示す。通知前に死亡を確定し、この呼出しで死亡したかをローカルに判定することで、報酬・通知・演出を一度だけ発行する。敵とプレイヤーで異なる副作用順序と、死亡後被弾の無視を示す。",
       "nodes": {
         "Caller": {
           "description": "CoreへDamageを呼ぶ弾や被弾呼出元を表す参加者である。実際の弾ではCollision先から被弾interfaceを取得して数値を渡す。死亡済みのCoreは以後のDamageを無視し、呼出元はCoreの体力や死亡副作用を直接確定しない。",
@@ -1287,7 +1287,7 @@
     },
     "architecture-sequences-4": {
       "source": "architecture-sequences.md",
-      "summary": "強化ボタンの選択IDを受け、条件と残選択回数を検証して個体能力へ効果を適用する流れを示す。効果前の候補解除、CoreからMoveとAttackへの振分、適用後の候補抽選と表示を区別し、不正選択時の終了境界を読む。",
+      "summary": "強化ボタンの選択IDを受け、条件と残選択回数を検証して個体能力へ効果を適用する流れを示す。効果前の候補解除、CoreからMoveとAttackへの振分、適用後の候補抽選と表示を区別し、不正選択時に処理を終える箇所を示す。",
       "nodes": {
         "User": {
           "description": "画面の強化ボタンをクリックする操作主体を表す。クリックはPrefabのonClickからUpgradeへ進み、BindされたActionで選択IDがCoordinatorへ送られる。ユーザー操作が能力値を直接変更するのではなく、管理側の条件・残回数検証を通過してから適用される。",
@@ -1368,7 +1368,7 @@
           ]
         },
         "S": {
-          "description": "再抽選トークンと候補抽選を扱うUnity非依存クラスである。候補IDと渡された乱数関数から重複しない三件を選ぶ。通常抽選ではtokenを使わず、TryRerollは残高と抽選成功を確認して三tokenを消費し、表示や能力適用は行わない。",
+          "description": "再抽選トークンと候補抽選を扱うUnity非依存クラスである。候補IDと渡された乱数関数から重複しない三件を選ぶ。通常抽選ではtokenを使わず、TryRerollは残高を確認し、抽選に成功した場合に三tokenを消費し、表示や能力適用は行わない。",
           "references": [
             {
               "path": "Assets/Scripts/Progression/Domain/UpgradeCandidateSelectionDomain.cs",
