@@ -339,7 +339,8 @@
           "Render": "external",
           "Editor": "external"
         }
-      }
+      },
+      "number": "1"
     },
     "architecture-diagrams-2": {
       "source": "architecture-diagrams.md",
@@ -577,7 +578,8 @@
           "Weapon": "surface",
           "Scene": "external"
         }
-      }
+      },
+      "number": "2.1"
     },
     "architecture-classes-1": {
       "source": "architecture-classes.md",
@@ -736,7 +738,8 @@
           "SceneReferenceResolverInfrastructure": "surface",
           "MonoBehaviour": "external"
         }
-      }
+      },
+      "number": "3.1"
     },
     "architecture-classes-2": {
       "source": "architecture-classes.md",
@@ -884,7 +887,8 @@
           "ScriptableObject": "external",
           "ObjectPool": "external"
         }
-      }
+      },
+      "number": "3.2"
     },
     "architecture-classes-3": {
       "source": "architecture-classes.md",
@@ -1012,7 +1016,8 @@
           "MonoBehaviour": "external",
           "ScriptableObject": "external"
         }
-      }
+      },
+      "number": "4.1"
     },
     "architecture-correlations-1": {
       "source": "architecture-correlations.md",
@@ -1307,7 +1312,8 @@
           "Input": "external",
           "Physics": "external"
         }
-      }
+      },
+      "number": "3.3"
     },
     "architecture-correlations-2": {
       "source": "architecture-correlations.md",
@@ -1533,7 +1539,8 @@
           "SceneUI": "surface",
           "Random": "external"
         }
-      }
+      },
+      "number": "4.2"
     },
     "architecture-sequences-1": {
       "source": "architecture-sequences.md",
@@ -1645,7 +1652,8 @@
           "R": "surface",
           "U": "external"
         }
-      }
+      },
+      "number": "2.2"
     },
     "architecture-sequences-2": {
       "source": "architecture-sequences.md",
@@ -1741,7 +1749,8 @@
           "D": "middle",
           "UI": "middle"
         }
-      }
+      },
+      "number": "3.4"
     },
     "architecture-sequences-3": {
       "source": "architecture-sequences.md",
@@ -1827,7 +1836,8 @@
           "H": "surface",
           "D": "surface"
         }
-      }
+      },
+      "number": "3.5"
     },
     "architecture-sequences-4": {
       "source": "architecture-sequences.md",
@@ -1932,7 +1942,8 @@
           "B": "surface",
           "User": "external"
         }
-      }
+      },
+      "number": "4.3"
     }
   }
 }
