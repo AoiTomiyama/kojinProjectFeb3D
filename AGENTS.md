@@ -31,7 +31,7 @@
 - 旧A-01〜A-09と旧R-01/R-03は完了。既存改善項目は2026-10-12のユーザー判断で実施対象となり、旧A-10〜A-13は未着手である。採用と実装の進捗は [タスク原本](docs/tasks/task-list.md) と [判断の根拠](docs/knowledge/README.md) で読み分ける。
 
 - 強化項目はSOの一覧から既存Prefabを使って動的生成する。追加手順は [現行仕様](docs/specs/upgrade-catalog-and-ui.md)、実装・検証結果は [旧R-03の記録](docs/tasks/upgrade-catalog-ui.md) を参照する。
-- VFX-01（uid: V-02）は2026-10-14のユーザー判断で破棄・停止。既存のシェーダー、テスト、URP/PlayerSettings、関連文書差分は保持し、差分処理は後続指示で扱う。
+- VFX-01（旧uid: V-02）は2026-10-14のユーザー判断で廃止し、作業差分を取り消してタスク原本から削除した。[廃止判断と処理根拠](docs/knowledge/README.md#vfx-01の廃止判断と差分処理)を参照する。
 
 ## 作業上の注意
 

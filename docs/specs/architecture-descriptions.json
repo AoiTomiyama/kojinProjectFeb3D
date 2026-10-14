@@ -162,7 +162,7 @@
           ]
         },
         "Render": {
-          "description": "URP・lilToonとVFX資産への描画上の依存をまとめた領域である。パッケージ設定やマテリアル・シェーダー参照を通じてUnity描画に関係する。未完了V-02の描画差分と、自作ランタイムが所有するゲーム状態を区別する。",
+          "description": "URP・lilToonとVFX資産への描画上の依存をまとめた領域である。パッケージ設定やマテリアル・シェーダー参照を通じてUnity描画に関係する。VFX-01のガード追加は廃止し、外部シェーダーは元の式とGUIDを保持している。",
           "references": [
             {
               "path": "Packages/manifest.json"
@@ -173,7 +173,7 @@
           ]
         },
         "Editor": {
-          "description": "強化一覧のInspector編集、既存七テストクラスとWindowsビルド入口をまとめた開発時境界である。ランタイムC#からEditorやテストへの参照はない。未追跡VFX検証は七クラスの範囲に含めず、今回の文書照合をゲーム再検証とは扱わない。",
+          "description": "強化一覧のInspector編集、既存七テストクラスとWindowsビルド入口をまとめた開発時境界である。ランタイムC#からEditorやテストへの参照はない。VFX-01専用の比較テストは廃止に伴って削除した。",
           "references": [
             {
               "path": "Assets/Editor/UpgradeCatalogEditorInfrastructure.cs"

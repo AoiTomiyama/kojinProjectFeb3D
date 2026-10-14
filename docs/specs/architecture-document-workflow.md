@@ -46,6 +46,6 @@ python -X utf8 C:/Users/Taomo/.codex/atlas/chronos.py validate --project survivo
 
 指定したtitle・status・sectionsを更新し、省略した項目を保持する。新規項目はユーザーの採用判断と根拠に基づき、固定uid・表示id・日本語category・title・status・3節を揃える。再採番する場合は共通契約に従い、対応表・本文参照・uidの保持を確認する。
 
-VFX-01（uid: V-02）はユーザーが破棄を決めた停止項目である。工具の進捗値に破棄専用の値がないため、blockedと結論で決定を記録する。既存差分の処理は後続指示で扱う。SET-01のblockedは参照仕様待ちであり、両者の判断理由は各タスクの結論を読む。
+VFX-01（旧uid: V-02）はユーザーの廃止判断により原本から削除した。[廃止記録](../knowledge/README.md#vfx-01の廃止判断と差分処理)を参照する。Chronosのapplyは既存項目の削除に対応していないため、この削除は対象ブロックだけを直接除去し、残る30項目の完全一致とCLIのvalidateで確認した。SET-01のblockedは参照仕様待ちであり、判断理由はタスクの結論を読む。
 
 更新後は件数・ID/uid・状態・本文・日時・参照を確認し、変更した判断と根拠の対応を照合する。採用状態と実装完了を読み分け、対象の文書だけを独立コミットする。日本語はyomiyasuで推敲し、prose-gateのerrorを修正して反映する。warningは文脈で判断する。

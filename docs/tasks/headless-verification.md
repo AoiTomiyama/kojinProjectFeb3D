@@ -49,7 +49,7 @@
 
 - 観測: `Vefects/SH_Vefects_VFX_AdvTrail` の418・426・698・701行で、powの底が負になる可能性を示すd3d11コンパイル警告4件が出る。ビルドは成功し、シェーダーコンパイルエラーは0件。
 - 根拠: `Assets/AssetStoreTools/Vefects/Trails VFX URP/VFX/Shaders/SH_Vefects_VFX_AdvTrail.shader`。底にはMask/Erosionテクスチャのr成分を使っている。警告だけから負値の発生や表示不具合を断定しない。
-- 追加候補: 使用するテクスチャ形式と値域を確認し、負値が入り得る設定に対して処理方針を決める。外部アセットの表示変更は実際の描画で比較する。
+- 廃止（2026-10-14）: ユーザー判断でVFX-01（旧V-02）の作業差分を取り消し、タスク原本から削除した。[廃止判断と差分処理](../knowledge/README.md#vfx-01の廃止判断と差分処理)を参照する。
 
 `-nographics` の起動はNull Graphics Deviceを使用するため、UI・粒子・URP等のシェーダーが非対応と出る。これは画面なし起動の制約であり、通常GPUでの描画成功・失敗を示す検証ではない。
 
