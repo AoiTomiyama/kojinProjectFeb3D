@@ -21,14 +21,14 @@
 | `SceneDependencyTests` | 32 | 同じシーンの参照取得、0件・2件の診断、別シーン・非アクティブ個体の除外。Inspector参照、同一GameObjectの必須部品、死亡エフェクト、射撃音の欠落診断。Start前の攻撃無効化、プール欠落時の元の例外保持と安全な無効化 | D-05、D-09、A-07 |
 | `SceneGameplayTests` | 6 | 保存されたButton.onClickによるメニュー開閉・再抽選・強化、候補不足時のエラーと残高保持。敵2体の死亡から経験値・撃破数へ接続、最大レベル。被弾・体力/速度/攻撃/装弾数強化とUI、設定アセット不変、単体Prefab体力100とシーン体力50。表示文字列5に対して初期装弾数7で開始し、発射・再装填表示を確認。両攻撃者の待機中断・再開・再射撃、弾の寿命返却、AudioSource受渡し。NavMesh上の敵の追跡・射程内停止、遮蔽あり/なしの発砲。実際の敵弾衝突による7ダメージと数値表示・返却。照準Raycast、メニュー中の照準停止と射撃抑止、追従位置、プレイヤーの向きと照準線、ビルボードの向き。実行中のシーン再読込み後、敵7体すべてのNavMesh接続と移動先設定 | D-01〜D-09、A-01〜A-07 |
 | `UiEventLifetimeTests` | 1 | 初期表示、UIとGameObjectの反復無効化・再有効化、購読数、現在値復元、Tween中断・復元、UI破棄後の購読解除 | D-06、D-08、A-08 |
-| `BulletLifetimeTests` | 1 | 返却→再取得→発射初期化前に破棄する操作と、破棄済み弾のプール破棄処理を両弾種で実行 | D-10、D-11 |
+| `BulletLifetimeTests` | 2 | 非活動階層のPool取得後に設定・有効化する順序、返却→再取得→発射初期化前に破棄する操作を両弾種で実行 | D-10、D-11、CBT-01 |
 
 ## CBT-01 弾を設定後に有効化（2026-10-19）
 
 - Unity: 2022.3.62f2。
-- `BulletLifetimeTests`: 2件成功・失敗0件・スキップ0件、Editor終了コード0。PlayerBulletとEnemyBulletについて初回生成・再利用後のPool取得が非活動であること、および返却後に発射初期化前の破棄が成立することを確認。
-- 対象: `BulletPoolInfrastructure` の生成時非活動化と取得時の状態維持、`BulletFireSequenceGameplay` の設定・配置後の有効化、寿命テスト。
-- 結果XMLとログ: ローカル一時ディレクトリの `survivor-r02-tests.xml`、`survivor-r02-tests.log`。
+- `BulletLifetimeTests`: 2件成功・失敗0件・スキップ0件、Editor終了コード0。活動中Prefab由来のPlayerBulletとEnemyBulletを対象に、初回生成と再利用のPool取得が非活動階層にあること、OnEnable監視が各利用時に設定済みDamageを読むこと、返却後に発射初期化前の破棄が成立することを確認。
+- 対象: `BulletPoolInfrastructure` の非活動ルート配下への生成と取得時の親変更、`BulletFireSequenceGameplay` の設定・配置後の有効化、寿命テスト。
+- 結果XMLとログ: ローカル一時ディレクトリの `survivor-r02-review-tests-final.xml`、`survivor-r02-review-tests-final.log`。
 
 テストは `Assets/Editor/` に保存し、専用の一時検証スクリプトを介さずUnity Test Runnerで再実行できる。入力や実行順を制御するため、一部のテストは既存のprivateメソッド・フィールドをリフレクションで操作する。実運用のメソッド、物理衝突、NavMesh、保存されたシーン・Prefab・Buttonの呼出先を使用し、テスト専用の公開APIをランタイムへ追加していない。
 

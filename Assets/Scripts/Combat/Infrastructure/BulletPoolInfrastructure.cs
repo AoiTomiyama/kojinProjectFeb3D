@@ -9,6 +9,7 @@ public class BulletPoolInfrastructure : MonoBehaviour
     [SerializeField] private int _maxCount = 200;
     [SerializeField] private BulletPrefabCatalogConfiguration _objectDatabase;
     [SerializeField] private AudioSource _soundEffects;
+    private Transform _inactiveRoot;
 
     private readonly Dictionary<BulletTypeDomain, ObjectPool<PooledAttackBaseGameplay>> _objectPoolDict = new();
     private void Start()
@@ -21,6 +22,10 @@ public class BulletPoolInfrastructure : MonoBehaviour
     }
     private void InitPool()
     {
+        var inactiveRootObject = new GameObject($"{name}_InactiveBullets");
+        inactiveRootObject.SetActive(false);
+        inactiveRootObject.transform.SetParent(transform, false);
+        _inactiveRoot = inactiveRootObject.transform;
         var mappings = _objectDatabase.Mappings;
         foreach (var pair in mappings)
         {
@@ -28,9 +33,8 @@ public class BulletPoolInfrastructure : MonoBehaviour
                 () =>
                 {
                     // pairに沿ったプレハブをインスタンス化したいのでラムダ式を用いる。
-                    var bullet = Instantiate(_objectDatabase.GetGameObject(pair.Type), transform);
-                    // Prefabのactive状態にかかわらず、設定完了までOnEnableを発生させない。
-                    bullet.SetActive(false);
+                    // inactive親へ生成し、activeなPrefabでも初回OnEnableを発生させない。
+                    var bullet = Instantiate(_objectDatabase.GetGameObject(pair.Type), _inactiveRoot);
                     var component = bullet.GetComponent<PooledAttackBaseGameplay>();
                     if (component == null) throw new System.InvalidOperationException($"{bullet.name}: PooledAttackBaseGameplay が必要です。");
                     // プール生成時に、弾が使用するシーンの効果音出力を渡す。
@@ -62,8 +66,16 @@ public class BulletPoolInfrastructure : MonoBehaviour
         }
     }
     // 取得時は非活動のまま返し、呼出し側が設定を終えてから有効化する。
-    private void OnGetFromPool(PooledAttackBaseGameplay parameter) { }
-    private void OnReleaseToPool(PooledAttackBaseGameplay parameter) => parameter.gameObject.SetActive(false);
+    private void OnGetFromPool(PooledAttackBaseGameplay parameter)
+    {
+        parameter.gameObject.SetActive(false);
+        parameter.transform.SetParent(transform, false);
+    }
+    private void OnReleaseToPool(PooledAttackBaseGameplay parameter)
+    {
+        parameter.gameObject.SetActive(false);
+        parameter.transform.SetParent(_inactiveRoot, false);
+    }
     private void OnDisposePoolObject(PooledAttackBaseGameplay parameter)
     {
         // シーン破棄後にプールがクリアされても、破棄済みの弾にはアクセスしない。

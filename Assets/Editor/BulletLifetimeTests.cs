@@ -1,10 +1,22 @@
 using System.Collections;
 using System.Reflection;
 using NUnit.Framework;
+using System.Collections.Generic;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.TestTools;
 using Object = UnityEngine.Object;
+
+public class BulletEnableObserver : MonoBehaviour
+{
+    public BulletShotGameplay Shot;
+    public readonly List<int> ObservedDamage = new List<int>();
+
+    private void OnEnable()
+    {
+        if (Shot != null) ObservedDamage.Add(Shot.Parameter.Damage);
+    }
+}
 
 public class BulletLifetimeTests
 {
@@ -19,13 +31,30 @@ public class BulletLifetimeTests
         var pool = Object.FindObjectOfType<BulletPoolInfrastructure>();
         foreach (var kind in new[] { BulletTypeDomain.PlayerBullet, BulletTypeDomain.EnemyBullet })
         {
+            BulletShotGameplay firstBullet = null;
+            BulletEnableObserver observer = null;
             for (int use = 0; use < 2; use++)
             {
-                var bullet = pool.Get(kind);
-                Assert.IsFalse(bullet.gameObject.activeSelf);
-                bullet.Parameter = new BulletParametersConfiguration { Duration = 1, Speed = 1 };
+                var bullet = pool.Get(kind) as BulletShotGameplay;
+                Assert.IsNotNull(bullet);
+                Assert.IsFalse(bullet.gameObject.activeInHierarchy);
+                if (use == 0)
+                {
+                    firstBullet = bullet;
+                    observer = bullet.gameObject.AddComponent<BulletEnableObserver>();
+                    observer.Shot = bullet;
+                }
+                else
+                {
+                    Assert.AreSame(firstBullet, bullet, "返却した同一弾を再利用すること。");
+                    observer.ObservedDamage.Clear();
+                }
+                int expectedDamage = 37 + use;
+                bullet.Parameter = new BulletParametersConfiguration { Damage = expectedDamage, Duration = 1, Speed = 1 };
                 bullet.transform.position = new Vector3(0, 100, 0);
                 bullet.gameObject.SetActive(true);
+                CollectionAssert.AreEqual(new[] { expectedDamage }, observer.ObservedDamage,
+                    "OnEnableが初回・再利用ごとの設定値を読むこと。");
                 bullet.OnGetFromPool();
                 bullet.OnReturnToPool();
             }
@@ -45,7 +74,7 @@ public class BulletLifetimeTests
         foreach (var kind in new[] { BulletTypeDomain.PlayerBullet, BulletTypeDomain.EnemyBullet })
         {
             var fired = pool.Get(kind);
-            Assert.IsFalse(fired.gameObject.activeSelf);
+            Assert.IsFalse(fired.gameObject.activeInHierarchy);
             fired.transform.position = new Vector3(0, 100, 0);
             fired.Parameter = new BulletParametersConfiguration { Duration = 1, Speed = 1 };
             fired.gameObject.SetActive(true);
