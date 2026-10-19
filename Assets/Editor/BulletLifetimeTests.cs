@@ -9,17 +9,86 @@ using Object = UnityEngine.Object;
 
 public class BulletEnableObserver : MonoBehaviour
 {
-    public BulletShotGameplay Shot;
     public readonly List<int> ObservedDamage = new List<int>();
 
     private void OnEnable()
     {
-        if (Shot != null) ObservedDamage.Add(Shot.Parameter.Damage);
+        var shot = GetComponent<BulletShotGameplay>();
+        if (shot != null) ObservedDamage.Add(shot.Parameter.Damage);
     }
 }
 
 public class BulletLifetimeTests
 {
+    [UnityTest]
+    public IEnumerator ActivePrefabDoesNotEnableUntilFirstAndReusedBulletsAreConfigured()
+    {
+        EditorSceneManager.OpenScene("Assets/Scenes/InGame.unity");
+        foreach (var attack in Object.FindObjectsOfType<EnemyAttackGameplay>()) attack.enabled = false;
+        foreach (var move in Object.FindObjectsOfType<EnemyMoveGameplay>()) move.enabled = false;
+        yield return new EnterPlayMode();
+        yield return null;
+
+        var pool = Object.FindObjectOfType<BulletPoolInfrastructure>();
+        var databaseField = typeof(BulletPoolInfrastructure).GetField("_objectDatabase", BindingFlags.Instance | BindingFlags.NonPublic);
+        var initCountField = typeof(BulletPoolInfrastructure).GetField("_initCount", BindingFlags.Instance | BindingFlags.NonPublic);
+        var originalDatabase = (BulletPrefabCatalogConfiguration)databaseField.GetValue(pool);
+        int originalInitCount = (int)initCountField.GetValue(pool);
+        var testDatabase = Object.Instantiate(originalDatabase);
+        GameObject testPrefab = null;
+        try
+        {
+            var prefab = originalDatabase.GetGameObject(BulletTypeDomain.PlayerBullet);
+            Assert.IsTrue(prefab.activeSelf, "回帰条件としてPlayerBullet Prefabは活動状態であること。");
+            testPrefab = Object.Instantiate(prefab);
+            var expectedObserver = testPrefab.AddComponent<BulletEnableObserver>();
+            expectedObserver.ObservedDamage.Clear();
+            int mappingIndex = testDatabase.Mappings.FindIndex(mapping => mapping.Type == BulletTypeDomain.PlayerBullet);
+            var mapping = testDatabase.Mappings[mappingIndex];
+            mapping.Prefab = testPrefab;
+            testDatabase.Mappings[mappingIndex] = mapping;
+
+            databaseField.SetValue(pool, testDatabase);
+            initCountField.SetValue(pool, 0);
+            typeof(BulletPoolInfrastructure).GetMethod("InitPool", BindingFlags.Instance | BindingFlags.NonPublic)
+                .Invoke(pool, null);
+
+            var first = pool.Get(BulletTypeDomain.PlayerBullet) as BulletShotGameplay;
+            Assert.IsNotNull(first);
+            var observer = first.GetComponent<BulletEnableObserver>();
+            Assert.IsNotNull(observer);
+            Assert.IsFalse(first.gameObject.activeInHierarchy);
+            Assert.IsEmpty(observer.ObservedDamage,
+                "活動中の検証Prefabを非活動ルートへ生成した時点でOnEnableが発生しないこと。");
+            first.Parameter = new BulletParametersConfiguration { Damage = 41, Duration = 1, Speed = 1 };
+            first.gameObject.SetActive(true);
+            CollectionAssert.AreEqual(new[] { 41 }, observer.ObservedDamage,
+                "初回の有効化で設定済みDamageを観測すること。");
+            first.OnGetFromPool();
+            first.OnReturnToPool();
+
+            observer.ObservedDamage.Clear();
+            var reused = pool.Get(BulletTypeDomain.PlayerBullet);
+            Assert.AreSame(first, reused);
+            Assert.IsFalse(reused.gameObject.activeInHierarchy);
+            Assert.IsEmpty(observer.ObservedDamage, "再取得時点ではOnEnableが発生しないこと。");
+            reused.Parameter = new BulletParametersConfiguration { Damage = 47, Duration = 1, Speed = 1 };
+            reused.gameObject.SetActive(true);
+            CollectionAssert.AreEqual(new[] { 47 }, observer.ObservedDamage,
+                "再利用時も設定後の値をOnEnableが観測すること。");
+            reused.OnGetFromPool();
+            reused.OnReturnToPool();
+            LogAssert.NoUnexpectedReceived();
+        }
+        finally
+        {
+            databaseField.SetValue(pool, originalDatabase);
+            initCountField.SetValue(pool, originalInitCount);
+            if (testPrefab != null) Object.Destroy(testPrefab);
+            Object.Destroy(testDatabase);
+        }
+    }
+
     [UnityTest]
     public IEnumerator PoolReturnsInactiveBulletsUntilParametersAreSet()
     {
@@ -31,30 +100,14 @@ public class BulletLifetimeTests
         var pool = Object.FindObjectOfType<BulletPoolInfrastructure>();
         foreach (var kind in new[] { BulletTypeDomain.PlayerBullet, BulletTypeDomain.EnemyBullet })
         {
-            BulletShotGameplay firstBullet = null;
-            BulletEnableObserver observer = null;
             for (int use = 0; use < 2; use++)
             {
                 var bullet = pool.Get(kind) as BulletShotGameplay;
                 Assert.IsNotNull(bullet);
                 Assert.IsFalse(bullet.gameObject.activeInHierarchy);
-                if (use == 0)
-                {
-                    firstBullet = bullet;
-                    observer = bullet.gameObject.AddComponent<BulletEnableObserver>();
-                    observer.Shot = bullet;
-                }
-                else
-                {
-                    Assert.AreSame(firstBullet, bullet, "返却した同一弾を再利用すること。");
-                    observer.ObservedDamage.Clear();
-                }
-                int expectedDamage = 37 + use;
-                bullet.Parameter = new BulletParametersConfiguration { Damage = expectedDamage, Duration = 1, Speed = 1 };
+                bullet.Parameter = new BulletParametersConfiguration { Damage = 37 + use, Duration = 1, Speed = 1 };
                 bullet.transform.position = new Vector3(0, 100, 0);
                 bullet.gameObject.SetActive(true);
-                CollectionAssert.AreEqual(new[] { expectedDamage }, observer.ObservedDamage,
-                    "OnEnableが初回・再利用ごとの設定値を読むこと。");
                 bullet.OnGetFromPool();
                 bullet.OnReturnToPool();
             }
