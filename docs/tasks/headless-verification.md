@@ -23,6 +23,13 @@
 | `UiEventLifetimeTests` | 1 | 初期表示、UIとGameObjectの反復無効化・再有効化、購読数、現在値復元、Tween中断・復元、UI破棄後の購読解除 | D-06、D-08、A-08 |
 | `BulletLifetimeTests` | 1 | 返却→再取得→発射初期化前に破棄する操作と、破棄済み弾のプール破棄処理を両弾種で実行 | D-10、D-11 |
 
+## CBT-01 弾を設定後に有効化（2026-10-19）
+
+- Unity: 2022.3.62f2。
+- `BulletLifetimeTests`: 2件成功・失敗0件・スキップ0件、Editor終了コード0。PlayerBulletとEnemyBulletについて初回生成・再利用後のPool取得が非活動であること、および返却後に発射初期化前の破棄が成立することを確認。
+- 対象: `BulletPoolInfrastructure` の生成時非活動化と取得時の状態維持、`BulletFireSequenceGameplay` の設定・配置後の有効化、寿命テスト。
+- 結果XMLとログ: ローカル一時ディレクトリの `survivor-r02-tests.xml`、`survivor-r02-tests.log`。
+
 テストは `Assets/Editor/` に保存し、専用の一時検証スクリプトを介さずUnity Test Runnerで再実行できる。入力や実行順を制御するため、一部のテストは既存のprivateメソッド・フィールドをリフレクションで操作する。実運用のメソッド、物理衝突、NavMesh、保存されたシーン・Prefab・Buttonの呼出先を使用し、テスト専用の公開APIをランタイムへ追加していない。
 
 ## 発見して修正した問題

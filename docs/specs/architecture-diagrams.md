@@ -133,7 +133,7 @@ flowchart LR
 | --- | --- | --- | --- |
 | 軽量なレイヤード設計 | 4 Domainルール、Gameplay、Presentation、Configuration、Infrastructure。[対応表](architecture-script-catalog.md) | ルールをUnity処理/表示から分けて直接テスト | 論理区分。asmdefで隔離したClean Architectureではない。Core/敵行動/命中にUnity依存ルールが残る |
 | Observer相当の同期通知 | Core.OnHealthChanged、PlayerAttackの残弾/待機通知、両UIのOnEnable/OnDisable | 状態確定と描画を分離、無効UIの購読を解除 | C# Actionフィールド/UnityEvent。メッセージバスではなく、購読者の同期再入も起きる。進行Viewは直接呼出しで更新 |
-| Object Pool | BulletPoolInfrastructure.Start/Get、Unity ObjectPool、PooledAttackBaseGameplay.OnReturnToPool | 種類別に生成/再利用して寿命終了時返却 | 弾のみ。敵/プレイヤー復活プールではない。Get時点で有効化され、配置前OnEnableが起きる。全プールをOnDestroyでClearする仕組みはない |
+| Object Pool | BulletPoolInfrastructure.Start/Get、Unity ObjectPool、PooledAttackBaseGameplay.OnReturnToPool | 種類別に生成/再利用して寿命終了時返却 | 弾のみ。敵/プレイヤー復活プールではない。Prefabのactive状態にかかわらず生成時に非活動化し、取得・設定・配置後に発射シーケンスから有効化する。全プールをOnDestroyでClearする仕組みはない |
 | カタログによる生成先選択・factory callback | BulletPrefabCatalogConfiguration.GetGameObjectとPoolのcreateFunc | enumからPrefabを選び、生成時初期化/音注入を集中 | GoF Abstract Factoryの製品群やFactory Methodの生成者継承はない |
 | 外部設定によるデータ駆動 | 初期能力値/武器/強化SO、UpgradeCatalog.CreateSnapshot、View.CreateButtons | 共通設定と個体状態を分離、強化項目からUIを生成 | SOに取得済み状態を書かない。強化の計算手順はCore/Attackに残る。SOをFlyweightパターンとして断定しない |
 | 手動の依存注入（一部） | Inspector参照、BulletShot.SetAudioSource、Selection.TryDrawの乱数Func、UpgradeButton.BindのAction | 取得元を明示、共有音源と乱数/選択経路を交換可能にする | DIコンテナなし。GetComponent/RequireUniqueで自己取得する依存も多い。乱数関数はStrategy相当の交換点だけで、戦略クラス階層はない |

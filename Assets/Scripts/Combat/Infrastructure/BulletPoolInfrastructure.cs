@@ -29,6 +29,8 @@ public class BulletPoolInfrastructure : MonoBehaviour
                 {
                     // pairに沿ったプレハブをインスタンス化したいのでラムダ式を用いる。
                     var bullet = Instantiate(_objectDatabase.GetGameObject(pair.Type), transform);
+                    // Prefabのactive状態にかかわらず、設定完了までOnEnableを発生させない。
+                    bullet.SetActive(false);
                     var component = bullet.GetComponent<PooledAttackBaseGameplay>();
                     if (component == null) throw new System.InvalidOperationException($"{bullet.name}: PooledAttackBaseGameplay が必要です。");
                     // プール生成時に、弾が使用するシーンの効果音出力を渡す。
@@ -59,7 +61,8 @@ public class BulletPoolInfrastructure : MonoBehaviour
             }
         }
     }
-    private void OnGetFromPool(PooledAttackBaseGameplay parameter) => parameter.gameObject.SetActive(true);
+    // 取得時は非活動のまま返し、呼出し側が設定を終えてから有効化する。
+    private void OnGetFromPool(PooledAttackBaseGameplay parameter) { }
     private void OnReleaseToPool(PooledAttackBaseGameplay parameter) => parameter.gameObject.SetActive(false);
     private void OnDisposePoolObject(PooledAttackBaseGameplay parameter)
     {

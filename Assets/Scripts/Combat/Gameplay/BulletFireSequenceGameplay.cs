@@ -16,7 +16,8 @@ public static class BulletFireSequenceGameplay
             bullet.transform.position = muzzle.position;
             float angle = BulletSpreadCalculatorDomain.GetAngle(requestedShots, spreadAngle, i);
             bullet.transform.forward = Quaternion.AngleAxis(angle, Vector3.up) * forward;
-            // 速度と効果音の初期化が向きを参照するため、配置後に呼ぶ。
+            // 派生弾のOnEnableへ設定値を渡し、その後に発射用の初期化を行う。
+            bullet.gameObject.SetActive(true);
             bullet.OnGetFromPool();
             ammo.TryConsumeShot();
             onAmmoChanged?.Invoke(ammo.RemainingAmmo);
