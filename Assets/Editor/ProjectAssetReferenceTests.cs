@@ -82,6 +82,18 @@ public class ProjectAssetReferenceTests
         }
     }
 
+    [TestCase("PlayerWeapon", BulletTypeDomain.PlayerBullet)]
+    [TestCase("InGamePlayerWeapon", BulletTypeDomain.PlayerBullet)]
+    [TestCase("EnemyWeapon", BulletTypeDomain.EnemyBullet)]
+    [TestCase("InGameEnemyWeapon", BulletTypeDomain.EnemyBullet)]
+    [TestCase("EnemyBetaWeapon", BulletTypeDomain.EnemyBullet)]
+    public void ExistingWeaponsKeepTheirOriginalBulletType(string name, BulletTypeDomain expected)
+    {
+        var weapon = AssetDatabase.LoadAssetAtPath<WeaponDefinitionConfiguration>("Assets/GameData/Combat/" + name + ".asset");
+        Assert.IsNotNull(weapon);
+        Assert.AreEqual(expected, weapon.BulletType);
+    }
+
     [Test]
     public void AuthoredWeaponsAndBulletCatalogHaveUsableInitialSettings()
     {
@@ -103,12 +115,13 @@ public class ProjectAssetReferenceTests
             {
                 var prefab = catalog.GetGameObject(kind);
                 Assert.IsNotNull(prefab, kind.ToString());
+                Assert.IsNotNull(prefab.GetComponent<PooledAttackBaseGameplay>());
                 var bullet = prefab.GetComponent<BulletShotGameplay>();
-                Assert.IsNotNull(bullet);
+                if (bullet == null) continue;
                 Assert.IsNotNull(prefab.GetComponent<Rigidbody>());
                 Assert.IsNotNull(prefab.GetComponent<Collider>());
                 var serialized = new SerializedObject(bullet);
-                foreach (string field in new[] { "_hitParticle", "_damageText", "_shootClip" })
+                foreach (string field in new[] { "_hitParticle", "_damageText" })
                     Assert.IsNotNull(serialized.FindProperty(field).objectReferenceValue, prefab.name + ": " + field);
             }
         }

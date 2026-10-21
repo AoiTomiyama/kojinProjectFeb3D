@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa9a61228bbf4b6d89a0790c475bcffe, type: 3}
   m_Name: InGameEnemyWeapon
   m_EditorClassIdentifier:
+  _bulletType: 1
   _maxBulletCount: 30
   _synchronousBulletCount: 10
   _spreadAngle: 97

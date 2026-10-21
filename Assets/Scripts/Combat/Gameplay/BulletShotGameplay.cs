@@ -17,29 +17,21 @@ public class BulletShotGameplay : PooledAttackBaseGameplay
     [SerializeField]
     private AudioClip _shootClip;
     private AudioSource _aus;
-    public void SetAudioSource(AudioSource audioSource)
+    public override void OnInitialize(BulletInitializationContextGameplay context)
     {
-        if (audioSource == null)
-        {
-            throw new System.ArgumentNullException(nameof(audioSource));
-        }
-        _aus = audioSource;
-    }
-
-    public override void OnInitialize()
-    {
+        _aus = context.AudioSource;
         _rb = GetComponent<Rigidbody>();
         if (_rb == null) throw new System.InvalidOperationException($"{name}: Rigidbody が同じGameObjectに必要です。");
     }
     public override void OnGetFromPool()
     {
-        if (_aus == null)
+        // クリップ未設定は無音の弾として扱う。音声を使う弾だけ音源を必須にする。
+        if (_shootClip != null)
         {
-            throw new System.InvalidOperationException("BulletShotGameplay: 効果音用 AudioSource が初期化されていません。");
+            if (_aus == null)
+                throw new System.InvalidOperationException($"{name}: BulletShotGameplay の射撃音には AudioSource が必要です。");
+            _aus.PlayOneShot(_shootClip);
         }
-        if (_shootClip == null)
-            throw new System.InvalidOperationException($"{name}: BulletShotGameplay._shootClip が設定されていません。");
-        _aus.PlayOneShot(_shootClip);
         
         _cts = new CancellationTokenSource();
         CancellationToken token = _cts.Token;

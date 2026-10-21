@@ -13,6 +13,38 @@ using UnityEngine.TestTools;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
+// 型を限定しないプール契約と、有効化前の設定順を検証する派生弾。
+public class BulletInitializationProbeTests : PooledAttackBaseGameplay
+{
+    public int InitializationCount { get; private set; }
+    public int ShotCount { get; private set; }
+    public AudioSource AudioSource { get; private set; }
+    public int DamageOnEnable { get; private set; }
+    public Vector3 PositionOnEnable { get; private set; }
+    public Vector3 ForwardOnEnable { get; private set; }
+
+    public override void OnInitialize(BulletInitializationContextGameplay context)
+    {
+        Assert.IsFalse(gameObject.activeInHierarchy);
+        InitializationCount++;
+        AudioSource = context.AudioSource;
+    }
+
+    private void OnEnable()
+    {
+        Assert.AreEqual(1, InitializationCount);
+        DamageOnEnable = Parameter.Damage;
+        PositionOnEnable = transform.position;
+        ForwardOnEnable = transform.forward;
+    }
+
+    public override void OnGetFromPool()
+    {
+        Assert.IsTrue(gameObject.activeInHierarchy);
+        ShotCount++;
+    }
+}
+
 /// <summary>保存済みシーンとPrefabを使い、入力機器なしでゲーム機能の接続を確認する。</summary>
 public class SceneGameplayTests
 {
@@ -397,6 +429,8 @@ public class SceneGameplayTests
         Assert.IsTrue(Physics.Raycast(muzzle.position, player.transform.position - muzzle.position, out var hit, 20));
         Assert.AreEqual(enemy.PlayerLayer, hit.collider.gameObject.layer, "射線の最初の接触先");
         Call(move, "Update");
+        // SetDestinationの経路更新を次のフレームで確定させる。
+        yield return null;
         Assert.That(Vector3.ProjectOnPlane(agent.destination - enemy.transform.position, Vector3.up).magnitude,
             Is.LessThan(0.2f), "射程内で停止（NavMeshの床面へ投影した位置）");
         Call(attack, "Update");
@@ -422,6 +456,7 @@ public class SceneGameplayTests
         bullet.Parameter = new BulletParametersConfiguration { Damage = 7, Speed = 10, Duration = 2, RicochetCount = 0 };
         Physics.SyncTransforms();
         int health = player.Health;
+        bullet.gameObject.SetActive(true);
         bullet.OnGetFromPool();
         float deadline = Time.time + 1f;
         while (player.Health == health && Time.time < deadline) yield return null;
@@ -540,6 +575,118 @@ public class SceneGameplayTests
         Assert.AreEqual(ammo - 1, player.Attack.RemainBulletCount);
         Set(player.Attack, "_isPressedShootButton", false);
         foreach (var bullet in Object.FindObjectsOfType<BulletShotGameplay>()) bullet.OnReturnToPool();
+        LogAssert.NoUnexpectedReceived();
+    }
+
+    [UnityTest]
+    public IEnumerator WeaponDefinitionsSelectEitherPoolForBothAttackers()
+    {
+        PrepareScene();
+        yield return new EnterPlayMode();
+        yield return null;
+        var player = Object.FindObjectOfType<PlayerCoreGameplay>();
+        player.Move.enabled = false;
+        player.Attack.enabled = false;
+        var enemy = Object.FindObjectOfType<EnemyAttackGameplay>();
+        Call(enemy, "Start");
+        var pool = Object.FindObjectOfType<BulletPoolInfrastructure>();
+        var muzzle = new GameObject("DefinitionSelectionMuzzle").transform;
+        muzzle.position = new Vector3(0, 100, 0);
+        foreach (MonoBehaviour attacker in new MonoBehaviour[] { player.Attack, enemy })
+        {
+            var definition = Object.Instantiate(Field<WeaponDefinitionConfiguration>(attacker, "_definition"));
+            Set(attacker, "_definition", definition);
+            Set(attacker, "_muzzle", muzzle);
+            Set(attacker, "_synchronousBulletCount", 1);
+            foreach (var kind in new[] { BulletTypeDomain.PlayerBullet, BulletTypeDomain.EnemyBullet })
+            {
+                Set(definition, "_bulletType", kind);
+                var expected = pool.Get(kind);
+                pool.Release(kind, expected);
+                Field<WeaponAmmoStateDomain>(attacker, "_ammo").SetRemainingAmmo(2);
+                Call(attacker, "Shoot");
+                Assert.IsTrue(expected.gameObject.activeSelf, attacker.GetType().Name + ": " + kind);
+                Assert.AreEqual(1, Field<WeaponAmmoStateDomain>(attacker, "_ammo").RemainingAmmo);
+                Assert.AreEqual(muzzle.position, expected.transform.position);
+                expected.OnReturnToPool();
+                Assert.IsFalse(expected.gameObject.activeSelf);
+            }
+            Object.Destroy(definition);
+        }
+        LogAssert.NoUnexpectedReceived();
+    }
+
+    [UnityTest]
+    public IEnumerator DerivedBulletReceivesContextOnceBeforeActivationAndResetsEachShot()
+    {
+        PrepareScene();
+        yield return new EnterPlayMode();
+        yield return null;
+        Object.FindObjectOfType<PlayerAttackGameplay>().enabled = false;
+        var prefab = new GameObject("ProbeBullet");
+        prefab.SetActive(false);
+        prefab.AddComponent<BulletInitializationProbeTests>();
+        var catalog = ScriptableObject.CreateInstance<BulletPrefabCatalogConfiguration>();
+        catalog.Mappings = new System.Collections.Generic.List<BulletPrefabCatalogConfiguration.BulletPrefabMappingConfiguration>
+        {
+            new BulletPrefabCatalogConfiguration.BulletPrefabMappingConfiguration { Type = BulletTypeDomain.PlayerBullet, Prefab = prefab }
+        };
+        var owner = new GameObject("ProbePool");
+        var pool = owner.AddComponent<BulletPoolInfrastructure>();
+        pool.enabled = false;
+        Set(pool, "_objectDatabase", catalog);
+        Set(pool, "_initCount", 1);
+        // 無音の派生弾は音源なしで初期化・再利用できる。
+        Call(pool, "Start");
+        var bullet = (BulletInitializationProbeTests)pool.Get(BulletTypeDomain.PlayerBullet);
+        Assert.AreEqual(1, bullet.InitializationCount);
+        Assert.IsNull(bullet.AudioSource);
+        Assert.IsFalse(bullet.gameObject.activeSelf);
+        pool.Release(BulletTypeDomain.PlayerBullet, bullet);
+        for (int shot = 1; shot <= 2; shot++)
+        {
+            var ammo = new WeaponAmmoStateDomain(1, 0, 1);
+            owner.transform.position = new Vector3(0, 100 + shot, 0);
+            BulletFireSequenceGameplay.Fire(pool, BulletTypeDomain.PlayerBullet,
+                new BulletParametersConfiguration { Damage = shot, Speed = shot, Duration = 10 },
+                owner.transform, Vector3.right, 1, 0, ammo);
+            Assert.AreEqual(1, bullet.InitializationCount);
+            Assert.AreEqual(shot, bullet.ShotCount);
+            Assert.AreEqual(shot, bullet.DamageOnEnable);
+            Assert.AreEqual(owner.transform.position, bullet.PositionOnEnable);
+            Assert.That(Vector3.Distance(Vector3.right, bullet.ForwardOnEnable), Is.LessThan(0.0001f));
+            bullet.OnReturnToPool();
+            Assert.IsFalse(bullet.gameObject.activeSelf);
+        }
+        Object.Destroy(owner);
+        Object.Destroy(prefab);
+        Object.Destroy(catalog);
+        LogAssert.NoUnexpectedReceived();
+    }
+
+    [UnityTest]
+    public IEnumerator SilentBulletShotWorksWithoutAudioAndResetsVelocityOnReuse()
+    {
+        PrepareScene();
+        yield return new EnterPlayMode();
+        yield return null;
+        Object.FindObjectOfType<PlayerAttackGameplay>().enabled = false;
+        var pool = Object.FindObjectOfType<BulletPoolInfrastructure>();
+        var bullet = (BulletShotGameplay)pool.Get(BulletTypeDomain.PlayerBullet);
+        Set(bullet, "_shootClip", null);
+        Set(bullet, "_aus", null);
+        for (int shot = 1; shot <= 2; shot++)
+        {
+            bullet.Parameter = new BulletParametersConfiguration { Speed = shot * 3, Duration = 10 };
+            bullet.transform.position = new Vector3(0, 100, 0);
+            bullet.transform.forward = Vector3.right;
+            bullet.gameObject.SetActive(true);
+            bullet.OnGetFromPool();
+            Assert.That(Vector3.Distance(Vector3.right * shot * 3, bullet.GetComponent<Rigidbody>().velocity), Is.LessThan(0.0001f));
+            bullet.OnReturnToPool();
+            Assert.AreSame(bullet, pool.Get(BulletTypeDomain.PlayerBullet));
+        }
+        pool.Release(BulletTypeDomain.PlayerBullet, bullet);
         LogAssert.NoUnexpectedReceived();
     }
 

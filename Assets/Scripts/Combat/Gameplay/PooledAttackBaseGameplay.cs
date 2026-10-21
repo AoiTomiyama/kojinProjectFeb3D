@@ -21,7 +21,7 @@ public abstract class PooledAttackBaseGameplay : MonoBehaviour
     public abstract void OnGetFromPool();
     /// <summary>
     /// オブジェクトプールに登録する際に実行する関数
-    /// 実質的にStart関数と同義。
+    /// 非活動の生成時に一度だけ呼び、派生弾へシーンの依存を渡す。
     /// </summary>
-    public abstract void OnInitialize();
+    public abstract void OnInitialize(BulletInitializationContextGameplay context);
 }

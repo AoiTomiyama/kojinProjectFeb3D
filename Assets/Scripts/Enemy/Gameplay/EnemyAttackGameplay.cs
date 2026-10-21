@@ -84,7 +84,7 @@ public class EnemyAttackGameplay : EnemyComponentBaseGameplay
 
     private void Shoot()
     {
-        BulletFireSequenceGameplay.Fire(_poolManager, BulletTypeDomain.EnemyBullet, _bulletParameter,
+        BulletFireSequenceGameplay.Fire(_poolManager, _definition.BulletType, _bulletParameter,
             _muzzle, transform.forward, _synchronousBulletCount, _spreadAngle, _ammo);
     }
     private void OnDrawGizmos()

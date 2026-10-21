@@ -4,6 +4,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "WeaponDefinitionConfiguration", menuName = "Game/Weapon Definition")]
 public sealed class WeaponDefinitionConfiguration : ScriptableObject
 {
+    [SerializeField] private BulletTypeDomain _bulletType;
     [SerializeField] private int _maxBulletCount;
     [SerializeField] private int _synchronousBulletCount;
     [SerializeField, Range(1, 180)] private int _spreadAngle;
@@ -11,6 +12,7 @@ public sealed class WeaponDefinitionConfiguration : ScriptableObject
     [SerializeField] private float _reloadTime;
     [SerializeField] private BulletParametersConfiguration _bulletParameter;
 
+    public BulletTypeDomain BulletType => _bulletType;
     public int MaxBulletCount => _maxBulletCount;
     public int SynchronousBulletCount => _synchronousBulletCount;
     public int SpreadAngle => _spreadAngle;

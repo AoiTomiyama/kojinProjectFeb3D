@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa9a61228bbf4b6d89a0790c475bcffe, type: 3}
   m_Name: EnemyWeapon
   m_EditorClassIdentifier:
+  _bulletType: 1
   _maxBulletCount: 50
   _synchronousBulletCount: 3
   _spreadAngle: 53

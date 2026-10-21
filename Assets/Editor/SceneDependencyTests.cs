@@ -55,7 +55,6 @@ public class SceneDependencyTests
     [TestCase(typeof(PlayerAttackGameplay), "_muzzle", "Start")]
     [TestCase(typeof(EnemyAttackGameplay), "_muzzle", "Start")]
     [TestCase(typeof(BulletPoolInfrastructure), "_objectDatabase", "Start")]
-    [TestCase(typeof(BulletPoolInfrastructure), "_soundEffects", "Start")]
     [TestCase(typeof(PlayerStatusViewPresentation), "_healthImage", "Start")]
     [TestCase(typeof(PlayerStatusViewPresentation), "_healthText", "Start")]
     [TestCase(typeof(PlayerStatusViewPresentation), "_ammoText", "Start")]
@@ -112,15 +111,12 @@ public class SceneDependencyTests
         try
         {
             var bullet = instance.GetComponent<BulletShotGameplay>();
-            bullet.OnInitialize();
-            Assert.Throws<ArgumentNullException>(() => bullet.SetAudioSource(null));
+            bullet.OnInitialize(new BulletInitializationContextGameplay(null));
             var error = Assert.Throws<InvalidOperationException>(() => bullet.OnGetFromPool());
             StringAssert.Contains("AudioSource", error.Message);
             var audio = instance.AddComponent<AudioSource>();
-            bullet.SetAudioSource(audio);
-            typeof(BulletShotGameplay).GetField("_shootClip", Private).SetValue(bullet, null);
-            error = Assert.Throws<InvalidOperationException>(() => bullet.OnGetFromPool());
-            StringAssert.Contains("_shootClip", error.Message);
+            bullet.OnInitialize(new BulletInitializationContextGameplay(audio));
+            Assert.DoesNotThrow(() => bullet.OnGetFromPool());
             Assert.DoesNotThrow(() => instance.SetActive(false));
         }
         finally { Object.DestroyImmediate(instance); }

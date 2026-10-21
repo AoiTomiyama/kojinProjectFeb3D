@@ -145,7 +145,7 @@ public class PlayerAttackGameplay : PlayerComponentBaseGameplay
 
     private void Shoot()
     {
-        BulletFireSequenceGameplay.Fire(_poolManager, BulletTypeDomain.PlayerBullet, _bulletParameter,
+        BulletFireSequenceGameplay.Fire(_poolManager, _definition.BulletType, _bulletParameter,
             _muzzle, transform.forward, _synchronousBulletCount, _spreadAngle, _ammo,
             count => OnAmmoCountChanged?.Invoke(count));
     }

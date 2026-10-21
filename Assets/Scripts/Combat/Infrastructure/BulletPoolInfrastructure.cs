@@ -16,8 +16,6 @@ public class BulletPoolInfrastructure : MonoBehaviour
     {
         if (_objectDatabase == null)
             throw new System.InvalidOperationException($"{name}: BulletPoolInfrastructure._objectDatabase が設定されていません。");
-        if (_soundEffects == null)
-            throw new System.InvalidOperationException($"{name}: BulletPoolInfrastructure._soundEffects が設定されていません。");
         InitPool();
     }
     private void InitPool()
@@ -37,9 +35,8 @@ public class BulletPoolInfrastructure : MonoBehaviour
                     var bullet = Instantiate(_objectDatabase.GetGameObject(pair.Type), _inactiveRoot);
                     var component = bullet.GetComponent<PooledAttackBaseGameplay>();
                     if (component == null) throw new System.InvalidOperationException($"{bullet.name}: PooledAttackBaseGameplay が必要です。");
-                    // プール生成時に、弾が使用するシーンの効果音出力を渡す。
-                    if (component is BulletShotGameplay shot) shot.SetAudioSource(_soundEffects);
-                    component.OnInitialize();
+                    // 派生型に依存せず、初回の有効化前にシーンの依存を渡す。
+                    component.OnInitialize(new BulletInitializationContextGameplay(_soundEffects));
                     component.OnReturnToPool += () =>
                     {
                         if (component.gameObject.activeSelf)
