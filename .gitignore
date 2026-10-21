@@ -72,3 +72,13 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# Local task state and execution records
+/docs/tasks/task-list.md
+/docs/tasks/task-list.md.registrations/
+/docs/tasks/task-list.md.chronos.lock
+/docs/local/
+/docs/tasks/architecture-description-verification.md
+/docs/tasks/architecture-japanese-review.md
+/docs/tasks/architecture-presentation-verification.md
+/docs/tasks/headless-verification.md
