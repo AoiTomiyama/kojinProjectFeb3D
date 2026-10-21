@@ -41,15 +41,15 @@ flowchart TB
     PA -->|メニュー状態| Manager
     PA --> Ammo
     EA --> Ammo
-    PA -->|弾種PlayerBullet・値・muzzle| Fire
-    EA -->|弾種EnemyBullet・値・muzzle| Fire
+    PA -->|武器定義の弾種・値・muzzle| Fire
+    EA -->|武器定義の弾種・値・muzzle| Fire
     EM -->|対象・射程・mask| EC
     EA -->|対象・射程・mask| EC
     EM -->|感知・追跡・停止| Physics
     EA -->|距離・射線| Physics
     Fire --> Spread
     Fire -->|Get| Pool
-    Pool -->|生成・音源注入・有効化| Bullet
+    Pool -->|生成・共通初期化| Bullet
     Fire -->|Parameter・Transform・OnGetFromPool| Bullet
     Bullet -->|衝突先のIDamageableDomain.Damage| PC
     Bullet -->|衝突先のIDamageableDomain.Damage| EC

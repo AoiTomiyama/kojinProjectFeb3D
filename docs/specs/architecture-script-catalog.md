@@ -2,7 +2,7 @@
 
 タグ: `現行仕様` `スクリプト一覧` `責務` `依存関係` `実装根拠`
 
-対象版/日付/差分範囲は[図式索引](architecture-diagrams.md)。36ランタイムファイルを全件掲載。型名の各リンクが実ファイルで、根拠入口は依存列に記す。基底/契約欄はC#宣言であり、UnityのRequireComponentとは区別する。設定SOは共有参照、Domain状態は各所有者がnewする。
+対象版/日付/差分範囲は[図式索引](architecture-diagrams.md)。37ランタイムファイルを全件掲載。型名の各リンクが実ファイルで、根拠入口は依存列に記す。基底/契約欄はC#宣言であり、UnityのRequireComponentとは区別する。設定SOは共有参照、Domain状態は各所有者がnewする。
 
 ## Camera/Presentation
 
@@ -17,7 +17,7 @@
 | --- | --- | --- | --- |
 | [BulletParametersConfiguration](../../Assets/Scripts/Combat/Configuration/BulletParametersConfiguration.cs) | Serializable struct | 弾のダメージ・速度・寿命・反射設定値 | Duration：Unity属性/Mathf、個体へ値copy |
 | [BulletPrefabCatalogConfiguration](../../Assets/Scripts/Combat/Configuration/BulletPrefabCatalogConfiguration.cs) | ScriptableObject | 弾種とPrefabの対応検索 | Mappings/GetGameObject：BulletTypeDomain、GameObject。入れ子struct BulletPrefabMappingConfiguration(Type/Prefab) |
-| [WeaponDefinitionConfiguration](../../Assets/Scripts/Combat/Configuration/WeaponDefinitionConfiguration.cs) | ScriptableObject | 武器の初期容量・発数・角度・待機・弾設定 | getters：BulletParametersConfiguration、個体へcopy。弾種は含まない |
+| [WeaponDefinitionConfiguration](../../Assets/Scripts/Combat/Configuration/WeaponDefinitionConfiguration.cs) | ScriptableObject | 武器の弾種・初期容量・発数・角度・待機・弾設定 | getters：BulletType、BulletParametersConfiguration。弾の値は個体へcopy |
 
 ## Combat/Contracts
 
@@ -40,13 +40,14 @@
 | --- | --- | --- | --- |
 | [BulletFireSequenceGameplay](../../Assets/Scripts/Combat/Gameplay/BulletFireSequenceGameplay.cs) | static class | 両陣営共通の発射手順 | Fire：Spread、Pool、PooledAttackBase、Ammo、Transform/Quaternion、任意Action<int> |
 | [BulletShotGameplay](../../Assets/Scripts/Combat/Gameplay/BulletShotGameplay.cs) | PooledAttackBaseGameplay | 速度・寿命・命中・演出と返却 | OnInitialize/OnGetFromPool/OnCollisionEnter/OnDisable：Rigidbody、UniTask/CTS、IDamageable、AudioSource、TMP |
-| [PooledAttackBaseGameplay](../../Assets/Scripts/Combat/Gameplay/PooledAttackBaseGameplay.cs) | abstract MonoBehaviour | pool対象の設定・初期化フック・返却契約 | Parameter、OnReturnToPool、抽象OnInitialize/OnGetFromPool |
+| [BulletInitializationContextGameplay](../../Assets/Scripts/Combat/Gameplay/BulletInitializationContextGameplay.cs) | readonly struct | プール生成時に渡すシーンの依存 | 任意のAudioSource。必要性は派生弾が判断 |
+| [PooledAttackBaseGameplay](../../Assets/Scripts/Combat/Gameplay/PooledAttackBaseGameplay.cs) | abstract MonoBehaviour | pool対象の設定・初期化フック・返却契約 | Parameter、OnReturnToPool、抽象OnInitialize(context)/OnGetFromPool |
 
 ## Combat/Infrastructure
 
 | 型/実ファイル | 基底・契約・形式 | 役割 | 主要依存/根拠入口 |
 | --- | --- | --- | --- |
-| [BulletPoolInfrastructure](../../Assets/Scripts/Combat/Infrastructure/BulletPoolInfrastructure.cs) | MonoBehaviour | 弾種ごとの生成・再利用・音注入 | Start/InitPool/Get/Release：ObjectPool、カタログ、PooledAttackBase、BulletShot、AudioSource |
+| [BulletPoolInfrastructure](../../Assets/Scripts/Combat/Infrastructure/BulletPoolInfrastructure.cs) | MonoBehaviour | 弾種ごとの生成・再利用・音注入 | Start/InitPool/Get/Release：ObjectPool、カタログ、PooledAttackBase、BulletInitializationContext、AudioSource |
 
 ## Effects/Presentation
 

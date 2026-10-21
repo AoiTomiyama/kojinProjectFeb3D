@@ -71,8 +71,8 @@ CoreとPlayerAttackの通知は現状 `Action` フィールド、弾の返却通
 ### 新しい弾種を追加する
 
 1. `BulletTypeDomain` に既存の数値を変えず種類を追加し、[対応アセット](../../Assets/GameData/Combat/BulletPrefabCatalog.asset) のMappingsに1種類につき1件のPrefabを設定する。プールはStartでこの対応表から生成される。
-2. PrefabにPooledAttackBaseGameplayを継承する部品を配置し、生成時の `OnInitialize()` と発射ごとの `OnGetFromPool()` を実装する。後者では再利用時に残る状態をリセットし、無効化時には時間待機を中断する。音の自動注入は現在BulletShotGameplayへの型判定なので、別の派生型で音を使うなら注入経路も変更する。
-3. 発射元が `BulletFireSequenceGameplay.Fire()` へ新しい種類を渡すように変更する。現在はPlayerAttack・EnemyAttackがそれぞれPlayerBullet・EnemyBulletを直接指定しており、WeaponDefinitionに弾種の選択項目はない。Inspectorで選びたい場合は定義・コピー・発射引数まで追加する。
+2. PrefabにPooledAttackBaseGameplayを継承する部品を配置し、生成時の `OnInitialize(BulletInitializationContextGameplay)` と発射ごとの `OnGetFromPool()` を実装する。後者では再利用時に残る状態をリセットし、無効化時には時間待機を中断する。生成時には共通コンテキストのAudioSourceを受け取る。音声が必要かどうかは派生弾が判断する。BulletShotGameplayは射撃音クリップが未設定なら無音で発射し、設定済みなら音源を要求する。
+3. 武器の `WeaponDefinitionConfiguration.BulletType` に新しい種類を設定する。PlayerAttack・EnemyAttackはこの値を共通発射手順へ渡すため、弾種追加に伴う攻撃側・プールの型判定の追加は不要。既存5定義には従来のPlayerBulletまたはEnemyBulletを保存している。
 4. 確認: 種類とPrefabの対応、単発・複数発・残弾不足時の角度と消費、配置後の初期速度、命中とダメージ、寿命・反射回数による返却、再取得時のリセット、音とエフェクト、Play停止・再開。弾プールと命中処理はUnityで確認する。
 
 ### 新しい敵の行動を追加する

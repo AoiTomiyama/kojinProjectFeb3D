@@ -2,8 +2,9 @@
 
 タグ: `現行仕様` `クラス設計` `Mermaid` `依存関係` `設計パターン` `再開情報`
 
-- 確認日: 2026-10-11。対象コードHEAD: `e87e95adc3de00abba3ce10599032ec9e722c277`（R-01死亡処理完了版）。この文書を追加するコミットでもランタイムコードは同版。
-- 対象: 自作ランタイムC# 36ファイル、InGameシーン、関連Prefab・ScriptableObject（SO）。Editorの7既存テストクラスと強化一覧Inspectorは境界として扱う。
+- CBT-02更新日: 2026-10-21。武器の弾種選択と共通初期化コンテキストを反映。[実施記録](../tasks/bullet-type-selection.md)を参照する。
+- 基準版の確認日: 2026-10-11。対象コードHEAD: `e87e95adc3de00abba3ce10599032ec9e722c277`（R-01死亡処理完了版）。この文書を追加するコミットでもランタイムコードは同版。
+- 対象: 自作ランタイムC# 37ファイル、InGameシーン、関連Prefab・ScriptableObject（SO）。Editorの7既存テストクラスと強化一覧Inspectorは境界として扱う。
 - 作業ツリー差分: stagedのVFXシェーダーとmeta、3 URP設定、ProjectSettings、既存仕様・検証文書2件、untrackedのVfxShaderRenderingTestsとmetaを確認。ランタイムC#の未コミット変更はない。未完了V-02は描画設定/Editor検証の境界注記にのみ反映し、設計や検証済み範囲へ混入させない。
 - 原本: この文書と下記3文書のMermaidコードブロック。役割配色は説明JSONのpresentation.rolesをビューアが適用する。既存SVGは2026-10-11時点の閲覧資料として保持し、今回の囲み・配色更新は反映しない。既存の[機能責務・拡張箇所](gameplay-architecture.md)は状態所有者と拡張手順の正本、ここは図の正本。
 
@@ -136,7 +137,7 @@ flowchart LR
 | Object Pool | BulletPoolInfrastructure.Start/Get、Unity ObjectPool、PooledAttackBaseGameplay.OnReturnToPool | 種類別に生成/再利用して寿命終了時返却 | 弾のみ。敵/プレイヤー復活プールではない。Prefabのactive状態にかかわらず非活動ルート配下へ生成し、取得時に非活動のまま活動側へ移動する。設定・配置後に発射シーケンスから有効化する。全プールをOnDestroyでClearする仕組みはない |
 | カタログによる生成先選択・factory callback | BulletPrefabCatalogConfiguration.GetGameObjectとPoolのcreateFunc | enumからPrefabを選び、生成時初期化/音注入を集中 | GoF Abstract Factoryの製品群やFactory Methodの生成者継承はない |
 | 外部設定によるデータ駆動 | 初期能力値/武器/強化SO、UpgradeCatalog.CreateSnapshot、View.CreateButtons | 共通設定と個体状態を分離、強化項目からUIを生成 | SOに取得済み状態を書かない。強化の計算手順はCore/Attackに残る。SOをFlyweightパターンとして断定しない |
-| 手動の依存注入（一部） | Inspector参照、BulletShot.SetAudioSource、Selection.TryDrawの乱数Func、UpgradeButton.BindのAction | 取得元を明示、共有音源と乱数/選択経路を交換可能にする | DIコンテナなし。GetComponent/RequireUniqueで自己取得する依存も多い。乱数関数はStrategy相当の交換点だけで、戦略クラス階層はない |
+| 手動の依存注入（一部） | Inspector参照、PooledAttackBase.OnInitializeの共通コンテキスト、Selection.TryDrawの乱数Func、UpgradeButton.BindのAction | 取得元を明示、共有音源と乱数/選択経路を交換可能にする | DIコンテナなし。GetComponent/RequireUniqueで自己取得する依存も多い。乱数関数はStrategy相当の交換点だけで、戦略クラス階層はない |
 | Presenterに近い表示分離（一部） | Coordinator→LevelUpView.Show*、Core/Attack→StatusView | 確定状態の描画とボタンの意図を分離 | Coordinatorはゲーム進行も担当、View interfaceなし。厳密なMVP/MVC全体構成として断定しない |
 | 契約とポリモーフィズム | IDamageableDomain.Damage、PooledAttackBaseGameplay抽象フック | 衝突側をEnemy/Player具体型から切り離し、弾に共通フック | IDamageableはinterface実装。抽象フックだけでありTemplate Methodの基底アルゴリズムではない |
 | 明示状態＋取消トークン | WeaponAmmoStateDomain.PendingWait、Attack/BulletShotのCTS | 残弾/待機を確定し、無効化で非同期待機を終了 | enum/フラグ方式。GoF Stateの状態オブジェクトではない。死亡フラグはAwakeだけで解除、復活機能なし |

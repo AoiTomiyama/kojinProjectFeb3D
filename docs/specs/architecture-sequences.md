@@ -56,15 +56,15 @@ sequenceDiagram
     participant UI as PlayerStatusView
     A->>W: IsReady / RemainingAmmoを読む
     Note over A: Playerは入力とメニュー、Enemyは距離/射線を確認
-    A->>F: Fire（弾種、値、muzzle、向き、発数）
+    A->>F: Fire（武器定義の弾種、値、muzzle、向き、発数）
     F->>F: SpreadCalculator.GetShotCount/GetAngle
     loop 発射可能な弾数
       F->>P: Get(type)
-      P->>B: SetActive(true)
+      P->>B: SetActive(false)
       P-->>F: 弾参照
       F->>B: Parameter・position・forward設定
-      F->>B: OnGetFromPool
-      B->>B: 音・CTS寿命待機・速度・命中回数初期化
+      F->>B: SetActive(true) → OnGetFromPool
+      B->>B: 任意の音・CTS寿命待機・速度・命中回数初期化
       F->>W: TryConsumeShot
       opt Playerのみ
         F-->>UI: OnAmmoCountChanged（callback経由）

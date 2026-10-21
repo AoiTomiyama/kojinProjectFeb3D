@@ -100,7 +100,7 @@ classDiagram
           <<abstract>>
           +BulletParametersConfiguration Parameter
           +Action OnReturnToPool
-          +OnInitialize()*
+          +OnInitialize(BulletInitializationContextGameplay)*
           +OnGetFromPool()*
         }
         class WeaponAmmoStateDomain {
@@ -122,8 +122,7 @@ classDiagram
         class BulletShotGameplay {
           -int _hitCount
           -CancellationTokenSource _cts
-          +SetAudioSource(AudioSource)
-          +OnInitialize()
+          +OnInitialize(BulletInitializationContextGameplay)
           +OnGetFromPool()
         }
         class BulletPoolInfrastructure {
@@ -144,7 +143,13 @@ classDiagram
           +BulletTypeDomain Type
           +GameObject Prefab
         }
-        class WeaponDefinitionConfiguration
+        class WeaponDefinitionConfiguration {
+          +BulletTypeDomain BulletType
+        }
+        class BulletInitializationContextGameplay {
+          <<struct>>
+          +AudioSource AudioSource
+        }
         class BulletParametersConfiguration {
           <<struct>>
           +int Damage
@@ -180,9 +185,11 @@ classDiagram
     BulletFireSequenceGameplay ..> WeaponAmmoStateDomain : 残弾消費
     BulletFireSequenceGameplay ..> PooledAttackBaseGameplay : 配置と発射初期化
     BulletShotGameplay ..> IDamageableDomain : Collisionで取得し被弾通知
+    BulletPoolInfrastructure ..> BulletInitializationContextGameplay : 生成時に渡す
+    PooledAttackBaseGameplay ..> BulletInitializationContextGameplay : 初期化引数
 ```
 
-[射撃クラスSVG](diagrams/classes-combat.svg)。Mappingはカタログファイル内の値型、ObjectPoolはUnity外部クラス。弾のRigidbody/Transform/音源はUnity側に所属し図では省略。pool作成時に生成親・音源・初期化・返却delegateを設定する。Fireは現在Get（有効化）→値と配置→OnGetFromPoolの順。GoF Template MethodやAbstract Factoryとは断定しない。
+[射撃クラスSVG](diagrams/classes-combat.svg)。Mappingはカタログファイル内の値型、ObjectPoolはUnity外部クラス。弾のRigidbody/Transform/音源はUnity側に所属し図では省略。pool作成時に生成親・音源・初期化・返却delegateを設定する。FireはGet（非活動）→値と配置→有効化→OnGetFromPoolの順。GoF Template MethodやAbstract Factoryとは断定しない。
 
 ## Progression：状態・定義・表示・選択
 

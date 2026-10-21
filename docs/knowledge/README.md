@@ -20,6 +20,10 @@
 | タスク・設計図の更新 | [共通CLI更新手順](../specs/architecture-document-workflow.md) |
 | 完了した実装の検証証拠 | [既存検証](../tasks/headless-verification.md)、[死亡保証](../tasks/death-once-verification.md)、[強化定義/UI分離](../tasks/upgrade-catalog-ui.md) |
 
+## CBT-02の弾種選択
+
+2026-10-21、武器定義の弾種と派生弾の共通初期化を実装した。弾の追加手順は[現行仕様](../specs/gameplay-architecture.md#新しい弾種を追加する)、設計判断と検証は[実施記録](../tasks/bullet-type-selection.md)を参照する。
+
 ## 永続化したユーザー判断
 
 | 判断 | 根拠と現在の扱い |

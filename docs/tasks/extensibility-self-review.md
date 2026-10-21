@@ -49,6 +49,8 @@ R番号はこのレビュー内の参照IDであり、採用済みタスク番�
 
 ### R-04【中】武器設定だけでは新しい弾種を選べない
 
+2026-10-21にCBT-02として実装。武器定義のBulletTypeと共通初期化コンテキストを導入した。以下は改修前の指摘で、現行仕様は[弾種の追加手順](../specs/gameplay-architecture.md#新しい弾種を追加する)、検証は[実施記録](bullet-type-selection.md)を参照する。
+
 - 根拠: [PlayerAttackGameplay](../../Assets/Scripts/Player/Gameplay/PlayerAttackGameplay.cs) の `Shoot()`（148行付近）と [EnemyAttackGameplay](../../Assets/Scripts/Enemy/Gameplay/EnemyAttackGameplay.cs) の `Shoot()`（87行付近）が弾種を固定する。[WeaponDefinitionConfiguration](../../Assets/Scripts/Combat/Configuration/WeaponDefinitionConfiguration.cs) に弾種設定はない。プールの音声注入も `component is BulletShotGameplay`（35行付近）に限定される。
 - 条件・影響: 別の弾種や基底クラスの新しい派生実装を使うと、カタログ・Prefab以外に攻撃側やプールも変更する必要がある。
 - 改善案: 武器定義へ弾種を追加し、実装ごとに必要な初期化情報を受け取る契約を設ける。全ての弾に音を必須とするかは追加仕様に合わせて決める。

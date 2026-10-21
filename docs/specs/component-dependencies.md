@@ -29,8 +29,8 @@
 | `PlayerAimPointerGameplay`、`CameraBillboardPresentation` | なし | 照準の物理判定設定 | `Camera`、照準側のレベル管理 |
 | `UpgradeButtonPresentation` | なし | Prefab内の文字参照 | Bindで渡された定義と選択処理。シーン検索なし |
 | `CameraFollowPresentation` | なし | 追従対象、位置の補正値 | なし |
-| `BulletPoolInfrastructure` | 生成した弾の `PooledAttackBaseGameplay` | 弾データベース、効果音用 `AudioSource` | なし |
-| `BulletShotGameplay` | `Rigidbody` | 命中エフェクト、ダメージ文字、発射音。効果音出力はプールから注入 | なし |
+| `BulletPoolInfrastructure` | 生成した弾の `PooledAttackBaseGameplay` | 弾データベース、任意の効果音用 `AudioSource` | なし |
+| `BulletShotGameplay` | `Rigidbody` | 命中エフェクト、ダメージ文字、任意の発射音クリップ。音源は共通初期化コンテキストで受け取り、クリップがある場合に必須 | なし |
 
 Coreと行動部品は同じGameObjectに置く。シーン固有の参照をPrefabへ直接保存できない動的な敵・弾では、初期化時のシーン検索と生成元からの注入を使用する。`PlayerMoveGameplay._lookAt` は未設定なら旋回を行わない既存仕様を維持する。
 

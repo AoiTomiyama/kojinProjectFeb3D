@@ -762,7 +762,7 @@
           ]
         },
         "PooledAttackBaseGameplay": {
-          "description": "再利用される攻撃Objectの共通基底で、弾パラメーター値と返却用Actionを保持する。生成時OnInitializeと発射時OnGetFromPoolを抽象フックとして公開する。Poolが初期化と返却接続を設定し、Fireが配置後に発射初期化を呼ぶ。",
+          "description": "プール弾の共通基底で、弾の値と返却Actionを保持する。生成時のOnInitializeは初期化コンテキストを受け取り、有効化前に一度呼ばれる。発射ごとのOnGetFromPoolは値と位置の設定・有効化後に呼ばれる。",
           "references": [
             {
               "path": "Assets/Scripts/Combat/Gameplay/PooledAttackBaseGameplay.cs",
@@ -771,7 +771,7 @@
           ]
         },
         "BulletShotGameplay": {
-          "description": "Rigidbody・命中回数・寿命待機の取消トークンを持つ弾コンポーネントである。生成時に音源を注入され、発射ごとに速度・音・寿命を設定する。衝突で演出と被弾を発行し、反射上限や寿命終了でPoolへ返却し、無効化で待機を取消す。",
+          "description": "Rigidbodyの速度、命中回数、寿命待機を管理する弾である。生成時にコンテキストから音源を受け取り、発射時に速度と命中回数をリセットする。射撃音クリップがある場合だけ音源を要求し、無効化時は寿命待機を中断する。",
           "references": [
             {
               "path": "Assets/Scripts/Combat/Gameplay/BulletShotGameplay.cs",
@@ -780,7 +780,7 @@
           ]
         },
         "BulletPoolInfrastructure": {
-          "description": "弾種をキーにUnity ObjectPoolを保持し、カタログのPrefabから個体を生成する。生成時に共通フックを初期化し音源と返却Actionを接続する。Getは弾を有効化、Releaseは無効化するため、Fireの値と配置設定より有効化が先に起こる。",
+          "description": "弾種ごとのObjectPoolを持ち、カタログのPrefabを非活動の親へ生成する。派生型を判定せず、共通初期化コンテキストで任意の音源を渡す。取得時は非活動の弾を返し、発射側が設定後に有効化する。",
           "references": [
             {
               "path": "Assets/Scripts/Combat/Infrastructure/BulletPoolInfrastructure.cs",
@@ -807,7 +807,7 @@
           ]
         },
         "WeaponDefinitionConfiguration": {
-          "description": "装弾数・同時発射数・拡散角・cooldown・reload・弾パラメーターを提供する共有SOである。各AttackがAwakeで個体値へ複製する。実行時の残弾と強化値はAttack側にあり、弾種の選択項目はこのSOには含まれていない。",
+          "description": "武器の弾種、装弾数、同時発射数、拡散角、待機時間、弾の初期値を保存するSOである。両攻撃部品は発射時にBulletTypeを読み取り、共通発射手順へ渡す。既存武器は従来の弾種を明記する。",
           "references": [
             {
               "path": "Assets/Scripts/Combat/Configuration/WeaponDefinitionConfiguration.cs",
@@ -868,6 +868,14 @@
               "symbol": "IDamageableDomain"
             }
           ]
+        },
+        "BulletInitializationContextGameplay": {
+          "description": "プール生成時に派生弾へ渡す読み取り専用の値型で、任意のAudioSourceを保持する。基底クラスの初期化引数として扱うため、プールは具体的な弾の型に依存しない。音源の必要性は派生弾が判断する。",
+          "references": [
+            {
+              "path": "Assets/Scripts/Combat/Gameplay/BulletInitializationContextGameplay.cs"
+            }
+          ]
         }
       },
       "presentation": {
@@ -885,7 +893,8 @@
           "IDamageableDomain": "surface",
           "MonoBehaviour": "external",
           "ScriptableObject": "external",
-          "ObjectPool": "external"
+          "ObjectPool": "external",
+          "BulletInitializationContextGameplay": "surface"
         }
       },
       "number": "3.2"
@@ -1059,7 +1068,7 @@
           ]
         },
         "PA": {
-          "description": "武器設定を個体値へ複製し、残弾状態と取消トークンを所有する。Fire入力・射撃可否・強化メニュー状態を確認して共通発射手順を呼ぶ。残弾と待機時間をUIへ通知し、無効化で待機を中断、再有効化で未完了待機をやり直す。",
+          "description": "プレイヤーの射撃入力と武器の実行時値、残弾、待機を管理する。武器定義のBulletTypeを読み、弾の値・発射口と共に共通発射手順へ渡す。強化結果と残弾通知はこの個体が所有する。",
           "references": [
             {
               "path": "Assets/Scripts/Player/Gameplay/PlayerAttackGameplay.cs",
@@ -1068,7 +1077,7 @@
           ]
         },
         "EA": {
-          "description": "武器設定を個体値へ複製して残弾状態を所有する。Coreの対象・射程・レイヤーによる距離と射線判定後、EnemyBulletを共通発射手順へ渡す。UniTaskの待機を取消トークンで中断し、再有効化で未完了待機を再開始する。",
+          "description": "敵の射程と射線から射撃を開始し、残弾と待機を管理する。武器定義のBulletTypeを読み、共通発射手順へ渡す。敵の定義でプレイヤー用を含む別の登録弾も選択できる。",
           "references": [
             {
               "path": "Assets/Scripts/Enemy/Gameplay/EnemyAttackGameplay.cs",
@@ -1152,7 +1161,7 @@
           ]
         },
         "Pool": {
-          "description": "弾種をキーにUnity ObjectPoolを保持し、カタログのPrefabから個体を生成する。生成時に共通フックを初期化し音源と返却Actionを接続する。Getは弾を有効化、Releaseは無効化するため、Fireの値と配置設定より有効化が先に起こる。",
+          "description": "弾種ごとのObjectPoolを持ち、カタログのPrefabを非活動の親へ生成する。派生型を判定せず、共通初期化コンテキストで任意の音源を渡す。取得時は非活動の弾を返し、発射側が設定後に有効化する。",
           "references": [
             {
               "path": "Assets/Scripts/Combat/Infrastructure/BulletPoolInfrastructure.cs",
@@ -1161,7 +1170,7 @@
           ]
         },
         "Bullet": {
-          "description": "Rigidbody・命中回数・寿命待機の取消トークンを持つ弾コンポーネントである。生成時に音源を注入され、発射ごとに速度・音・寿命を設定する。衝突で演出と被弾を発行し、反射上限や寿命終了でPoolへ返却し、無効化で待機を取消す。",
+          "description": "Rigidbodyの速度、命中回数、寿命待機を管理する弾である。生成時にコンテキストから音源を受け取り、発射時に速度と命中回数をリセットする。射撃音クリップがある場合だけ音源を要求し、無効化時は寿命待機を中断する。",
           "references": [
             {
               "path": "Assets/Scripts/Combat/Gameplay/BulletShotGameplay.cs",
@@ -1657,10 +1666,10 @@
     },
     "architecture-sequences-2": {
       "source": "architecture-sequences.md",
-      "summary": "射撃条件確認から弾取得・配置・残弾消費、取消可能な待機と衝突返却までを示す。攻撃待機と弾衝突は並行する。Pool取得時の有効化、配置後の発射初期化、返却判定後のDamageという現行順序を示す。",
+      "summary": "武器定義の弾種による射撃、弾の設定と有効化、残弾消費、待機と衝突返却を示す。弾は非活動で取得し、値と配置を設定してから有効化・発射初期化する。攻撃待機と衝突は並行する。",
       "nodes": {
         "A": {
-          "description": "PlayerAttackとEnemyAttackの発射元をまとめた参加者である。入力または距離・射線条件と個体Ammoを確認して共通Fireへ発射値を渡す。発射後はcooldownかreloadを開始し、取消可能な待機を実行する。待機と弾の衝突は独立に進む。",
+          "description": "両攻撃部品をまとめた発射元である。入力または射線条件と残弾を確認し、武器定義の弾種・弾の値・発射口を共通Fireへ渡す。発射後は個体の残弾状態に応じて、取消可能なクールダウンや再装填の待機を実行する。",
           "references": [
             {
               "path": "Assets/Scripts/Player/Gameplay/PlayerAttackGameplay.cs",
@@ -1691,7 +1700,7 @@
           ]
         },
         "P": {
-          "description": "弾種をキーにUnity ObjectPoolを保持し、カタログのPrefabから個体を生成する。生成時に共通フックを初期化し音源と返却Actionを接続する。Getは弾を有効化、Releaseは無効化するため、Fireの値と配置設定より有効化が先に起こる。",
+          "description": "弾種ごとのObjectPoolから非活動の弾を返す。生成時に共通初期化コンテキストで任意の音源を渡し、返却Actionを接続する。Fireが値と配置を設定してから有効化し、Releaseは無効化して待機親へ戻す。",
           "references": [
             {
               "path": "Assets/Scripts/Combat/Infrastructure/BulletPoolInfrastructure.cs",
@@ -1700,7 +1709,7 @@
           ]
         },
         "B": {
-          "description": "Rigidbody・命中回数・寿命待機の取消トークンを持つ弾コンポーネントである。生成時に音源を注入され、発射ごとに速度・音・寿命を設定する。衝突で演出と被弾を発行し、反射上限や寿命終了でPoolへ返却し、無効化で待機を取消す。",
+          "description": "Rigidbodyの速度、命中回数、寿命待機を管理する弾である。生成時に音源を受け取り、発射時に速度と命中回数をリセットする。射撃音クリップがある場合だけ音源を要求し、無効化時は寿命待機を中断する。",
           "references": [
             {
               "path": "Assets/Scripts/Combat/Gameplay/BulletShotGameplay.cs",
